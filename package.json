@@ -8,7 +8,7 @@
     "prepublish": "npm run build",
     "test": "istanbul cover _mocha -- --compilers js:babel-register -R spec",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "lint": "eslint --ext .js ./src"
+    "lint": "eslint --ext .js src"
   },
   "pre-commit": [
     "lint"
