@@ -1,0 +1,25 @@
+{
+  "name": "auth-center",
+  "version": "1.0.0",
+  "description": "auth center with TOTP",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d-band/auth-center.git"
+  },
+  "keywords": [
+    "auth",
+    "center",
+    "TOTP",
+    "HOTP"
+  ],
+  "author": "d-band",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/d-band/auth-center/issues"
+  },
+  "homepage": "https://github.com/d-band/auth-center#readme"
+}
