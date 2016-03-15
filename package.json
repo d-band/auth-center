@@ -4,6 +4,10 @@
   "description": "auth center with TOTP",
   "main": "index.js",
   "scripts": {
+    "build": "rm -rf lib && babel src --out-dir lib",
+    "prepublish": "npm run build",
+    "test": "istanbul cover _mocha -- --compilers js:babel-register -R spec",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "lint": "eslint --ext .js ./src"
   },
   "pre-commit": [
@@ -26,6 +30,9 @@
   },
   "homepage": "https://github.com/d-band/auth-center#readme",
   "devDependencies": {
+    "babel-cli": "~6.6.5",
+    "babel-register": "~6.7.2",
+    "chai": "~3.5.0",
     "coveralls": "~2.11.8",
     "eslint": "~2.4.0",
     "eslint-config-standard": "~5.1.0",
