@@ -29,6 +29,9 @@
     "url": "https://github.com/d-band/auth-center/issues"
   },
   "homepage": "https://github.com/d-band/auth-center#readme",
+  "engines": {
+    "node": ">= 4"
+  },
   "devDependencies": {
     "babel-cli": "~6.6.5",
     "babel-plugin-add-module-exports": "^0.1.2",
