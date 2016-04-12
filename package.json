@@ -4,7 +4,7 @@
   "description": "auth center with TOTP",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf lib && babel src --out-dir lib",
+    "build": "rm -rf app && babel src --out-dir app",
     "prepublish": "npm run build",
     "test": "istanbul cover _mocha -- --compilers js:babel-register -R spec",
     "coveralls": "cat ./coverage/lcov.info | coveralls",

@@ -26,4 +26,4 @@ tmp/
 .buildpath
 .settings
 coverage
-lib/
+app/
