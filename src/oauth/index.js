@@ -8,3 +8,7 @@ export function * authorize(next) {
   }
   yield next;
 }
+
+export function * accessToken(next) {
+  yield next;
+}

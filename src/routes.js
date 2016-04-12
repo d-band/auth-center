@@ -14,6 +14,7 @@ export default function routes(app) {
 
   // OAuth
   router.get('/authorize', oauth.authorize);
+  router.post('/access_token', oauth.accessToken);
 
   app.use(router.routes());
   app.use(router.allowedMethods());
