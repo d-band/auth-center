@@ -34,8 +34,8 @@
   },
   "devDependencies": {
     "babel-cli": "~6.6.5",
-    "babel-plugin-add-module-exports": "^0.1.2",
-    "babel-preset-es2015-node4": "^2.0.3",
+    "babel-plugin-add-module-exports": "~0.1.2",
+    "babel-preset-es2015-node4": "~2.0.3",
     "babel-register": "~6.7.2",
     "chai": "~3.5.0",
     "coveralls": "~2.11.8",
@@ -48,5 +48,17 @@
     "pre-commit": "~1.1.2",
     "should": "~8.2.2",
     "supertest": "~1.2.0"
+  },
+  "dependencies": {
+    "koa": "~1.2.0",
+    "koa-bodyparser": "~2.0.1",
+    "koa-csrf": "~2.4.0",
+    "koa-generic-session": "~1.10.2",
+    "koa-logger": "~1.3.0",
+    "koa-orm": "0.0.4",
+    "koa-router": "~5.4.0",
+    "koa-static": "~2.0.0",
+    "koa-view": "0.0.3",
+    "mysql": "^2.10.2"
   }
 }
