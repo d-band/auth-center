@@ -45,3 +45,13 @@ Auth Center with TOTP
  *     scope        [string]
  */
 ```
+
+参考链接：
+
+- https://github.com/oauthjs/express-oauth-server/blob/master/examples/postgresql/index.js
+- https://github.com/jaredhanson/oauth2orize/tree/master/examples/express2/db
+- https://tools.ietf.org/html/rfc6749#section-4
+- https://tools.ietf.org/html/rfc6750
+- http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html
+- https://developer.github.com/v3/oauth/
+- https://github.com/guyht/notp
