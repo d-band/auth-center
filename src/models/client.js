@@ -1,29 +1,29 @@
 'use strict';
 
-module.exports = function(sequelize, DataTypes) {
+export default function(sequelize, DataTypes) {
   return sequelize.define('Client', {
     client_id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      comment: '客户端id'
+      comment: 'Client ID'
     },
     client_secret: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      comment: '客户端密钥'
+      comment: 'Client Secret'
     },
     redirect_uri: {
       type: DataTypes.DATE,
       allowNull: false,
-      comment: '跳转链接'
+      comment: 'Redirect Uri'
     }
   }, {
     tableName: 'client',
-    comment: 'Client表，存储分类的id和密钥',
-    indexes:[{
+    comment: 'Client Table',
+    indexes: [{
       unique: true,
       fields: ['client_id']
     }]
   });
-};
+}

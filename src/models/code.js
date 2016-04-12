@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(sequelize, DataTypes) {
+export default function(sequelize, DataTypes) {
   return sequelize.define('Code', {
     code: {
       type: DataTypes.STRING(100),
@@ -26,4 +26,4 @@ module.exports = function(sequelize, DataTypes) {
       fields: ['user_id']
     }]
   });
-};
+}

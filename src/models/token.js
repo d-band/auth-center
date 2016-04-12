@@ -1,21 +1,21 @@
 'use strict';
 
-module.exports = function(sequelize, DataTypes) {
+export default function(sequelize, DataTypes) {
   return sequelize.define('Token', {
     access_token: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      comment: '通过Token'
+      comment: 'Access Token'
     },
     client_id: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      comment: '客户端id'
+      comment: 'Client ID'
     },
     user_id: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      comment: '用户id'
+      comment: 'User ID'
     }
   }, {
     tableName: 'token',
@@ -26,4 +26,4 @@ module.exports = function(sequelize, DataTypes) {
       fields: ['user_id']
     }]
   });
-};
+}
