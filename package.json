@@ -1,0 +1,64 @@
+{
+  "name": "auth-center",
+  "version": "0.0.1",
+  "description": "auth center with TOTP",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf app && babel src --out-dir app",
+    "prepublish": "npm run build",
+    "test": "istanbul cover _mocha -- --compilers js:babel-register -R spec",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "lint": "eslint --ext .js src"
+  },
+  "pre-commit": [
+    "lint"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d-band/auth-center.git"
+  },
+  "keywords": [
+    "auth",
+    "center",
+    "TOTP",
+    "HOTP"
+  ],
+  "author": "d-band",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/d-band/auth-center/issues"
+  },
+  "homepage": "https://github.com/d-band/auth-center#readme",
+  "engines": {
+    "node": ">= 4"
+  },
+  "devDependencies": {
+    "babel-cli": "~6.6.5",
+    "babel-plugin-add-module-exports": "~0.1.2",
+    "babel-preset-es2015-node4": "~2.0.3",
+    "babel-register": "~6.7.2",
+    "chai": "~3.5.0",
+    "coveralls": "~2.11.8",
+    "eslint": "~2.4.0",
+    "eslint-config-standard": "~5.1.0",
+    "eslint-plugin-promise": "~1.1.0",
+    "eslint-plugin-standard": "~1.3.2",
+    "istanbul": "~0.4.2",
+    "mocha": "~2.4.5",
+    "pre-commit": "~1.1.2",
+    "should": "~8.2.2",
+    "supertest": "~1.2.0"
+  },
+  "dependencies": {
+    "koa": "~1.2.0",
+    "koa-bodyparser": "~2.0.1",
+    "koa-csrf": "~2.4.0",
+    "koa-generic-session": "~1.10.2",
+    "koa-logger": "~1.3.0",
+    "koa-orm": "0.0.4",
+    "koa-router": "~5.4.0",
+    "koa-static": "~2.0.0",
+    "koa-view": "0.0.3",
+    "mysql": "^2.10.2"
+  }
+}
