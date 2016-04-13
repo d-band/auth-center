@@ -11,7 +11,7 @@ const app = App({
   codeLifetime: 10 * 60,
   accessTokenLifetime: 60 * 60,
   orm: {
-    db: 'dbauth',
+    db: 'db_auth',
     username: 'root',
     password: '112358',
     // Supported: 'mysql', 'sqlite', 'postgres', 'mariadb'
