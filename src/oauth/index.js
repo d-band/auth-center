@@ -42,6 +42,9 @@ export default function(config) {
     const Token = this.orm().Token;
     const Code = this.orm().Code;
 
+    let isForm = this.request.is('application/x-www-form-urlencoded');
+    this.assert(isForm, 403, 'Content must be application/x-www-form-urlencoded');
+
     let {client_id, client_secret, code, redirect_uri, state} = this.request.body;
 
     this.assert(client_id, 400, 'client_id is missing.');
