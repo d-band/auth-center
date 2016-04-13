@@ -6,7 +6,7 @@ export default function(sequelize, DataTypes) {
   return sequelize.define('User', {
     username: {
       type: DataTypes.STRING(100),
-      allowNull: false,
+      primaryKey: true,
       comment: 'user name'
     },
     pass_salt: {
@@ -27,10 +27,6 @@ export default function(sequelize, DataTypes) {
   }, {
     tableName: 'user',
     comment: 'user base info',
-    indexes: [{
-      unique: true,
-      fields: ['username']
-    }],
     classMethods: {
       auth: function * (username, password) {
         let user = yield * this.findByName(username);
