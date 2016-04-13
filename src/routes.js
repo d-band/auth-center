@@ -13,7 +13,7 @@ export default function routes(app) {
   router.get('/user', user.getInfo);
 
   // OAuth
-  router.get('/authorize', oauth.authorize);
+  router.get('/authorize', user.checkLogin, oauth.authorize);
   router.post('/access_token', oauth.accessToken);
 
   app.use(router.routes());
