@@ -17,6 +17,11 @@ export default function(sequelize, DataTypes) {
       type: DataTypes.STRING(100),
       allowNull: false,
       comment: 'user id'
+    },
+    redirect_uri: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      comment: 'Redirect Uri'
     }
   }, {
     tableName: 'code',

@@ -13,7 +13,7 @@ export default function(sequelize, DataTypes) {
       comment: 'Client Secret'
     },
     redirect_uri: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING(255),
       allowNull: false,
       comment: 'Redirect Uri'
     },
