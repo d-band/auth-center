@@ -1,6 +1,6 @@
 'use strict';
 
-import { checkURI, generateToken, buildURI } from '../util';
+import { checkURI, buildURI } from '../util';
 
 export function * authorize() {
   const Client = this.orm().Client;
