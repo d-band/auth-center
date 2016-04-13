@@ -3,7 +3,6 @@
 import crypto from 'crypto';
 import { parse, format } from 'url';
 
-
 export function makeSalt() {
   return Math.round((new Date().valueOf() * Math.random())) + '';
 }
@@ -22,9 +21,9 @@ export function checkURI(base, checked) {
   url1.pathname = url1.pathname || '/';
   url2.pathname = url2.pathname || '/';
 
-  return url1.hostname === url2.hostname
-    && url1.port === url2.port
-    && url2.pathname.indexOf(url1.pathname) === 0;
+  return url1.hostname === url2.hostname &&
+    url1.port === url2.port &&
+    url2.pathname.indexOf(url1.pathname) === 0;
 }
 
 export function generateToken() {
@@ -33,7 +32,7 @@ export function generateToken() {
 }
 
 export function buildURI(uri, query) {
-  let obj = parse(cleanUrl, true);
+  let obj = parse(uri, true);
   Object.assign(obj.query, query);
   delete obj.search;
   return format(obj);
