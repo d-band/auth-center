@@ -9,7 +9,7 @@ const app = App({
   staticPath: join(__dirname, 'public'),
   viewPath: join(__dirname, 'views'),
   orm: {
-    db: 'dbauth',
+    db: 'db_auth',
     username: 'root',
     password: '112358',
     // Supported: 'mysql', 'sqlite', 'postgres', 'mariadb'
