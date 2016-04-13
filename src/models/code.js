@@ -5,21 +5,21 @@ export default function(sequelize, DataTypes) {
     code: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      comment: '通过code'
+      comment: 'access code'
     },
     client_id: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      comment: '客户端id'
+      comment: 'client id'
     },
     user_id: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      comment: '用户id'
+      comment: 'user id'
     }
   }, {
     tableName: 'code',
-    comment: 'Code表，登录验证通过',
+    comment: 'Code Tale，using when login success',
     indexes: [{
       fields: ['client_id']
     }, {
