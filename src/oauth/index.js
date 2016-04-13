@@ -72,7 +72,6 @@ export default function(config) {
       user_id: _code.user_id
     });
 
-    this.set('Content-Type', 'application/json');
     this.set('Cache-Control', 'no-store');
     this.set('Pragma', 'no-cache');
     this.body = {
