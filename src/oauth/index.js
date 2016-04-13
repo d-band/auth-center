@@ -1,6 +1,6 @@
 'use strict';
 
-import { checkURI, generateToken, buildURI } from '../util';
+import { checkURI, buildURI } from '../util';
 
 export function * authorize() {
   const Client = this.orm().Client;
@@ -26,13 +26,12 @@ export function * authorize() {
   }
 
   let code = yield Code.create({
-    code: generateToken(),
     user_id: user.id,
     client_id: client.id
   });
 
   this.redirect(buildURI(redirectURI, {
-    code: code.code,
+    code: code.id,
     state: this.query.state
   }));
 }
