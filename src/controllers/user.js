@@ -1,10 +1,14 @@
 'use strict';
 
+import { buildURI } from '../util';
+
 export function * checkLogin(next) {
   if (this.session.user) {
     yield next;
   } else {
-    this.redirect(`/login?return_to=${encodeURIComponent(this.url)}`);
+    this.redirect(buildURI('/login', {
+      return_to: this.url
+    }));
   }
 }
 
