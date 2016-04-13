@@ -10,6 +10,8 @@ import csrf from 'koa-csrf';
 import orm from 'koa-orm';
 
 import routes from './routes';
+import error from './middlewares/error';
+import flash from './middlewares/flash';
 
 export default function(config) {
   const app = koa();
@@ -23,7 +25,7 @@ export default function(config) {
   }));
 
   /** Sessions **/
-  app.keys = config.keys || null;
+  app.keys = config.keys || ['auth', 'center'];
   app.use(session({
     key: 'sid'
   }, app));
@@ -40,12 +42,12 @@ export default function(config) {
   /** CSRF */
   csrf(app);
 
-  /** Libs **/
-  // flash(app);
-  // locals(app);
+  /** Middlewares **/
+  error(app);
+  flash(app);
 
   /** Router **/
-  routes(app);
+  routes(app, config);
 
   return app;
 }

@@ -8,6 +8,8 @@ const app = App({
   debug: true,
   staticPath: join(__dirname, 'public'),
   viewPath: join(__dirname, 'views'),
+  codeLifetime: 10 * 60,
+  accessTokenLifetime: 60 * 60,
   orm: {
     db: 'dbauth',
     username: 'root',
