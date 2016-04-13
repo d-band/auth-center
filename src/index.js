@@ -16,6 +16,11 @@ import flash from './middlewares/flash';
 export default function(config) {
   const app = koa();
 
+  app.use(function * injectConfig(next) {
+    this.config = config;
+    yield * next;
+  });
+
   app.use(bodyParser());
   app.use(logger());
 

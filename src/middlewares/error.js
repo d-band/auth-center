@@ -3,7 +3,7 @@
 import { buildURI } from '../util';
 
 export default function(app) {
-  app.use(function * (next) {
+  app.use(function * errorHandler(next) {
     try {
       yield next;
       if (404 === this.response.status && !this.response.body) this.throw(404);

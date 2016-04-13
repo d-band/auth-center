@@ -3,7 +3,7 @@
 export default function(app) {
   let key = 'messages';
 
-  app.use(function * (next) {
+  app.use(function * flashHandler(next) {
     let ctx = this;
     this.state[key] = ctx.session[key] || {};
 
