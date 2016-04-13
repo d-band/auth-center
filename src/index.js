@@ -38,7 +38,7 @@ export default function(config) {
   app.use(app.orm.middleware);
 
   /** CSRF */
-  app.use(csrf());
+  csrf(app);
 
   /** Libs **/
   // flash(app);

@@ -2,40 +2,103 @@
 
 import { checkURI, buildURI } from '../util';
 
-export function * authorize() {
-  const Client = this.orm().Client;
-  const Code = this.orm().Code;
+export default function(config) {
+  function * authorize() {
+    const Client = this.orm().Client;
+    const Code = this.orm().Code;
 
-  let user = this.session.user;
-  let clientID = this.query.client_id;
-  let redirectURI = this.query.redirect_uri;
+    let user = this.session.user;
+    let {client_id, redirect_uri, state} = this.query;
 
-  this.assert(clientID, 400, 'client_id is missing.');
+    this.assert(client_id, 400, 'client_id is missing.');
 
-  let client = yield Client.findById(clientID);
+    let client = yield Client.findById(client_id);
 
-  this.assert(client, 403, 'client_id is invalid.');
+    this.assert(client, 401, 'client_id is invalid.');
 
-  if (redirectURI) {
-    let isChecked = checkURI(client.redirect_uri, redirectURI);
-    this.assert(isChecked, 400, 'redirect_uri is invalid.', {
-      returnTo: client.redirect_uri
+    if (redirect_uri) {
+      let isChecked = checkURI(client.redirect_uri, redirect_uri);
+      this.assert(isChecked, 401, 'redirect_uri is invalid.', {
+        returnTo: client.redirect_uri
+      });
+    } else {
+      redirect_uri = client.redirect_uri;
+    }
+
+    let code = yield Code.create({
+      user_id: user.id,
+      client_id: client.id,
+      redirect_uri: redirect_uri
     });
-  } else {
-    redirectURI = client.redirect_uri;
+
+    this.redirect(buildURI(redirect_uri, {
+      code: code.id,
+      state: state
+    }));
   }
 
-  let code = yield Code.create({
-    user_id: user.id,
-    client_id: client.id
-  });
+  function * accessToken() {
+    const Client = this.orm().Client;
+    const Token = this.orm().Token;
+    const Code = this.orm().Code;
 
-  this.redirect(buildURI(redirectURI, {
-    code: code.id,
-    state: this.query.state
-  }));
-}
+    let {client_id, client_secret, code, redirect_uri, state} = this.request.body;
 
-export function * accessToken(next) {
-  yield next;
+    this.assert(client_id, 400, 'client_id is missing.');
+    this.assert(client_secret, 400, 'client_secret is missing.');
+    this.assert(redirect_uri, 400, 'redirect_uri is missing.');
+    this.assert(code, 400, 'code is missing.');
+
+    let client = Client.findById(client_id);
+
+    this.assert(client, 401, 'client_id is invalid.');
+    this.assert(client.secret === client_secret, 401, 'client_secret is invalid.');
+
+    let _code = Code.findById(code);
+
+    this.assert(_code, 401, 'code is invalid.');
+
+    let expiresAt = _code.createAt.getTime() + config.codeLifetime * 1000;
+    this.assert(expiresAt < Date.now(), 401, 'code expired.');
+
+    let isChecked = checkURI(_code.redirect_uri, redirect_uri);
+    this.assert(isChecked, 401, 'redirect_uri is invalid.');
+
+    let token = yield Token.create({
+      client_id: client.id,
+      user_id: _code.user_id
+    });
+
+    this.set('Content-Type', 'application/json');
+    this.set('Cache-Control', 'no-store');
+    this.set('Pragma', 'no-cache');
+    this.body = {
+      access_token: token.id,
+      token_type: 'bearer',
+      expires_in: config.accessTokenLifetime,
+      state: state
+    };
+  }
+
+  function * authenticate(next) {
+    const Token = this.orm().Token;
+    const _accessToken = this.query.access_token;
+
+    this.assert(_accessToken, 400, 'access_token is missing.');
+
+    let token = yield Token.findById(_accessToken);
+
+    this.assert(token, 401, 'access_token is invalid.');
+
+    let expiresAt = token.createAt.getTime() + config.accessTokenLifetime * 1000;
+    this.assert(expiresAt < Date.now(), 401, 'access_token expired.');
+
+    yield next;
+  }
+
+  return {
+    authorize,
+    accessToken,
+    authenticate
+  };
 }

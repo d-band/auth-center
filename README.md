@@ -36,7 +36,7 @@ Auth Center with TOTP
  *     client_id     [string] Required
  *     client_secret [string] Required
  *     code          [string] Required
- *     redirect_uri  [string]
+ *     redirect_uri  [string] Required
  *     state         [string]
  *   Res:
  *     access_token [string] Required
