@@ -2,9 +2,10 @@
 
 export default function(sequelize, DataTypes) {
   return sequelize.define('Code', {
-    code: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
       comment: 'access code'
     },
     client_id: {
@@ -22,8 +23,6 @@ export default function(sequelize, DataTypes) {
     comment: 'Code Tale，using when login success',
     indexes: [{
       fields: ['client_id']
-    }, {
-      fields: ['user_id']
     }]
   });
 }
