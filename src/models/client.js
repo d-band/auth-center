@@ -2,12 +2,12 @@
 
 export default function(sequelize, DataTypes) {
   return sequelize.define('Client', {
-    client_id: {
+    id: {
       type: DataTypes.STRING(100),
       primaryKey: true,
       comment: 'Client ID'
     },
-    client_secret: {
+    secret: {
       type: DataTypes.STRING(100),
       allowNull: false,
       comment: 'Client Secret'

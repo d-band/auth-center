@@ -2,9 +2,10 @@
 
 export default function(sequelize, DataTypes) {
   return sequelize.define('Token', {
-    access_token: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
       comment: 'Access Token'
     },
     client_id: {
@@ -19,11 +20,6 @@ export default function(sequelize, DataTypes) {
     }
   }, {
     tableName: 'token',
-    comment: 'Token表，验证身份通过',
-    indexes: [{
-      fields: ['client_id']
-    }, {
-      fields: ['user_id']
-    }]
+    comment: 'Token table，use to get info'
   });
 }
