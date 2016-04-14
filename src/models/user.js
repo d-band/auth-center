@@ -21,7 +21,6 @@ export default function(sequelize, DataTypes) {
     },
     totp_key: {
       type: DataTypes.STRING(100),
-      allowNull: false,
       comment: 'user totp key'
     }
   }, {
