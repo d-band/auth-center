@@ -22,12 +22,14 @@ const app = App({
       maxConnections: 10,
       minConnections: 0,
       maxIdleTime: 30000
-    }
+    },
+    modelPath: join(__dirname, 'app/models')
   }
 });
 
 /** Start **/
 if (!module.parent) {
   app.listen(3000);
+  app.orm.database().sequelize.sync();
   console.log(`Running site at: http://127.0.0.1:3000`);
 }
