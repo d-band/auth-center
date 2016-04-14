@@ -6,4 +6,5 @@ node_modules
 examples
 coverage
 test
-src
+src/
+assets/

@@ -19,11 +19,12 @@ Thumbs.db
 *.sublime-workspace
 
 npm-debug.log
-node_modules/
-spm_modules/
+node_modules
+spm_modules
 tmp/
 
 .buildpath
 .settings
 coverage
 app/
+public/
