@@ -40,8 +40,7 @@ export default function(sequelize, DataTypes) {
       findByName: function * (username) {
         return yield this.find({
           where: {
-            username: username,
-            enabled: 1
+            username: username
           }
         });
       },
