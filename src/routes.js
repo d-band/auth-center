@@ -3,6 +3,7 @@
 import Router from 'koa-router';
 import OAuth from './oauth';
 import * as user from './controllers/user';
+import * as admin from './controllers/admin';
 
 function * csrf(next) {
   this.assertCSRF(this.request.body);
@@ -12,6 +13,7 @@ function * csrf(next) {
 export default function routes(app, config) {
   const R = Object.assign({
     home: '/',
+    clients: '/clients',
     login: '/login',
     password_reset: '/password_reset',
     password_change: '/password_change',
@@ -34,6 +36,10 @@ export default function routes(app, config) {
   // OAuth
   router.get(R.authorize, user.checkLogin, oauth.authorize);
   router.post(R.access_token, oauth.accessToken);
+
+  // Admin
+  router.get(R.home, user.checkLogin, admin.userList);
+  router.get(R.clients, user.checkLogin, admin.clientList);
 
   app.use(function * injectParams(next) {
     this.state._csrf = this.csrf;
