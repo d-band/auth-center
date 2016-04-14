@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="format-detection" content="telephone=no,email=no">
   <meta name="description" content="Auth Center"/>
-  <title>Sign in</title>
+  <title>{{__("Sign in to system")}}</title>
   <link rel="shortcut icon" type="image/x-icon" href="//7xjsgs.com1.z0.glb.clouddn.com/favicon.ico">
   <link rel="stylesheet" href="/main.css">
 </head>
@@ -17,24 +17,25 @@
     <img height="48" src="http://7xl0ai.com2.z0.glb.qiniucdn.com/oa-static/0.0.8/c/img/logo.png" alt="www.cnood.com">
   </div>
   <div class="auth-form">
-    <form action="#">
+    <form action="{{_routes.session}}" method="POST">
+      <input type="hidden" name="_csrf" value="{{_csrf}}">
       <div class="auth-form-header">
-        <h1>{{__("Sign in")}}</h1>
+        <h1>{{__("Sign in to system")}}</h1>
       </div>
       <div class="auth-form-body">
         <div class="input-wrap">
-          <input type="text" placeholder="Username or email address">
+          <input type="text" placeholder="{{__("Username or email address")}}">
         </div>
         <div class="input-wrap">
-          <input type="password" placeholder="Password">
+          <input type="password" placeholder="{{__("Password")}}">
         </div>
         <div class="input-wrap">
-          <button class="btn btn-primary btn-block">Sign In</button>
+          <button class="btn btn-primary btn-block">{{__("Sign In")}}</button>
         </div>
       </div>
     </form>
     <div class="bottom-link">
-      <a href="#">Lost your password?</a>
+      <a href="{{_routes.password_reset}}">{{__("Lost your password")}}</a>
     </div>
   </div>
 </body>
