@@ -12,6 +12,7 @@ import orm from 'koa-orm';
 import routes from './routes';
 import error from './middlewares/error';
 import flash from './middlewares/flash';
+import I18n from './i18n';
 
 export default function(config) {
   const app = koa();
@@ -35,9 +36,24 @@ export default function(config) {
     key: 'sid'
   }, app));
 
-  /** View **/
+  const i18n = new I18n(config.messages);
+
+  app.use(function * injectI18n(next) {
+    if (this.query.locale) {
+      this.session.locale = this.query.locale;
+    }
+    i18n.setLocale(this.session.locale);
+    yield * next;
+  });
+
+  /** View & i18n **/
   app.use(view(config.viewPath, {
-    noCache: config.debug
+    noCache: config.debug,
+    globals: {
+      __: function(key) {
+        return i18n.message(key);
+      }
+    }
   }));
 
   /** ORM **/
