@@ -11,6 +11,7 @@ function * csrf(next) {
 
 export default function routes(app, config) {
   const R = Object.assign({
+    home: '/',
     login: '/login',
     password_reset: '/password_reset',
     password_change: '/password_change',
