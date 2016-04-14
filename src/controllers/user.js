@@ -48,6 +48,7 @@ export function * session() {
   let returnTo = this.session.returnTo;
 
   this.session.returnTo = null;
+  this.session.user = user;
   this.redirect(returnTo || this.state._routes.home);
 }
 
