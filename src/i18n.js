@@ -6,6 +6,7 @@ import { join } from 'path';
 export default class I18n {
 
   constructor(messages) {
+    this._path = join(__dirname, '../i18n');
     this._userMessages = messages || {};
     this.setLocale('en');
   }
@@ -14,14 +15,14 @@ export default class I18n {
     if (!locale || this._locale === locale) return;
 
     let temp = this._userMessages[locale] || {};
-    let file = join(__dirname, locale + '.js');
+    let file = join(this._path, locale + '.json');
 
     if (existsSync(file)) {
       this._locale = locale;
-      this._messages = Object.assign(require(file)(), temp);
+      this._messages = Object.assign(require(file), temp);
     } else {
       this._locale = 'en';
-      this._messages = Object.assign(require('./en')(), temp);
+      this._messages = Object.assign(require(join(this._path, './en.json')), temp);
     }
   }
 
