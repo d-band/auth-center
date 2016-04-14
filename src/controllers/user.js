@@ -6,7 +6,7 @@ export function * checkLogin(next) {
   if (this.session.user) {
     yield next;
   } else {
-    this.redirect(buildURI('/login', {
+    this.redirect(buildURI(this.state._routes.login, {
       return_to: this.url
     }));
   }
@@ -25,6 +25,7 @@ export function * passwordChange() {
 }
 
 export function * session(next) {
+  this.body = 'hello world';
   yield next;
 }
 
