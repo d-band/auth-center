@@ -15,6 +15,8 @@ export default function routes(app, config) {
 
   // User
   router.get('/login', user.login);
+  router.get('/password_reset', user.passwordReset);
+  router.get('/password_change', user.passwordChange);
   router.post('/session', csrf, user.session);
   router.get('/user', oauth.authenticate, user.getInfo);
 

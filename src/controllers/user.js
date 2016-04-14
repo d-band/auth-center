@@ -12,9 +12,16 @@ export function * checkLogin(next) {
   }
 }
 
-export function * login(next) {
-  this.body = 'hello:' + this.query.return_to;
-  yield next;
+export function * login() {
+  yield this.render('login');
+}
+
+export function * passwordReset() {
+  yield this.render('reset');
+}
+
+export function * passwordChange() {
+  yield this.render('change');
 }
 
 export function * session(next) {
