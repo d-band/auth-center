@@ -29,9 +29,10 @@ a {
   color: #2db7f5;
   text-decoration: none;
   transition: color .3s ease;
-}
-a:hover {
-  color: #149EDC;
+
+  &:hover {
+    color: #149EDC;
+  }
 }
 .header-logo {
   padding: 40px 0 20px;
@@ -45,10 +46,11 @@ a:hover {
   margin-bottom: 15px;
   color: #333;
   text-align: center;
-}
-.auth-form-header h1 {
-  font-size: 20px;
-  font-weight: 300;
+
+  h1 {
+    font-size: 20px;
+    font-weight: 300;
+  }
 }
 .auth-form-body {
   border-top: 1px solid #d8dee2;
@@ -57,23 +59,25 @@ a:hover {
 }
 .input-wrap {
   margin-bottom: 15px;
-}
-.input-wrap input {
-  width: 100%;
-  height: 42px;
-  line-height: 1.42857143;
-  padding: 6px 12px;
-  transition: border 300ms linear;
-  border: 1px solid #e4e4e4;
-  border-radius: 3px;
-  font-size: 14px;
-  color: #555;
-  background-color: #fff;
-  background-image: none;
-  -webkit-appearance: none;
-}
-.input-wrap input:focus {
-  border-color: #0ac2ff;
+
+  input {
+    width: 100%;
+    height: 42px;
+    line-height: 1.42857143;
+    padding: 6px 12px;
+    transition: border 300ms linear;
+    border: 1px solid #e4e4e4;
+    border-radius: 3px;
+    font-size: 14px;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    -webkit-appearance: none;
+
+    &:focus {
+      border-color: #0ac2ff;
+    }
+  }
 }
 .btn {
   display: inline-block;
@@ -91,22 +95,20 @@ a:hover {
   line-height: 1.42857143;
   border-radius: 3px;
   user-select: none;
-}
-.btn:focus, .btn:hover {
-  color: #333;
-  text-decoration: none;
+
+  &:focus, &:hover {
+    color: #333;
+    text-decoration: none;
+  }
 }
 .btn-primary {
   color: #fff;
   background-color: #2db7f5;
-}
-.btn-primary:focus {
-  color: #fff;
-  background-color: #149EDC;
-}
-.btn-primary:active, .btn-primary:hover {
-  color: #fff;
-  background-color: #149EDC;
+
+  &:focus, &:active, &:hover {
+    color: #fff;
+    background-color: #149EDC;
+  }
 }
 .btn-block {
   display: block;
