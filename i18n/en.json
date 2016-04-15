@@ -1,7 +1,13 @@
 {
   "Sign in to system": "Sign in to CNOOD",
   "Sign In": "Sign In",
-  "Lost your password": "Lost your password?",
+  "Lost your password?": "Lost your password?",
   "Username or email address": "Username or email address",
-  "Password": "Password"
+  "Password": "Password",
+  "Reset your password": "Reset your password",
+  "Enter your email address and we will send you a link to reset your password.": "Enter your email address and we will send you a link to reset your password.",
+  "Enter your email address": "Enter your email address",
+  "Send Email": "Send Email",
+  "Change password": "Change password",
+  "Confirm password": "Confirm password"
 }

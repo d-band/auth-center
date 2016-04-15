@@ -27,7 +27,7 @@ export default class I18n {
   }
 
   message(key) {
-    return this._messages[key] || '';
+    return this._messages[key] || key;
   }
 
 }
