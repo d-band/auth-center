@@ -62,6 +62,7 @@
     "koa-static": "~2.0.0",
     "koa-view": "0.0.3",
     "mysql": "~2.10.2",
+    "nodemailer": "~2.3.2",
     "validator": "~5.2.0"
   }
 }
