@@ -9,6 +9,12 @@ export default function(sequelize, DataTypes) {
       primaryKey: true,
       comment: 'user name'
     },
+    email: {
+      type: DataTypes.STRING(100),
+      unique: true,
+      allowNull: false,
+      comment: 'user email'
+    },
     pass_salt: {
       type: DataTypes.STRING(100),
       allowNull: false,
@@ -27,41 +33,44 @@ export default function(sequelize, DataTypes) {
     tableName: 'user',
     comment: 'user base info',
     classMethods: {
-      auth: function * (username, password) {
-        let user = yield * this.findByName(username);
-        if (user) {
-          let hash = encrypt(password, user.pass_salt);
-          if (user.pass_hash !== hash) {
-            user = null;
-          }
+      auth: function*(username, password) {
+        let user = yield this.findById(username);
+
+        if (!user) {
+          user = yield this.findByEmail(username);
         }
+
+        if (!user) return null;
+
+        if (user.pass_hash !== encrypt(password, user.pass_salt)) {
+          return null;
+        }
+
+        user.pass_hash = null;
+        user.pass_salt = null;
         return user;
       },
-      findByName: function * (username) {
+      findByEmail: function*(email) {
         return yield this.find({
           where: {
-            username: username
+            email: email
           }
         });
       },
-      add: function * (user) {
-        let roles = user.roles || '';
+      add: function*(user) {
         let salt = makeSalt();
-        let row = this.build({
+        return yield this.create({
           username: user.username,
           email: user.email,
           pass_salt: salt,
-          pass_hash: encrypt(user.password, salt),
-          roles: roles
+          pass_hash: encrypt(user.password, salt)
         });
-
-        return yield row.save();
       },
-      changepwd: function * (username, newpwd) {
+      changePassword: function*(username, newPassword) {
         let salt = makeSalt();
         return yield this.update({
           pass_salt: salt,
-          pass_hash: encrypt(newpwd, salt)
+          pass_hash: encrypt(newPassword, salt)
         }, {
           where: {
             username: username

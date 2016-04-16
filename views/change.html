@@ -17,7 +17,8 @@
     <img height="48" src="http://7xl0ai.com2.z0.glb.qiniucdn.com/oa-static/0.0.8/c/img/logo.png" alt="www.cnood.com">
   </div>
   <div class="auth-form">
-    <form action="#">
+    <form action="{{_routes.password_change}}" method="POST">
+      <input type="hidden" name="_csrf" value="{{_csrf}}">
       <div class="auth-form-header">
         <h1>{{__("Change password")}}</h1>
       </div>

@@ -26,11 +26,19 @@ export default function routes(app, config) {
   const oauth = OAuth(config);
   const router = Router();
 
-  // User
+  // Login
   router.get(R.login, user.login);
-  router.get(R.password_reset, user.passwordReset);
-  router.get(R.password_change, user.passwordChange);
   router.post(R.session, csrf, user.session);
+
+  // Reset password
+  router.get(R.password_reset, user.passwordResetPage);
+  router.post(R.password_reset, user.passwordReset);
+
+  // Change password
+  router.get(R.password_change, user.passwordChangePage);
+  router.post(R.password_change, user.passwordChange);
+
+  // API: get user info
   router.get(R.user, oauth.authenticate, user.getInfo);
 
   // OAuth
@@ -43,7 +51,7 @@ export default function routes(app, config) {
 
   app.use(function * injectParams(next) {
     this.state._csrf = this.csrf;
-    this.state._routes = R;
+    this._routes = this.state._routes = R;
     yield * next;
   });
   app.use(router.routes());

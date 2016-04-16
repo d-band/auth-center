@@ -12,6 +12,7 @@ import orm from 'koa-orm';
 import routes from './routes';
 import error from './middlewares/error';
 import flash from './middlewares/flash';
+import mail from './middlewares/mail';
 import I18n from './i18n';
 
 export default function(config) {
@@ -66,6 +67,7 @@ export default function(config) {
   /** Middlewares **/
   error(app);
   flash(app);
+  mail(app, config);
 
   /** Router **/
   routes(app, config);
