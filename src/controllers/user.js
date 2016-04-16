@@ -75,7 +75,7 @@ export function * passwordReset() {
       ttl: this._config.emailCodeTTL / 3600,
       link: `${this._config.domain}${this._routes.password_change}?code=${code}`
     });
-    this.flash('success', 'Check your email for a link to reset your password.')
+    this.flash('success', 'Check your email for a link to reset your password.');
     this.redirect(this._routes.login);
   } catch (e) {
     console.error(e.stack);

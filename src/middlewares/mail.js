@@ -21,7 +21,7 @@ export default function(app, config) {
   app.use(function * mailHandler(next) {
     if (this.sendMail) return yield * next;
 
-    this.sendMail = function* (to, template, context) {
+    this.sendMail = function * (to, template, context) {
       let tpl = Object.assign({}, templates[template], TPL[template]);
       let sender = transport.templateSender(tpl, {
         from: mail.from
