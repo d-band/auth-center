@@ -85,14 +85,81 @@ export function * passwordReset() {
 }
 
 export function * passwordChangePage() {
+  const EmailCode = this.orm().EmailCode;
+
+  let codeId = this.query.code;
+
+  if (!codeId) {
+    this.flash('error', 'Code is required');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
+
+  let code = yield EmailCode.findById(codeId);
+  if (!code) {
+    this.flash('error', 'Code is invalid');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
+
+  let expiresAt = code.createAt.getTime() + this._config.emailCodeTTL * 1000;
+  if (expiresAt < Date.now()) {
+    this.flash('error', 'Code is expired');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
   yield this.render('change');
 }
 
 export function * passwordChange() {
-  yield this.render('change');
+  const User = this.orm().User;
+  const EmailCode = this.orm().EmailCode;
+
+  let {password, password2, codeId} = this.request.body;
+
+  if (!codeId) {
+    this.flash('error', 'Code is required');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
+
+  let code = yield EmailCode.findById(codeId);
+  if (!code) {
+    this.flash('error', 'Code is invalid');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
+
+  let expiresAt = code.createAt.getTime() + this._config.emailCodeTTL * 1000;
+  if (expiresAt < Date.now()) {
+    this.flash('error', 'Code is expired');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
+
+  if (!password || !password2 || password !== password2 || password.length < 8) {
+    this.flash('error', 'Password is invalid');
+    this.redirect('back');
+    return;
+  }
+
+  // TODO: add transaction
+  yield User.changePassword(code.user_id, password);
+  yield EmailCode.destroy({
+    where: {
+      id: codeId
+    }
+  });
+
+  this.flash('success', 'Password have changed');
+  this.redirect(this._routes.login);
 }
 
 export function * getInfo(next) {
-  this.body = 'hello world';
-  yield next;
+  const User = this.orm().User;
+
+  this.body = yield User.findById(this._userId, {
+    attributes: ['username', 'email'],
+    raw: true
+  });
 }

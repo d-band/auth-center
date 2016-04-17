@@ -95,6 +95,7 @@ export default function(config) {
     let expiresAt = token.createAt.getTime() + config.accessTokenTTL * 1000;
     this.assert(expiresAt < Date.now(), 401, 'access_token expired.');
 
+    this._userId = token.user_id;
     yield next;
   }
 
