@@ -61,7 +61,7 @@ export default function(config) {
 
     this.assert(_code, 401, 'code is invalid.');
 
-    let expiresAt = _code.createAt.getTime() + config.codeLifetime * 1000;
+    let expiresAt = _code.createAt.getTime() + config.codeTTL * 1000;
     this.assert(expiresAt < Date.now(), 401, 'code expired.');
 
     let isChecked = checkURI(_code.redirect_uri, redirect_uri);
@@ -77,7 +77,7 @@ export default function(config) {
     this.body = {
       access_token: token.id,
       token_type: 'bearer',
-      expires_in: config.accessTokenLifetime,
+      expires_in: config.accessTokenTTL,
       state: state
     };
   }
@@ -92,7 +92,7 @@ export default function(config) {
 
     this.assert(token, 401, 'access_token is invalid.');
 
-    let expiresAt = token.createAt.getTime() + config.accessTokenLifetime * 1000;
+    let expiresAt = token.createAt.getTime() + config.accessTokenTTL * 1000;
     this.assert(expiresAt < Date.now(), 401, 'access_token expired.');
 
     yield next;

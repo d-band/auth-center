@@ -19,7 +19,7 @@ export default function(config) {
   const app = koa();
 
   app.use(function * injectConfig(next) {
-    this.config = config;
+    this._config = config;
     yield * next;
   });
 
