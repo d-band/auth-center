@@ -9,13 +9,15 @@ import statik from 'koa-static';
 import csrf from 'koa-csrf';
 import orm from 'koa-orm';
 
+import Config from './config';
 import routes from './routes';
 import error from './middlewares/error';
 import flash from './middlewares/flash';
 import mail from './middlewares/mail';
 import I18n from './i18n';
 
-export default function(config) {
+export default function(options) {
+  const config = Config(options);
   const app = koa();
 
   app.use(function * injectConfig(next) {
@@ -32,11 +34,12 @@ export default function(config) {
   }));
 
   /** Sessions **/
-  app.keys = config.keys || ['auth', 'center'];
+  app.keys = config.keys;
   app.use(session({
     key: 'sid'
   }, app));
 
+  /** I18n **/
   const i18n = new I18n(config.messages);
 
   app.use(function * injectI18n(next) {
@@ -67,7 +70,7 @@ export default function(config) {
   /** Middlewares **/
   error(app);
   flash(app);
-  mail(app, config);
+  mail(app, config.mail);
 
   /** Router **/
   routes(app, config);

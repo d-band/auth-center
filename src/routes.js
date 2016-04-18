@@ -11,19 +11,7 @@ function * csrf(next) {
 }
 
 export default function routes(app, config) {
-  const R = Object.assign({
-    home: '/',
-    clients: '/clients',
-    login: '/login',
-    logout: '/logout',
-    password_reset: '/password_reset',
-    password_change: '/password_change',
-    session: '/session',
-    user: '/user',
-    authorize: '/authorize',
-    access_token: '/access_token'
-  }, config.routes);
-
+  const R = config.routes;
   const oauth = OAuth(config);
   const router = Router();
 
