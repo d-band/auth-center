@@ -35,6 +35,7 @@ const _config = {
   },
   routes: {
     home: '/',
+    users: '/users',
     clients: '/clients',
     login: '/login',
     logout: '/logout',

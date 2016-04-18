@@ -28,6 +28,11 @@ export default function(sequelize, DataTypes) {
     totp_key: {
       type: DataTypes.STRING(100),
       comment: 'user totp key'
+    },
+    enable: {
+      type: DataTypes.BOOLEAN(),
+      defaultValue: 1,
+      comment: '有效性，1有效，0无效'
     }
   }, {
     tableName: 'user',
