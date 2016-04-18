@@ -36,7 +36,8 @@ export default function routes(app, config) {
   router.post(R.access_token, oauth.accessToken);
 
   // Admin
-  router.get(R.home, user.checkLogin, admin.userList);
+  router.get(R.home, user.checkLogin, admin.home);
+  router.get(R.users, user.checkLogin, admin.userList);
   router.get(R.clients, user.checkLogin, admin.clientList);
 
   app.use(function * injectParams(next) {
