@@ -9,12 +9,12 @@ import statik from 'koa-static';
 import csrf from 'koa-csrf';
 import orm from 'koa-orm';
 
+import I18n from './i18n';
 import Config from './config';
 import routes from './routes';
 import error from './middlewares/error';
 import flash from './middlewares/flash';
 import mail from './middlewares/mail';
-import I18n from './i18n';
 
 export default function(options) {
   const config = Config(options);
