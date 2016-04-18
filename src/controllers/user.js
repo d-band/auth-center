@@ -46,6 +46,12 @@ export function * session() {
   this.redirect(returnTo || this._routes.home);
 }
 
+export function * logout(next) {
+  this.session.user = null;
+  this.redirect(this._routes.login);
+  yield next;
+}
+
 export function * passwordResetPage() {
   yield this.render('reset');
 }

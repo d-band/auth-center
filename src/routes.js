@@ -15,6 +15,7 @@ export default function routes(app, config) {
     home: '/',
     clients: '/clients',
     login: '/login',
+    logout: '/logout',
     password_reset: '/password_reset',
     password_change: '/password_change',
     session: '/session',
@@ -26,8 +27,9 @@ export default function routes(app, config) {
   const oauth = OAuth(config);
   const router = Router();
 
-  // Login
+  // Login & Logout
   router.get(R.login, user.login);
+  router.get(R.logout, user.logout);
   router.post(R.session, csrf, user.session);
 
   // Reset password
