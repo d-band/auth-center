@@ -7,15 +7,16 @@
 {% block content %}
 <form action="{{_routes.password_change}}" method="POST">
   <input type="hidden" name="_csrf" value="{{_csrf}}">
+  <input type="hidden" name="codeId" value="{{codeId}}">
   <div class="auth-form-header">
     <h1>{{__("Change password")}}</h1>
   </div>
   <div class="auth-form-body">
     <div class="input-wrap">
-      <input type="password" placeholder="{{__("Password")}}">
+      <input type="password" name="password" placeholder="{{__("Password")}}">
     </div>
     <div class="input-wrap">
-      <input type="password" placeholder="{{__("Confirm password")}}">
+      <input type="password" name="password2" placeholder="{{__("Confirm password")}}">
     </div>
     <div class="input-wrap">
       <button class="btn btn-primary btn-block">{{__("Change password")}}</button>
