@@ -67,15 +67,17 @@ export function * passwordReset() {
   const EmailCode = this.orm().EmailCode;
 
   let email = this.request.body.email;
-  if (!email && isEmail(email)) {
+  if (!email || !isEmail(email)) {
     this.flash('error', 'Email is empty or invalid type');
     this.redirect(this._routes.password_reset);
+    return;
   }
 
   let user = yield User.findByEmail(email);
   if (!user) {
     this.flash('error', 'User not found');
     this.redirect(this._routes.password_reset);
+    return;
   }
 
   try {

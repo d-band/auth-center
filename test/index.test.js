@@ -169,6 +169,48 @@ describe('auth-center', function() {
       });
   });
 
+  it('should password reset email error', function(done) {
+    request
+      .get('/password_reset')
+      .end(function(err, res) {
+        expect(res.text).to.match(/email/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/password_reset')
+          .send({
+            _csrf: csrf,
+            email: 'test'
+          })
+          .end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.text).to.match(/Email is empty or invalid type/);
+            done();
+          });
+      });
+  });
+
+  it('should password reset user not found', function(done) {
+    request
+      .get('/password_reset')
+      .end(function(err, res) {
+        expect(res.text).to.match(/email/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/password_reset')
+          .send({
+            _csrf: csrf,
+            email: 'test2@example.com'
+          })
+          .end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.text).to.match(/User not found/);
+            done();
+          });
+      });
+  });
+
   it('should password reset', function(done) {
     request
       .get('/password_reset')
@@ -187,6 +229,27 @@ describe('auth-center', function() {
             expect(res.text).to.match(/Check your email for a link to reset your password/);
             done();
           });
+      });
+  });
+
+  it('should password change code required', function(done) {
+    request
+      .get('/password_change')
+      .end(function(err, res) {
+        expect(res.text).to.match(/Code is required/);
+        done();
+      });
+  });
+
+  it('should password change code invalid', function(done) {
+    request
+      .get('/password_change')
+      .query({
+        code: 'wrong'
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/Code is invalid/);
+        done();
       });
   });
 
