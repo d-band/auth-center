@@ -38,6 +38,8 @@ const _config = {
     home: '/',
     users: '/users',
     clients: '/clients',
+    get_users: '/get_users',
+    get_clients: '/get_clients',
     login: '/login',
     logout: '/logout',
     password_reset: '/password_reset',
