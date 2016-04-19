@@ -66,6 +66,24 @@ describe('auth-center', function() {
     });
   });
 
+  it('should config merge from file', function(done) {
+    let config = require('../app/config')(__dirname + '/config');
+    expect(config).to.have.property('isTOTP');
+    expect(config).to.have.deep.property('mail.name');
+    done();
+  });
+
+  it('should i18n default en', function(done) {
+    request
+      .get('/login?locale=xxxxx')
+      .end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.text).to.match(/Sign In/);
+        done();
+      });
+  });
+
   it('should error text plain', function(done) {
     request
       .get('/404')
