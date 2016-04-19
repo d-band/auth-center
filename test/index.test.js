@@ -54,6 +54,11 @@ describe('auth-center', function() {
         secret: '12345678',
         redirect_uri: 'http://localhost:3000/auth/callback'
       });
+      yield orm.EmailCode.create({
+        id: 'expired_code',
+        user_id: 'test',
+        createdAt: new Date(Date.now() - 3600 * 12000)
+      });
     }).then(function() {
       done();
     }).catch(function(err) {
@@ -278,6 +283,18 @@ describe('auth-center', function() {
       });
   });
 
+  it('should password change page: code expired', function(done) {
+    request
+      .get('/password_change')
+      .query({
+        code: 'expired_code'
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/Code is expired/);
+        done();
+      });
+  });
+
   it('should password change: code required', function(done) {
     request
       .get('/password_change')
@@ -316,6 +333,28 @@ describe('auth-center', function() {
           })
           .end(function(err, res) {
             expect(res.text).to.match(/Code is invalid/);
+            done();
+          });
+      });
+  });
+
+  it('should password change: code expired', function(done) {
+    request
+      .get('/password_change')
+      .query({
+        code: emailCode
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/password2/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/password_change')
+          .send({
+            _csrf: csrf,
+            codeId: 'expired_code'
+          })
+          .end(function(err, res) {
+            expect(res.text).to.match(/Code is expired/);
             done();
           });
       });
