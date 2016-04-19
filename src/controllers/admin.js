@@ -18,12 +18,16 @@ export function * userList() {
   //     ['username', 'ASC']
   //   ]
   // });
-  yield this.render('users');
+  yield this.render('admin/users', {
+    users: 'active'
+  });
 }
 
 export function * clientList() {
   // const CLIENT = this.orm().Client;
-  yield this.render('clients');
+  yield this.render('admin/clients', {
+    clients: 'active'
+  });
 }
 
 export function * getUsers() {
