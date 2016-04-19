@@ -61,6 +61,31 @@ describe('auth-center', function() {
     });
   });
 
+  it('should error text plain', function(done) {
+    request
+      .get('/404')
+      .set('Accept', 'text/plain')
+      .end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.text).to.match(/Not Found/);
+        done();
+      });
+  });
+
+  it('should error json type', function(done) {
+    request
+      .get('/404')
+      .set('Accept', 'application/json')
+      .end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.text).to.match(/code/);
+        expect(res.text).to.match(/Not Found/);
+        done();
+      });
+  });
+
   it('should redirect to authorize and login page', function(done) {
     request
       .get('/client')
