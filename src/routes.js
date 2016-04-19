@@ -15,6 +15,7 @@ export default function routes(app, config) {
   const oauth = OAuth(config);
   const router = Router();
 
+  router.get(R.home, user.home);
   // Login & Logout
   router.get(R.login, user.login);
   router.get(R.logout, user.logout);
@@ -36,7 +37,6 @@ export default function routes(app, config) {
   router.post(R.access_token, oauth.accessToken);
 
   // Admin
-  router.get(R.home, admin.home);
   router.get(R.users, admin.userList);
   router.get(R.clients, admin.clientList);
   router.post(R.get_users, admin.getUsers);

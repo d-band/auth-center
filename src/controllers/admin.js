@@ -1,10 +1,5 @@
 'use strict';
 
-export function * home() {
-  // let user = this.req.user.username;
-  yield this.render('home');
-}
-
 export function * userList() {
   // const USER = this.orm().User;
   // let users = yield USER.findAll({

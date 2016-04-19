@@ -1,4 +1,11 @@
-{% extends 'admin/layout.html' %}
+{% extends './layout.html' %}
+
+{% block title %}
+<title>{{__("Home")}}</title>
+{% endblock %}
+
 {% block content %}
-<p>Warm welcome, Lord!</p>
+<div class="auth-form-header">
+  <h1 class="text-danger">Welcome, {{__(user.username)}}</h1>
+</div>
 {% endblock %}

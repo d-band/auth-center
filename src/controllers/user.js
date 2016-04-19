@@ -2,6 +2,12 @@
 
 import isEmail from 'validator/lib/isEmail';
 
+export function * home() {
+  yield this.render('home', {
+    user: this.session.user
+  });
+}
+
 export function * checkLogin(next) {
   if (this.session.user) {
     yield next;
