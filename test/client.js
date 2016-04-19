@@ -19,7 +19,7 @@ module.exports = function(app) {
   passport.deserializeUser(function(id, done) {
     done(null, store[id]);
   });
-  
+
   passport.use(new OAuth2Strategy({
     authorizationURL: 'http://localhost:3000/authorize',
     tokenURL: 'http://localhost:3000/access_token',
@@ -43,7 +43,10 @@ module.exports = function(app) {
     }
   });
   router.get('/auth', passport.authenticate('oauth2'));
-  router.get('/auth/callback', passport.authenticate('oauth2'), function*() {
+  router.get('/auth/callback', function*(next) {
+    this.assert(!this.query.error, 400, this.query.error);
+    yield * next;
+  }, passport.authenticate('oauth2'), function*() {
     this.redirect('/client');
   });
   app.use(router.routes());

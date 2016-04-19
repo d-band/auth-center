@@ -15,7 +15,7 @@ describe('auth-center', function() {
 
   before(function(done) {
     const authServer = AuthServer();
-    
+
     require('./client')(authServer);
 
     request = chai.request.agent(authServer.listen(3000));
@@ -57,7 +57,29 @@ describe('auth-center', function() {
       });
   });
 
-  it('should login success', function(done) {
+  it('should login => error', function(done) {
+    request
+      .get('/login')
+      .end(function(err, res) {
+        expect(res.text).to.match(/password/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/session')
+          .send({
+            _csrf: csrf,
+            username: 'test@example.com',
+            password: 'wrong'
+          })
+          .end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.text).to.match(/Username or password is invalid/);
+            done();
+          });
+      });
+  });
+
+  it('should authorize => login => session => client', function(done) {
     request
       .get('/authorize')
       .query({
@@ -72,7 +94,7 @@ describe('auth-center', function() {
           .post('/session')
           .send({
             _csrf: csrf,
-            username: 'test',
+            username: 'test@example.com',
             password: 'test'
           })
           .end(function(err, res) {
@@ -83,6 +105,38 @@ describe('auth-center', function() {
             expect(res.text).to.match(/test/);
             done();
           });
+      });
+  });
+
+  it('should authorize => client', function(done) {
+    request
+      .get('/authorize')
+      .query({
+        response_type: 'code',
+        client_id: '12345678'
+      })
+      .end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.text).to.match(/username/);
+        expect(res.text).to.match(/test/);
+        done();
+      });
+  });
+
+  it('should return redirect_uri is invalid', function(done) {
+    request
+      .get('/authorize')
+      .query({
+        response_type: 'code',
+        client_id: '12345678',
+        redirect_uri: 'http://localhost:3000/invalid'
+      })
+      .end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.text).to.match(/redirect_uri is invalid/);
+        done();
       });
   });
 });
