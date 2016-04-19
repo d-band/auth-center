@@ -21,6 +21,9 @@
     <div class="input-wrap">
       <button class="btn btn-primary btn-block">{{__("Change password")}}</button>
     </div>
+    {% if messages.error %}
+    <div class="alert alert-danger">{{messages.error}}</div>
+    {% endif %}
   </div>
 </form>
 {% endblock %}

@@ -257,7 +257,7 @@ describe('auth-center', function() {
       });
   });
 
-  it('should password change code required', function(done) {
+  it('should password change page: code required', function(done) {
     request
       .get('/password_change')
       .end(function(err, res) {
@@ -266,7 +266,7 @@ describe('auth-center', function() {
       });
   });
 
-  it('should password change code invalid', function(done) {
+  it('should password change page: code invalid', function(done) {
     request
       .get('/password_change')
       .query({
@@ -275,6 +275,74 @@ describe('auth-center', function() {
       .end(function(err, res) {
         expect(res.text).to.match(/Code is invalid/);
         done();
+      });
+  });
+
+  it('should password change: code required', function(done) {
+    request
+      .get('/password_change')
+      .query({
+        code: emailCode
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/password2/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/password_change')
+          .send({
+            _csrf: csrf
+          })
+          .end(function(err, res) {
+            expect(res.text).to.match(/Code is required/);
+            done();
+          });
+      });
+  });
+
+  it('should password change: code invalid', function(done) {
+    request
+      .get('/password_change')
+      .query({
+        code: emailCode
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/password2/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/password_change')
+          .send({
+            _csrf: csrf,
+            codeId: 'wrong'
+          })
+          .end(function(err, res) {
+            expect(res.text).to.match(/Code is invalid/);
+            done();
+          });
+      });
+  });
+
+  it('should password change: password invalid', function(done) {
+    request
+      .get('/password_change')
+      .query({
+        code: emailCode
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/password2/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/password_change')
+          .set('Referer', '/password_change?code=' + emailCode)
+          .send({
+            _csrf: csrf,
+            codeId: emailCode,
+            password: '123',
+            password2: '123'
+          })
+          .end(function(err, res) {
+            expect(res.text).to.match(/Password is invalid/);
+            done();
+          });
       });
   });
 
