@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <meta name="_csrf" content="--token here--">
+    <meta name="description" content="--description here--">
+    <link rel="shortcut icon" type="image/x-icon" href="//7xjsgs.com1.z0.glb.clouddn.com/favicon.ico">
+    <title>Home</title>
+    <link rel="stylesheet" href="/admin.css">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="../polyfill.js"></script>
+    <![endif]-->
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <i class="fa fa-bars"></i>
+          </button>
+          <a class="navbar-brand" href="#">CNOOD OAuth</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a href="javascript:;" class="user-link" data-toggle="dropdown">
+                <span class="ml10">D-Band</span>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a href="/logout">Logout</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li class="{{users}}"><a href="/users">Users</a></li>
+            <li class="{{clients}}"><a href="/clients">Clients</a></li>
+          </ul>
+        </div>
+        <div id="J_main" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+    <script src="/admin.js"></script>
+    {% block foot %}{% endblock %}
+  </body>
+</html>
