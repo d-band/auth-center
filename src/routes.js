@@ -15,7 +15,7 @@ export default function routes(app, config) {
   const oauth = OAuth(config);
   const router = Router();
 
-  router.get(R.home, user.home);
+  router.get(R.home, user.checkLogin, user.home);
   // Login & Logout
   router.get(R.login, user.login);
   router.get(R.logout, user.logout);
