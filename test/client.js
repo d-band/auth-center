@@ -1,33 +1,41 @@
 'use strict';
 
-const koa = require('koa');
-const session = require('koa-generic-session');
-const bodyparser = require('koa-bodyparser');
 const passport = require('koa-passport');
 const OAuth2Strategy = require('passport-oauth2').Strategy;
 
-module.exports = function() {
-  const clientServer = koa();
-  
-  clientServer.keys = ['clientServer'];
-  clientServer.use(session());
-  clientServer.use(bodyparser());
+const store = {};
 
+module.exports = function(app) {
+  OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
+    this._oauth2.get('http://localhost:3000/user', accessToken, function(err, body, res) {
+      done(null, JSON.parse(body));
+    });
+  };
+
+  passport.serializeUser(function(user, done) {
+    done(null, user.username);
+  });
+
+  passport.deserializeUser(function(id, done) {
+    done(null, store[id]);
+  });
+  
   passport.use(new OAuth2Strategy({
     authorizationURL: 'http://localhost:3000/authorize',
     tokenURL: 'http://localhost:3000/access_token',
     clientID: '12345678',
     clientSecret: '12345678',
-    callbackURL: 'http://localhost:3001/auth/callback'
+    callbackURL: 'http://localhost:3000/auth/callback'
   }, function(accessToken, refreshToken, profile, cb) {
+    store[profile.username] = profile;
     cb(null, profile);
   }));
 
-  clientServer.use(passport.initialize());
-  clientServer.use(passport.session());
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   const router = require('koa-router')();
-  router.get('/', function*() {
+  router.get('/client', function*() {
     if (this.isAuthenticated()) {
       this.body = this.req.user;
     } else {
@@ -36,9 +44,8 @@ module.exports = function() {
   });
   router.get('/auth', passport.authenticate('oauth2'));
   router.get('/auth/callback', passport.authenticate('oauth2'), function*() {
-    this.redirect('/');
+    this.redirect('/client');
   });
-  clientServer.use(router.routes());
-  clientServer.use(router.allowedMethods());
-  return clientServer;
+  app.use(router.routes());
+  app.use(router.allowedMethods());
 }

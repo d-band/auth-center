@@ -41,6 +41,7 @@
     "babel-register": "~6.7.2",
     "chai": "^3.5.0",
     "chai-http": "^2.0.1",
+    "co": "^4.6.0",
     "coveralls": "~2.11.8",
     "eslint": "~2.4.0",
     "eslint-config-standard": "~5.1.0",
