@@ -6,7 +6,7 @@ import * as user from './controllers/user';
 import * as admin from './controllers/admin';
 
 function * csrf(next) {
-  this.assertCSRF && this.assertCSRF(this.request.body);
+  this.assertCSRF(this.request.body);
   yield next;
 }
 
@@ -16,6 +16,7 @@ export default function routes(app, config) {
   const router = Router();
 
   router.get(R.home, user.checkLogin, user.home);
+
   // Login & Logout
   router.get(R.login, user.login);
   router.get(R.logout, user.logout);

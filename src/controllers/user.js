@@ -67,15 +67,17 @@ export function * passwordReset() {
   const EmailCode = this.orm().EmailCode;
 
   let email = this.request.body.email;
-  if (!email && isEmail(email)) {
+  if (!email || !isEmail(email)) {
     this.flash('error', 'Email is empty or invalid type');
     this.redirect(this._routes.password_reset);
+    return;
   }
 
   let user = yield User.findByEmail(email);
   if (!user) {
     this.flash('error', 'User not found');
     this.redirect(this._routes.password_reset);
+    return;
   }
 
   try {
@@ -85,7 +87,7 @@ export function * passwordReset() {
     yield this.sendMail(user.email, 'password_reset', {
       username: user.username,
       ttl: this._config.emailCodeTTL / 3600,
-      link: `${this._config.domain}${this._routes.password_change}?code=${code}`
+      link: this._config.domain + this._routes.password_change + '?code=' + code.id
     });
     this.flash('success', 'Check your email for a link to reset your password.');
     this.redirect(this._routes.login);
@@ -120,7 +122,9 @@ export function * passwordChangePage() {
     this.redirect(this._routes.password_reset);
     return;
   }
-  yield this.render('change');
+  yield this.render('change', {
+    codeId: codeId
+  });
 }
 
 export function * passwordChange() {
