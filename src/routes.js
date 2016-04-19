@@ -6,7 +6,7 @@ import * as user from './controllers/user';
 import * as admin from './controllers/admin';
 
 function * csrf(next) {
-  this.assertCSRF(this.request.body);
+  this.assertCSRF && this.assertCSRF(this.request.body);
   yield next;
 }
 

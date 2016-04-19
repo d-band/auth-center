@@ -3,47 +3,52 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
+const co = require('co');
 const AuthServer = require('../app');
 
 chai.use(chaiHttp);
 
+var request;
+
 describe('auth-center', function() {
   this.timeout(0);
 
-  before(function() {
+  before(function(done) {
     const authServer = AuthServer();
-    const clientServer = require('./client')();
 
-    var isInit = true;
-    authServer.use(function*() {
-      if (isInit) {
-        isInit = false;
-        this.orm().sequelize.sync({
-          force: true
-        });
-        yield this.orm().User.add({
-          username: 'test',
-          password: 'test',
-          email: 'test@example.com'
-        });
-        yield this.orm().Client.create({
-          id: '12345678',
-          name: 'test',
-          secret: '12345678',
-          redirect_uri: 'http://localhost:3001/auth/callback'
-        });
-      }
-      yield * next;
+    require('./client')(authServer);
+
+    request = chai.request.agent(authServer.listen(3000));
+
+    co(function*() {
+      const orm = authServer.orm.database();
+      yield orm.sequelize.sync({
+        force: true
+      });
+      yield orm.User.add({
+        username: 'test',
+        password: 'test',
+        email: 'test@example.com'
+      });
+      yield orm.Client.create({
+        id: '12345678',
+        name: 'test',
+        secret: '12345678',
+        redirect_uri: 'http://localhost:3000/auth/callback'
+      });
+    }).then(function() {
+      done();
+    }).catch(function(err) {
+      done(err);
     });
-
-    authServer.listen(3000);
-    clientServer.listen(3001);
   });
 
   it('should redirect to authorize and login page', function(done) {
-    chai.request('http://localhost:3001')
-      .get('/')
+    request
+      .get('/client')
       .end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
         expect(res.redirects).to.have.lengthOf(3);
         expect(res.redirects[0]).to.match(/auth/);
         expect(res.redirects[1]).to.match(/authorize/);
@@ -52,11 +57,85 @@ describe('auth-center', function() {
       });
   });
 
-  it('should login success', function(done) {
-    chai.request('http://localhost:3001')
-      .get('/')
+  it('should login => error', function(done) {
+    request
+      .get('/login')
       .end(function(err, res) {
         expect(res.text).to.match(/password/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/session')
+          .send({
+            _csrf: csrf,
+            username: 'test@example.com',
+            password: 'wrong'
+          })
+          .end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.text).to.match(/Username or password is invalid/);
+            done();
+          });
+      });
+  });
+
+  it('should authorize => login => session => client', function(done) {
+    request
+      .get('/authorize')
+      .query({
+        response_type: 'code',
+        client_id: '12345678',
+        redirect_uri: 'http://localhost:3000/auth/callback'
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/password/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/session')
+          .send({
+            _csrf: csrf,
+            username: 'test@example.com',
+            password: 'test'
+          })
+          .end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.redirects).to.have.lengthOf(3);
+            expect(res.text).to.match(/username/);
+            expect(res.text).to.match(/test/);
+            done();
+          });
+      });
+  });
+
+  it('should authorize => client', function(done) {
+    request
+      .get('/authorize')
+      .query({
+        response_type: 'code',
+        client_id: '12345678'
+      })
+      .end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.text).to.match(/username/);
+        expect(res.text).to.match(/test/);
+        done();
+      });
+  });
+
+  it('should return redirect_uri is invalid', function(done) {
+    request
+      .get('/authorize')
+      .query({
+        response_type: 'code',
+        client_id: '12345678',
+        redirect_uri: 'http://localhost:3000/invalid'
+      })
+      .end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.text).to.match(/redirect_uri is invalid/);
         done();
       });
   });

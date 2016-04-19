@@ -52,17 +52,17 @@ export default function(config) {
     this.assert(redirect_uri, 400, 'redirect_uri is missing.');
     this.assert(code, 400, 'code is missing.');
 
-    let client = Client.findById(client_id);
+    let client = yield Client.findById(client_id);
 
     this.assert(client, 401, 'client_id is invalid.');
     this.assert(client.secret === client_secret, 401, 'client_secret is invalid.');
 
-    let _code = Code.findById(code);
+    let _code = yield Code.findById(code);
 
     this.assert(_code, 401, 'code is invalid.');
 
-    let expiresAt = _code.createAt.getTime() + config.codeTTL * 1000;
-    this.assert(expiresAt < Date.now(), 401, 'code expired.');
+    let expiresAt = _code.createdAt.getTime() + config.codeTTL * 1000;
+    this.assert(expiresAt > Date.now(), 401, 'code expired.');
 
     let isChecked = checkURI(_code.redirect_uri, redirect_uri);
     this.assert(isChecked, 401, 'redirect_uri is invalid.');
@@ -92,8 +92,8 @@ export default function(config) {
 
     this.assert(token, 401, 'access_token is invalid.');
 
-    let expiresAt = token.createAt.getTime() + config.accessTokenTTL * 1000;
-    this.assert(expiresAt < Date.now(), 401, 'access_token expired.');
+    let expiresAt = token.createdAt.getTime() + config.accessTokenTTL * 1000;
+    this.assert(expiresAt > Date.now(), 401, 'access_token expired.');
 
     this._userId = token.user_id;
     yield next;

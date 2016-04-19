@@ -17,8 +17,9 @@ const _config = {
   accessTokenTTL: 60 * 60,
   // ORM config
   orm: {
-    db: 'db_auth',
-    dialect: 'sqlite'
+    db: ':memory:',
+    dialect: 'sqlite',
+    modelPath: join(__dirname, 'models')
   },
   // Mail config
   mail: {
