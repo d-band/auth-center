@@ -8,6 +8,9 @@ const _config = {
   staticPath: join(__dirname, '../public'),
   viewPath: join(__dirname, '../views'),
   keys: ['auth', 'center'],
+  session: {
+    key: 'sid'
+  },
   domain: '__domain__',
   emailCodeTTL: 3 * 60 * 60,
   // I18N config

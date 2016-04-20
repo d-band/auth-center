@@ -86,8 +86,8 @@ export function * passwordReset() {
     });
     yield this.sendMail(user.email, 'password_reset', {
       username: user.username,
-      ttl: this._config.emailCodeTTL / 3600,
-      link: this._config.domain + this._routes.password_change + '?code=' + code.id
+      ttl: this.config.emailCodeTTL / 3600,
+      link: this.config.domain + this._routes.password_change + '?code=' + code.id
     });
     this.flash('success', 'Check your email for a link to reset your password.');
     this.redirect(this._routes.login);
@@ -116,7 +116,7 @@ export function * passwordChangePage() {
     return;
   }
 
-  let expiresAt = code.createdAt.getTime() + this._config.emailCodeTTL * 1000;
+  let expiresAt = code.createdAt.getTime() + this.config.emailCodeTTL * 1000;
   if (expiresAt < Date.now()) {
     this.flash('error', 'Code is expired');
     this.redirect(this._routes.password_reset);
@@ -146,7 +146,7 @@ export function * passwordChange() {
     return;
   }
 
-  let expiresAt = code.createdAt.getTime() + this._config.emailCodeTTL * 1000;
+  let expiresAt = code.createdAt.getTime() + this.config.emailCodeTTL * 1000;
   if (expiresAt < Date.now()) {
     this.flash('error', 'Code is expired');
     this.redirect(this._routes.password_reset);

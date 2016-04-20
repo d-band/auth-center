@@ -21,7 +21,10 @@ export default function(options) {
   const app = koa();
 
   app.use(function * injectConfig(next) {
-    this._config = config;
+    if (this.config) return yield * next;
+    this.__defineGetter__('config', () => {
+      return Config();
+    });
     yield * next;
   });
 
@@ -35,9 +38,7 @@ export default function(options) {
 
   /** Sessions **/
   app.keys = config.keys;
-  app.use(session({
-    key: 'sid'
-  }, app));
+  app.use(session(config.session, app));
 
   /** I18n **/
   const i18n = new I18n(config.messages);
