@@ -3,7 +3,8 @@
 export default function(sequelize, DataTypes) {
   return sequelize.define('Client', {
     id: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       comment: 'Client ID'
     },

@@ -5,7 +5,11 @@ var main = {
   init: function() {
     this.bind();
   },
-  bind: function() {}
+  bind: function() {
+    $('#J_add').on('click', function() {
+      $('#clientModal').modal('show');
+    });
+  }
 };
 
 $(function() {

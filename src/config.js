@@ -43,6 +43,7 @@ const _config = {
     users: '/users',
     clients: '/clients',
     send_totp: '/send_totp',
+    add_client: '/add_client',
     generate_secret: '/generate_secret',
     login: '/login',
     logout: '/logout',
