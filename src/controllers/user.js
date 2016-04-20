@@ -67,8 +67,9 @@ export function * session() {
 }
 
 export function * logout(next) {
+  let returnTo = this.query.return_to;
   this.session.user = null;
-  this.redirect(this._routes.login);
+  this.redirect(returnTo || this._routes.login);
   yield next;
 }
 

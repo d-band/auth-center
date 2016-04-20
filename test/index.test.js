@@ -262,6 +262,9 @@ describe('auth-center', function() {
             expect(res.text).to.match(/test/);
             request
               .get('/logout')
+              .query({
+                return_to: '/login'
+              })
               .end(function(err, res) {
                 expect(err).to.be.null;
                 expect(res).to.have.status(200);
