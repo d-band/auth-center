@@ -34,6 +34,11 @@ export default function(sequelize, DataTypes) {
       type: DataTypes.BOOLEAN(),
       defaultValue: 1,
       comment: '有效性，1有效，0无效'
+    },
+    is_admin: {
+      type: DataTypes.BOOLEAN(),
+      defaultValue: 0,
+      comment: '是否是管理员，1是2不是'
     }
   }, {
     tableName: 'user',

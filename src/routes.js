@@ -38,11 +38,11 @@ export default function routes(app, config) {
   router.post(R.access_token, oauth.accessToken);
 
   // Admin
-  router.get(R.users, admin.userList);
-  router.get(R.clients, admin.clientList);
-  router.post(R.send_totp, admin.sendTotp);
-  router.post(R.add_client, admin.addClient);
-  router.post(R.generate_secret, admin.generateSecret);
+  router.get(R.users, admin.checkLogin, admin.userList);
+  router.get(R.clients, admin.checkLogin, admin.clientList);
+  router.post(R.send_totp, admin.checkLogin, admin.sendTotp);
+  router.post(R.add_client, admin.checkLogin, admin.addClient);
+  router.post(R.generate_secret, admin.checkLogin, admin.generateSecret);
 
   app.use(function * injectParams(next) {
     this.state._csrf = this.csrf;

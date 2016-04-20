@@ -1,5 +1,18 @@
 'use strict';
 
+export function * checkLogin(next) {
+  if (this.session.user) {
+    if (this.session.user.is_admin) {
+      yield * next;
+    } else {
+      this.redirect(this._routes.home);
+    }
+  } else {
+    this.session.returnTo = this.url;
+    this.redirect(this._routes.login);
+  }
+}
+
 export function * userList() {
   let offset = this.query.offset || 0;
   const User = this.orm().User;
