@@ -3,8 +3,8 @@
 export function * userList() {
   let offset = this.query.offset || 0;
   const USER = this.orm().User;
-  let users = yield USER.findAll({
-    attributes: ['username', 'email'],
+  let users = yield USER.findAndCountAll({
+    attributes: ['username', 'totp_key'],
     where: {
       enable: 1
     },
@@ -24,7 +24,7 @@ export function * userList() {
 export function * clientList() {
   let offset = this.query.offset || 0;
   const CLIENT = this.orm().Client;
-  let clients = yield CLIENT.findAll({
+  let clients = yield CLIENT.findAndCountAll({
     attributes: ['id', 'secret', 'redirect_uri', 'name'],
     offset: offset * 20,
     limit: 20,

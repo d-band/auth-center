@@ -38,6 +38,7 @@ const _config = {
     home: '/',
     users: '/users',
     clients: '/clients',
+    send_totp: '/send_totp',
     login: '/login',
     logout: '/logout',
     password_reset: '/password_reset',

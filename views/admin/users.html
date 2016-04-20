@@ -1,1 +1,54 @@
 {% extends './layout.html' %}
+{% block head %}
+<title>Users</title>
+{% endblock %}
+
+{% block content %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Key</th>
+      <th>Opeartion</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if data.rows.length == 0 %}
+      <tr>
+        <td colspan="3" class="text-center">No data available in table</td>
+      </tr>
+    {% else %}
+      {% for d in data.rows %}
+      <tr>
+        <td>{{d.username}}</td>
+        <td>
+        {% if d.totp_key %}
+          <span class="text-success">Existed</span>
+        {% else %}
+          <span class="text-danger">Null</span>
+        {% endif %}
+        </td>
+        <td>
+          <form action="/send_totp" method="post">
+            <input type="hidden" name="username" value="{{d.username}}">
+            <button class="btn btn-primary btn-xs" type="submit">Send TOTP</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    {% endif %}
+  </tbody>
+</table>
+{% if data.rows.length > 0 %}
+<nav>
+  <ul class="pager">
+  {% if offset > 0 %}
+    <li><a href="/users?offset={{offset-1}}">Previous</a></li>
+  {% endif %}
+  {% if offset*20+data.rows.length < count %}
+    <li><a href="/users?offset={{+offset+1}}">Next</a></li>
+  {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}
