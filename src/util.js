@@ -2,6 +2,7 @@
 
 import crypto from 'crypto';
 import base32 from 'thirty-two';
+import qr from 'qr-image';
 import { parse, format } from 'url';
 
 export function makeSalt() {
@@ -42,4 +43,8 @@ export function buildURI(uri, query) {
 export function totpURI(user, key) {
   let encoded = base32.encode(key).toString().replace(/=/g, '');
   return `otpauth://totp/${user}?secret=${encoded}`;
+}
+
+export function totpImage(user, key) {
+  return qr.imageSync(totpURI(user, key), 'H');
 }
