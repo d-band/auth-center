@@ -1,6 +1,7 @@
 'use strict';
 
 import isEmail from 'validator/lib/isEmail';
+import { totp } from 'notp';
 
 export function * home() {
   yield this.render('home', {
@@ -18,13 +19,15 @@ export function * checkLogin(next) {
 }
 
 export function * login() {
-  yield this.render('login');
+  yield this.render('login', {
+    isTOTP: this.config.isTOTP
+  });
 }
 
 export function * session() {
   const User = this.orm().User;
 
-  let {username, password} = this.request.body;
+  let {username, password, token} = this.request.body;
 
   if (!username) {
     this.flash('error', 'Username is required');
@@ -36,11 +39,22 @@ export function * session() {
     this.redirect(this._routes.login);
     return;
   }
+  if (this.config.isTOTP && !token) {
+    this.flash('error', 'Token is required');
+    this.redirect(this._routes.login);
+    return;
+  }
 
   let user = yield User.auth(username, password);
 
   if (!user) {
     this.flash('error', 'Username or password is invalid');
+    this.redirect(this._routes.login);
+    return;
+  }
+
+  if (this.config.isTOTP && !totp.verify(token, user.totp_key)) {
+    this.flash('error', 'Token is invalid');
     this.redirect(this._routes.login);
     return;
   }

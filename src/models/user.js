@@ -68,7 +68,8 @@ export default function(sequelize, DataTypes) {
           username: user.username,
           email: user.email,
           pass_salt: salt,
-          pass_hash: encrypt(user.password, salt)
+          pass_hash: encrypt(user.password, salt),
+          totp_key: user.totp_key
         });
       },
       changePassword: function * (username, newPassword) {

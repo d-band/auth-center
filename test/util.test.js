@@ -52,4 +52,8 @@ describe('auth-center util', function() {
     })).to.be.equal('http://example.com/path?param=123&param2=234&test=123#hello');
   });
 
+  it('should totpURI', function() {
+    expect(util.totpURI('test', 'test_key')).to.be.equal('otpauth://totp/test?secret=ORSXG5C7NNSXS');
+  });
+
 });

@@ -16,6 +16,7 @@ const _config = {
   // I18N config
   messages: {},
   // OAuth config
+  isTOTP: true,
   codeTTL: 10 * 60,
   accessTokenTTL: 60 * 60,
   // ORM config

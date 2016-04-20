@@ -4,13 +4,18 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const expect = chai.expect;
 const co = require('co');
+const totp = require('notp').totp;
 const AuthServer = require('../app');
+const util = require('../app/util');
+const Config = require('../app/config');
 
 chai.use(chaiHttp);
 
 describe('auth-center', function() {
   this.timeout(0);
+
   var request, emailCode;
+  var totp_key = util.generateToken();
 
   before(function(done) {
     const authServer = AuthServer({
@@ -26,7 +31,6 @@ describe('auth-center', function() {
           });
           input.on('end', function() {
             let data = Buffer.concat(chunks).toString();
-            console.log(data);
             emailCode = data.match(/code=3D(.*)\"/)[1];
             callback(null, true);
           });
@@ -46,7 +50,8 @@ describe('auth-center', function() {
       yield orm.User.add({
         username: 'test',
         password: 'test',
-        email: 'test@example.com'
+        email: 'test@example.com',
+        totp_key: totp_key
       });
       yield orm.Client.create({
         id: '12345678',
@@ -67,8 +72,9 @@ describe('auth-center', function() {
   });
 
   it('should config merge from file', function(done) {
-    let config = require('../app/config')(__dirname + '/config');
+    let config = Config(__dirname + '/config');
     expect(config).to.have.property('isTOTP');
+    expect(config.isTOTP).to.be.false;
     expect(config).to.have.deep.property('mail.name');
     done();
   });
@@ -187,6 +193,54 @@ describe('auth-center', function() {
       });
   });
 
+  it('should login totp token required', function(done) {
+    Config({
+      isTOTP: true
+    });
+    request
+      .get('/login')
+      .end(function(err, res) {
+        expect(res.text).to.match(/password/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/session')
+          .send({
+            _csrf: csrf,
+            username: 'test@example.com',
+            password: 'test'
+          })
+          .end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.text).to.match(/Token is required/);
+            done();
+          });
+      });
+  });
+
+  it('should login totp token invalid', function(done) {
+    request
+      .get('/login')
+      .end(function(err, res) {
+        expect(res.text).to.match(/password/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/session')
+          .send({
+            _csrf: csrf,
+            username: 'test@example.com',
+            password: 'test',
+            token: '123456'
+          })
+          .end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.text).to.match(/Token is invalid/);
+            done();
+          });
+      });
+  });
+
   it('should login => session => home => logout', function(done) {
     request
       .get('/')
@@ -198,7 +252,8 @@ describe('auth-center', function() {
           .send({
             _csrf: csrf,
             username: 'test@example.com',
-            password: 'test'
+            password: 'test',
+            token: totp.gen(totp_key)
           })
           .end(function(err, res) {
             expect(err).to.be.null;
@@ -432,6 +487,9 @@ describe('auth-center', function() {
   });
 
   it('should authorize => login => session => client', function(done) {
+    Config({
+      isTOTP: false
+    });
     request
       .get('/authorize')
       .query({
