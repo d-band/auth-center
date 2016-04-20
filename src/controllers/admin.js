@@ -38,3 +38,25 @@ export function * clientList() {
     offset: offset
   });
 }
+
+export function * sendTotp() {
+  // let cond = this.request.body;
+  try {
+    // generate new totp key
+    let util = require('../util');
+    let key = util.generateToken();
+
+    // send email
+    this.flash('success', key);
+    this.redirect(this._routes.users);
+  } catch (e) {
+    console.error(e.stack);
+    this.flash('error', 'Send email failed');
+    this.redirect(this._routes.password_reset);
+  }
+}
+
+export function * generateSecret() {
+  // let cond = this.request.body;
+
+}

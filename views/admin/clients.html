@@ -2,3 +2,51 @@
 {% block head %}
 <title>Clients</title>
 {% endblock %}
+
+{% block content %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Secret</th>
+      <th>Name</th>
+      <th>Redirect URI</th>
+      <th>Operation</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if data.rows.length == 0 %}
+      <tr>
+        <td colspan="5" class="text-center">No data available in table</td>
+      </tr>
+    {% else %}
+      {% for d in data.rows %}
+      <tr>
+        <td>{{d.id}}</td>
+        <td>{{d.secret}}</td>
+        <td>{{d.name}}</td>
+        <td>{{d.redirect_uri}}</td>
+        <td>
+          <form action="/generate_secret" method="post">
+            <input type="hidden" name="id" value="{{d.id}}">
+            <button class="btn btn-primary btn-xs" type="submit">Generate</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    {% endif %}
+  </tbody>
+</table>
+{% if data.rows.length > 0 %}
+<nav>
+  <ul class="pager">
+  {% if offset > 0 %}
+    <li><a href="/users?offset={{offset-1}}">Previous</a></li>
+  {% endif %}
+  {% if offset*20+data.rows.length < count %}
+    <li><a href="/users?offset={{+offset+1}}">Next</a></li>
+  {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

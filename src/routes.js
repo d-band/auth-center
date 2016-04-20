@@ -40,6 +40,8 @@ export default function routes(app, config) {
   // Admin
   router.get(R.users, admin.userList);
   router.get(R.clients, admin.clientList);
+  router.post(R.send_totp, admin.sendTotp);
+  router.post(R.generate_secret, admin.generateSecret);
 
   app.use(function * injectParams(next) {
     this.state._csrf = this.csrf;
