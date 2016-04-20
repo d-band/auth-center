@@ -22,11 +22,9 @@ export default function(options) {
 
   app.use(function * injectConfig(next) {
     if (this.config) return yield * next;
-
-    this.__defineGetter__('config', function() {
+    this.__defineGetter__('config', () => {
       return Config();
     });
-    
     yield * next;
   });
 
