@@ -1,6 +1,7 @@
 'use strict';
 
 import isEmail from 'validator/lib/isEmail';
+import { totp } from 'notp';
 
 export function * home() {
   yield this.render('home', {
@@ -18,13 +19,15 @@ export function * checkLogin(next) {
 }
 
 export function * login() {
-  yield this.render('login');
+  yield this.render('login', {
+    isTOTP: this.config.isTOTP
+  });
 }
 
 export function * session() {
   const User = this.orm().User;
 
-  let {username, password} = this.request.body;
+  let {username, password, token} = this.request.body;
 
   if (!username) {
     this.flash('error', 'Username is required');
@@ -33,6 +36,11 @@ export function * session() {
   }
   if (!password) {
     this.flash('error', 'Password is required');
+    this.redirect(this._routes.login);
+    return;
+  }
+  if (this.config.isTOTP && !token) {
+    this.flash('error', 'Token is required');
     this.redirect(this._routes.login);
     return;
   }
@@ -45,6 +53,12 @@ export function * session() {
     return;
   }
 
+  if (this.config.isTOTP && !totp.verify(token, user.totp_key)) {
+    this.flash('error', 'Token is invalid');
+    this.redirect(this._routes.login);
+    return;
+  }
+
   let returnTo = this.session.returnTo;
 
   this.session.returnTo = null;
@@ -53,8 +67,9 @@ export function * session() {
 }
 
 export function * logout(next) {
+  let returnTo = this.query.return_to;
   this.session.user = null;
-  this.redirect(this._routes.login);
+  this.redirect(returnTo || this._routes.login);
   yield next;
 }
 
