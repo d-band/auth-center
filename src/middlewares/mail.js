@@ -10,7 +10,7 @@ export default function(app, options) {
   app.use(function * mailHandler(next) {
     if (this.sendMail) return yield * next;
 
-    this.sendMail = function * sendMail(to, template, context, attachments) {
+    this.sendMail = function * sendMail(to, template, context, attachments = null) {
       let tpl = templates[template];
       let sender = transport.templateSender(tpl, {
         from: _options.from
