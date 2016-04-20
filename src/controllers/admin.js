@@ -1,5 +1,7 @@
 'use strict';
 
+import { generateToken, totpImage } from '../util';
+
 export function * checkLogin(next) {
   if (this.session.user) {
     if (this.session.user.is_admin) {
@@ -61,10 +63,9 @@ export function * sendTotp() {
   }
   try {
     // generate new totp key
-    const util = require('../util');
     const User = this.orm().User;
     let res = yield User.update({
-      totp_key: util.generateToken()
+      totp_key: generateToken()
     }, {
       where: {
         username: cond.username
@@ -82,7 +83,7 @@ export function * sendTotp() {
         cid: 'key'
       }, [{
         filename: 'key.png',
-        content: util.totpImage(user.username, user.key),
+        content: totpImage(user.username, user.key),
         cid: 'key'
       }]);
     } else {
@@ -113,10 +114,9 @@ export function * addClient() {
   }
   try {
     // add one new
-    const util = require('../util');
     const Client = this.orm().Client;
     let res = yield Client.create({
-      secret: util.generateToken(),
+      secret: generateToken(),
       name: cond.name,
       redirect_uri: cond.redirect_uri
     });
@@ -144,10 +144,9 @@ export function * generateSecret() {
   }
   try {
     // generate new secret
-    const util = require('../util');
     const Client = this.orm().Client;
     let res = yield Client.update({
-      secret: util.generateToken()
+      secret: generateToken()
     }, {
       where: {
         id: cond.id
