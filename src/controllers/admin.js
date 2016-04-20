@@ -40,19 +40,50 @@ export function * clientList() {
 }
 
 export function * sendTotp() {
-  // let cond = this.request.body;
+  const cond = this.request.body;
+  if (!cond.username) {
+    this.flash('error', 'Username is required');
+    this.redirect(this._routes.users);
+    return;
+  }
   try {
     // generate new totp key
-    let util = require('../util');
+    const util = require('../util');
     let key = util.generateToken();
-
+    const USER = this.orm().User;
+    let res = yield USER.update({
+      totp_key: key
+    }, {
+      where: {
+        username: cond.username
+      }
+    });
     // send email
-    this.flash('success', key);
+    if (res[0]) {
+      let user = yield USER.findOne({
+        where: {
+          username: cond.username
+        }
+      });
+      yield this.sendMail(user.email, 'send_totp', {
+        username: user.username,
+        cid: 'key'
+      }, [{
+        filename: 'key.png',
+        content: util.totpImage(cond.username, key),
+        cid: 'key'
+      }]);
+    } else {
+      this.flash('error', 'Update key failed');
+      this.redirect(this._routes.users);
+      return;
+    }
+    this.flash('success', 'Reset and send TOTP key successfully');
     this.redirect(this._routes.users);
   } catch (e) {
     console.error(e.stack);
-    this.flash('error', 'Send email failed');
-    this.redirect(this._routes.password_reset);
+    this.flash('error', 'Reset and send key failed');
+    this.redirect(this._routes.users);
   }
 }
 

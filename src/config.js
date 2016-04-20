@@ -30,7 +30,7 @@ const _config = {
     templates: {
       password_reset: {
         subject: 'Please reset your password',
-        html: '<p>Hello, <strong>{{username}}</strong>, we heard that you lost your GitHub password. Sorry about that!</p>' +
+        html: '<p>Hello, <strong>{{username}}</strong>, we heard that you lost your password. Sorry about that!</p>' +
           '<p>But don’t worry! You can use the following link to reset your password:</p>' +
           '<p><a href="{{link}}">{{link}}</a></p>' +
           '<p>If you don’t use this link within {{ttl}} hours, it will expire.</p>' +
