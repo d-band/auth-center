@@ -56,4 +56,13 @@ describe('auth-center util', function() {
     expect(util.totpURI('test', 'test_key')).to.be.equal('otpauth://totp/test?secret=ORSXG5C7NNSXS');
   });
 
+  it('should totpImage', function() {
+    let buf = util.totpImage('test', 'test_key');
+    
+    expect(buf[0]).to.be.equal(0x89);
+    expect(buf[1]).to.be.equal(0x50);
+    expect(buf[2]).to.be.equal(0x4E);
+    expect(buf[3]).to.be.equal(0x47);
+  });
+
 });
