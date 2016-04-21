@@ -1,6 +1,12 @@
 Auth Center (OAuth2.0 + TOTP)
 ===
 
+[![NPM version](https://img.shields.io/npm/v/auth-center.svg)](https://www.npmjs.com/package/auth-center)
+[![NPM downloads](https://img.shields.io/npm/dm/auth-center.svg)](https://www.npmjs.com/package/auth-center)
+[![Build Status](https://travis-ci.org/d-band/auth-center.svg?branch=master)](https://travis-ci.org/d-band/auth-center)
+[![Coverage Status](https://coveralls.io/repos/github/d-band/auth-center/badge.svg?branch=master)](https://coveralls.io/github/d-band/auth-center?branch=master)
+[![Dependency Status](https://david-dm.org/d-band/auth-center.svg)](https://david-dm.org/d-band/auth-center)
+
 ### 安装
 
 ```
