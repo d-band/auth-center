@@ -16,8 +16,9 @@ export function * checkLogin(next) {
 }
 
 export function * userList() {
-  let offset = this.query.offset || 0;
   const User = this.orm().User;
+
+  let offset = this.query.offset || 0;
   let users = yield User.findAndCountAll({
     attributes: ['username', 'totp_key', 'updatedAt'],
     where: {
@@ -29,6 +30,7 @@ export function * userList() {
       ['username', 'ASC']
     ]
   });
+
   yield this.render('admin/users', {
     users: 'active',
     data: users,
@@ -37,8 +39,9 @@ export function * userList() {
 }
 
 export function * clientList() {
-  let offset = this.query.offset || 0;
   const Client = this.orm().Client;
+
+  let offset = this.query.offset || 0;
   let clients = yield Client.findAndCountAll({
     attributes: ['id', 'secret', 'redirect_uri', 'name'],
     offset: offset * 20,
@@ -47,6 +50,7 @@ export function * clientList() {
       ['name', 'ASC']
     ]
   });
+
   yield this.render('admin/clients', {
     clients: 'active',
     data: clients,
@@ -55,27 +59,29 @@ export function * clientList() {
 }
 
 export function * sendTotp() {
-  const cond = this.request.body;
-  if (!cond.username) {
+  const User = this.orm().User;
+  const {username} = this.request.body;
+
+  if (!username) {
     this.flash('error', 'Username is required');
     this.redirect(this._routes.users);
     return;
   }
+
   try {
     // generate new totp key
-    const User = this.orm().User;
     let res = yield User.update({
       totp_key: generateToken()
     }, {
       where: {
-        username: cond.username
+        username: username
       }
     });
     // send email
     if (res[0]) {
       let user = yield User.findOne({
         where: {
-          username: cond.username
+          username: username
         }
       });
       yield this.sendMail(user.email, 'send_totp', {
@@ -101,24 +107,27 @@ export function * sendTotp() {
 }
 
 export function * addClient() {
-  const cond = this.request.body;
-  if (!cond.name) {
+  const Client = this.orm().Client;
+  const {name, redirect_uri} = this.request.body;
+
+  if (!name) {
     this.flash('error', 'Name is required');
     this.redirect(this._routes.clients);
     return;
   }
-  if (!cond.redirect_uri) {
+
+  if (!redirect_uri) {
     this.flash('error', 'Redirect URI is required');
     this.redirect(this._routes.clients);
     return;
   }
+
   try {
     // add one new
-    const Client = this.orm().Client;
     let res = yield Client.create({
       secret: generateToken(),
-      name: cond.name,
-      redirect_uri: cond.redirect_uri
+      name: name,
+      redirect_uri: redirect_uri
     });
     if (res.id) {
       this.flash('success', 'Add new client successfully');
@@ -136,20 +145,22 @@ export function * addClient() {
 }
 
 export function * generateSecret() {
-  let cond = this.request.body;
-  if (!cond.id) {
+  const Client = this.orm().Client;
+  const {id} = this.request.body;
+
+  if (!id) {
     this.flash('error', 'ID is required');
     this.redirect(this._routes.clients);
     return;
   }
+
   try {
     // generate new secret
-    const Client = this.orm().Client;
     let res = yield Client.update({
       secret: generateToken()
     }, {
       where: {
-        id: cond.id
+        id: id
       }
     });
     if (res[0]) {
