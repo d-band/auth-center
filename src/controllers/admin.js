@@ -19,7 +19,7 @@ export function * userList() {
   let offset = this.query.offset || 0;
   const User = this.orm().User;
   let users = yield User.findAndCountAll({
-    attributes: ['username', 'totp_key'],
+    attributes: ['username', 'totp_key', 'updatedAt'],
     where: {
       enable: 1
     },
@@ -83,7 +83,7 @@ export function * sendTotp() {
         cid: 'key'
       }, [{
         filename: 'key.png',
-        content: totpImage(user.username, user.key),
+        content: totpImage(user.username, user.totp_key),
         cid: 'key'
       }]);
     } else {

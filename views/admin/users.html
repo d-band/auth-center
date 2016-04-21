@@ -21,6 +21,7 @@
     <tr>
       <th>Name</th>
       <th>Key</th>
+      <th>Updated At</th>
       <th>Opeartion</th>
     </tr>
   </thead>
@@ -39,6 +40,9 @@
         {% else %}
           <span class="text-danger">Null</span>
         {% endif %}
+        </td>
+        <td>
+          {{d.updatedAt.toLocaleString('en-US', { hour12: false })}}
         </td>
         <td>
           <form action="/send_totp" method="post">
