@@ -5,6 +5,7 @@ import { generateToken, totpImage } from '../util';
 export function * checkLogin(next) {
   if (this.session.user) {
     if (this.session.user.is_admin) {
+      this.state.user = this.session.user;
       yield * next;
     } else {
       this.redirect(this._routes.home);

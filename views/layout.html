@@ -9,12 +9,16 @@
   <meta name="format-detection" content="telephone=no,email=no">
   <meta name="description" content="Auth Center"/>
   {% block title %}{% endblock %}
-  <link rel="shortcut icon" type="image/x-icon" href="//7xjsgs.com1.z0.glb.clouddn.com/favicon.ico">
+  {% if icon %}
+  <link rel="shortcut icon" type="image/x-icon" href="{{icon}}">
+  {% endif %}
   <link rel="stylesheet" href="/main.css">
 </head>
 <body>
   <div class="header-logo">
-    <img height="48" src="http://7xl0ai.com2.z0.glb.qiniucdn.com/oa-static/0.0.8/c/img/logo.png">
+    {% if logo %}
+    <img height="48" src="{{logo}}">
+    {% endif %}
   </div>
   <div class="auth-form">
     {% block content %}{% endblock %}
