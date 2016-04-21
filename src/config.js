@@ -12,6 +12,8 @@ const _config = {
     key: 'sid'
   },
   domain: '__domain__',
+  icon: '/57e096d191e00d4baacf303782a23c8d.png',
+  logo: '/57e096d191e00d4baacf303782a23c8d.png',
   emailCodeTTL: 3 * 60 * 60,
   // I18N config
   messages: {},
