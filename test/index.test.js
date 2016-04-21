@@ -31,7 +31,10 @@ describe('auth-center', function() {
           });
           input.on('end', function() {
             let data = Buffer.concat(chunks).toString();
-            emailCode = data.match(/code=3D(.*)\"/)[1];
+            let temp = data.match(/code=3D(.*)\"/);
+            if (temp && temp.length > 1) {
+              emailCode = temp[1];
+            }
             callback(null, true);
           });
         }
@@ -53,9 +56,22 @@ describe('auth-center', function() {
         email: 'test@example.com',
         totp_key: totp_key
       });
+      yield orm.User.add({
+        username: 'admin',
+        password: 'admin',
+        email: 'admin@example.com',
+        totp_key: totp_key
+      });
+      yield orm.User.update({
+        is_admin: true
+      }, {
+        where: {
+          username: 'admin'
+        }
+      });
       yield orm.Client.create({
         id: '12345678',
-        name: 'test',
+        name: 'test_client',
         secret: '12345678',
         redirect_uri: 'http://localhost:3000/auth/callback'
       });
@@ -552,4 +568,153 @@ describe('auth-center', function() {
         done();
       });
   });
+
+  it('should users => home => logout', function(done) {
+    request
+      .get('/users')
+      .end(function(err, res) {
+        expect(res.text).to.match(/Welcome/);
+        expect(res.text).to.match(/test/);
+        request
+          .get('/logout')
+          .end(function(err, res) {
+            done();
+          });
+      });
+  });
+
+  it('should login => users', function(done) {
+    request
+      .get('/users')
+      .end(function(err, res) {
+        expect(res.text).to.match(/password/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/session')
+          .send({
+            _csrf: csrf,
+            username: 'admin',
+            password: 'admin',
+            token: totp.gen(totp_key)
+          })
+          .end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.text).to.match(/Name/);
+            expect(res.text).to.match(/Key/);
+            expect(res.text).to.match(/Updated At/);
+            done();
+          });
+      });
+  });
+
+  it('should send totp: username is required', function(done) {
+    request
+      .post('/send_totp')
+      .end(function(err, res) {
+        expect(res.text).to.match(/Username is required/);
+        done();
+      });
+  });
+
+  it('should send totp: user not found', function(done) {
+    request
+      .post('/send_totp')
+      .send({
+        username: 'wrong'
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/Update failed/);
+        done();
+      });
+  });
+
+  it('should send totp', function(done) {
+    request
+      .post('/send_totp')
+      .send({
+        username: 'test'
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/successfully/);
+        done();
+      });
+  });
+
+  it('should add client: name is required', function(done) {
+    request
+      .post('/add_client')
+      .end(function(err, res) {
+        expect(res.text).to.match(/Name is required/);
+        done();
+      });
+  });
+
+  it('should add client: Redirect URI is required', function(done) {
+    request
+      .post('/add_client')
+      .send({
+        name: 'client1'
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/Redirect URI is required/);
+        done();
+      });
+  });
+
+  it('should add client', function(done) {
+    request
+      .post('/add_client')
+      .send({
+        name: 'client1',
+        redirect_uri: 'http://localhost'
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/Add new client successfully/);
+        done();
+      });
+  });
+
+  it('should generate secret: ID is required', function(done) {
+    request
+      .post('/generate_secret')
+      .end(function(err, res) {
+        expect(res.text).to.match(/ID is required/);
+        done();
+      });
+  });
+
+  it('should generate secret: client not found', function(done) {
+    request
+      .post('/generate_secret')
+      .send({
+        id: 'client2'
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/Update failed/);
+        done();
+      });
+  });
+
+  it('should generate secret', function(done) {
+    request
+      .post('/generate_secret')
+      .send({
+        id: '12345678'
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/Generate new secret successfully/);
+        done();
+      });
+  });
+
+  it('should client list', function(done) {
+    request
+      .get('/clients')
+      .end(function(err, res) {
+        expect(res.text).to.match(/test_client/);
+        done();
+      });
+  });
+
 });
