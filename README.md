@@ -1,55 +1,86 @@
-Auth Center with TOTP
+Auth Center (OAuth2.0 + TOTP)
 ===
 
-> Develop in process
+### 安装
 
 ```
-/**
- * https://tools.ietf.org/html/rfc6749#section-4
- * 
- * GET /oauth/authorize
- *   Req:
- *     response_type 'code'
- *     client_id    [string] Required
- *     redirect_uri [string]
- *     scope        [string]
- *     state        [string]
- *   Res:
- *     redirect: code & state
- *   Err:
- *     1. application_suspended:
- *       state=xxx
- *       error=application_suspended
- *       error_description=Your application has been suspended.
- *     2. redirect_uri_mismatch:
- *       state=xxx
- *       error=redirect_uri_mismatch
- *       error_description=The redirect_uri MUST match the registered callback URL for this application.
- *     3. access_denied:
- *       state=xxx
- *       error=access_denied
- *       error_description=The user has denied your application access.
- *       
- * POST /oauth/access_token
- *   Req:
- *     grant_type    'authorization_code'
- *     client_id     [string] Required
- *     client_secret [string] Required
- *     code          [string] Required
- *     redirect_uri  [string] Required
- *     state         [string]
- *   Res:
- *     access_token [string] Required
- *     token_type   [enum(bearer|mac)] Required
- *     expires_in   [int(seconds)] Recommended
- *     scope        [string]
- */
+// 全局安装
+npm i auth-center -g
+// 非全局安装
+npm i auth-center -S
 ```
 
-参考链接：
+### 功能列表
 
-- https://github.com/oauthjs/express-oauth-server/blob/master/examples/postgresql/index.js
-- https://github.com/jaredhanson/oauth2orize/tree/master/examples/express2/db
+
+- 配置方便、简单，UI简洁
+- 多数据库支持：MySQL、Postgres、sqlite、mariadb
+- session支持redis等
+- OAuth2.0 授权码模式
+- 密码验证增强（TOTP）
+- 自带后台管理
+
+### 使用说明
+
+> 完整配置文件参考：[config.js](./src/config.js)
+
+#### 1. 采用命令行执行
+
+```
+  Usage: auth-center [options]
+
+  Options:
+
+    -h, --help         output usage information
+    -v, --version      output the version number
+    -p, --port <port>  port, default 3000
+    --sync             sync database
+    --config <path>    custom config path
+```
+
+#### 2. 采用引入方式执行
+
+```
+const AuthServer = require('auth-server');
+
+const server = AuthServer({
+  domain: 'http://passport.example.com',
+  orm: {
+    db: 'db_auth',
+    username: 'root',
+    password: 'xxxx',
+    dialect: 'mysql',
+    host: '127.0.0.1',
+    port: 3306,
+    pool: {
+      maxConnections: 10,
+      minConnections: 0,
+      maxIdleTime: 30000
+    }
+  },
+  mail: {
+    from: '系统管理员 <admin@example.com>',
+    host: 'smtp.example.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: 'admin@example.com',
+      pass: 'admin'
+    }
+  }
+});
+
+server.listen(3000);
+
+server.orm.database().sequelize.sync({
+  force: true
+});
+```
+
+### 参考链接
+
+- https://github.com/oauthjs/express-oauth-server
+- https://github.com/jaredhanson/oauth2orize
 - https://tools.ietf.org/html/rfc6749#section-4
 - https://tools.ietf.org/html/rfc6750
 - http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html

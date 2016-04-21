@@ -1,6 +1,6 @@
 'use strict';
 
-import { join } from 'path';
+import { join, resolve } from 'path';
 import merge from 'lodash.merge';
 
 const _config = {
@@ -70,7 +70,7 @@ const _config = {
 
 export default function(param) {
   if (typeof param === 'string') {
-    const customConfig = require(param);
+    const customConfig = require(resolve(param));
     merge(_config, customConfig);
   }
 
