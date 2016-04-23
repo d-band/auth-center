@@ -77,5 +77,17 @@ export default function(param) {
     merge(_config, param);
   }
 
+  if (!_config.orm.dialectModulePath) {
+    let modulePath = join(process.cwd(), 'node_modules');
+    let moduleName = ({
+      sqlite: 'sqlite3',
+      mysql: 'mysql',
+      mariadb: 'mysql',
+      postgres: 'pg',
+      mssql: 'tedious'
+    })[_config.orm.dialect];
+
+    _config.orm.dialectModulePath = require.resolve(join(modulePath, moduleName));
+  }
   return _config;
 }
