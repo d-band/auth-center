@@ -33,15 +33,35 @@ npm i auth-center -S
 #### 1. 采用命令行执行
 
 ```
-  Usage: auth-center [options]
+$ auth-center -h
+
+  Usage: auth-center [options] [command]
+
+
+  Commands:
+
+    init              init config
+    start [options]   start server
+
+  Options:
+
+    -h, --help     output usage information
+    -v, --version  output the version number
+
+$ auth-center init
+$ auth-center start -h
+
+  Usage: auth-center start [options]
+
+  start server
 
   Options:
 
     -h, --help         output usage information
-    -v, --version      output the version number
-    -p, --port <port>  port, default 3000
-    --sync             sync database
+    -p, --port <port>  server port
     --config <path>    custom config path
+    --sync             sync database to generate tables
+    --data <path>      init data with json file
 ```
 
 #### 2. 采用引入方式执行
