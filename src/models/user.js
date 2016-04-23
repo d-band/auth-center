@@ -75,7 +75,8 @@ export default function(sequelize, DataTypes) {
           email: user.email,
           pass_salt: salt,
           pass_hash: encrypt(user.password, salt),
-          totp_key: user.totp_key
+          totp_key: user.totp_key,
+          is_admin: user.is_admin
         });
       },
       changePassword: function * (username, newPassword) {
