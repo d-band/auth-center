@@ -88,6 +88,9 @@ export default function(param) {
     })[_config.orm.dialect];
 
     _config.orm.dialectModulePath = require.resolve(join(modulePath, moduleName));
+  }
+
+  if (!_config.orm.logging) {
     _config.orm.logging = _config.debug && console.log;
   }
   return _config;
