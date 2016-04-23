@@ -1,7 +1,6 @@
 'use strict';
 /*Redis*/const redisStore = require('koa-redis');/*Redis*/
 module.exports = {
-  isTOTP: true,
   /*MySQL*/orm: {
     dialect: 'mysql',
     database: 'db_auth',
@@ -57,5 +56,16 @@ module.exports = {
     })
   },/*Redis*/
   domain: '__domain__',
-  logo: '__logo__'
+  logo: '__logo__',
+  isTOTP: true,
+  mail: {
+    from: '系统管理员 <admin@example.com>',
+    host: 'smtp.example.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: 'admin@example.com',
+      pass: 'admin'
+    }
+  }
 };
