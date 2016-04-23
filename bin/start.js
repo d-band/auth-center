@@ -2,6 +2,7 @@
 
 const AuthServer = require('../app');
 const co = require('co');
+const resolve = require('path').resolve;
 const existsSync = require('fs').existsSync;
 
 module.exports = function(options) {
