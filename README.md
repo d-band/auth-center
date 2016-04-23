@@ -49,6 +49,7 @@ $ auth-center -h
     -v, --version  output the version number
 
 $ auth-center init
+
 $ auth-center start -h
 
   Usage: auth-center start [options]
@@ -62,6 +63,7 @@ $ auth-center start -h
     --config <path>    custom config path
     --sync             sync database to generate tables
     --data <path>      init data with json file
+    
 ```
 
 #### 2. 采用引入方式执行

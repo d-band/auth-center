@@ -1,6 +1,7 @@
 'use strict';
 /*Redis*/const redisStore = require('koa-redis');/*Redis*/
 module.exports = {
+  isTOTP: true,
   /*MySQL*/orm: {
     dialect: 'mysql',
     database: 'db_auth',

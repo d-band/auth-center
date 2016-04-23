@@ -1,6 +1,7 @@
 'use strict';
 
 const AuthServer = require('../app');
+const co = require('co');
 const existsSync = require('fs').existsSync;
 
 module.exports = function(options) {
