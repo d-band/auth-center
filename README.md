@@ -74,7 +74,7 @@ const AuthServer = require('auth-server');
 const server = AuthServer({
   domain: 'http://passport.example.com',
   orm: {
-    db: 'db_auth',
+    database: 'db_auth',
     username: 'root',
     password: 'xxxx',
     dialect: 'mysql',
