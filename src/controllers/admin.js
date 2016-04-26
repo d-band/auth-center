@@ -125,19 +125,14 @@ export function * addClient() {
 
   try {
     // add one new
-    let res = yield Client.create({
+    yield Client.create({
       secret: generateToken(),
       name: name,
       redirect_uri: redirect_uri
     });
-    if (res.id) {
-      this.flash('success', 'Add new client successfully');
-      this.redirect(this._routes.clients);
-    } else {
-      this.flash('error', 'Create failed');
-      this.redirect(this._routes.clients);
-      return;
-    }
+
+    this.flash('success', 'Add new client successfully');
+    this.redirect(this._routes.clients);
   } catch (e) {
     console.error(e.stack);
     this.flash('error', 'Add new client failed');

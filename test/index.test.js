@@ -15,6 +15,7 @@ describe('auth-center', function() {
   this.timeout(0);
 
   var request, emailCode;
+  var isSendFail = false;
   var totp_key = util.generateToken();
 
   before(function(done) {
@@ -35,7 +36,11 @@ describe('auth-center', function() {
             if (temp && temp.length > 1) {
               emailCode = temp[1];
             }
-            callback(null, true);
+            if (isSendFail) {
+              callback(new Error('send error'));
+            } else {
+              callback(null, true);
+            }
           });
         }
       }
@@ -328,6 +333,29 @@ describe('auth-center', function() {
             expect(err).to.be.null;
             expect(res).to.have.status(200);
             expect(res.text).to.match(/User not found/);
+            done();
+          });
+      });
+  });
+
+  it('should password reset: send email fail', function(done) {
+    isSendFail = true;
+    request
+      .get('/password_reset')
+      .end(function(err, res) {
+        expect(res.text).to.match(/email/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/password_reset')
+          .send({
+            _csrf: csrf,
+            email: 'test@example.com'
+          })
+          .end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.text).to.match(/Send email failed/);
+            isSendFail = false;
             done();
           });
       });
@@ -629,6 +657,20 @@ describe('auth-center', function() {
       });
   });
 
+  it('should send totp: send failed', function(done) {
+    isSendFail = true;
+    request
+      .post('/send_totp')
+      .send({
+        username: 'test'
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/Reset and send key failed/);
+        isSendFail = false;
+        done();
+      });
+  });
+
   it('should send totp', function(done) {
     request
       .post('/send_totp')
@@ -658,6 +700,19 @@ describe('auth-center', function() {
       })
       .end(function(err, res) {
         expect(res.text).to.match(/Redirect URI is required/);
+        done();
+      });
+  });
+
+  it('should add client failed', function(done) {
+    request
+      .post('/add_client')
+      .send({
+        name: [1, 2, 3],
+        redirect_uri: 'http://localhost'
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/Add new client failed/);
         done();
       });
   });
@@ -692,6 +747,20 @@ describe('auth-center', function() {
       })
       .end(function(err, res) {
         expect(res.text).to.match(/Update failed/);
+        done();
+      });
+  });
+
+  it('should generate secret', function(done) {
+    request
+      .post('/generate_secret')
+      .send({
+        id: {
+          $or: 123
+        }
+      })
+      .end(function(err, res) {
+        expect(res.text).to.match(/Generate new secret failed/);
         done();
       });
   });

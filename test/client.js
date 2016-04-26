@@ -3,10 +3,13 @@
 const passport = require('koa-passport');
 const OAuth2Strategy = require('passport-oauth2').Strategy;
 
-const store = {};
+let store = {};
+let isHeader = true;
 
 module.exports = function(app) {
   OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
+    this._oauth2.useAuthorizationHeaderforGET(isHeader);
+    isHeader = !isHeader;
     this._oauth2.get('http://localhost:3000/user', accessToken, function(err, body, res) {
       done(null, JSON.parse(body));
     });

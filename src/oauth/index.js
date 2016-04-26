@@ -84,11 +84,18 @@ export default function(config) {
 
   function * authenticate(next) {
     const Token = this.orm().Token;
-    const _accessToken = this.query.access_token;
 
-    this.assert(_accessToken, 400, 'access_token is missing.');
+    let tokenId = this.get('authorization');
+    let matches = tokenId.match(/bearer\s(\S+)/i);
+    if (!matches) {
+      tokenId = this.query.access_token;
+    } else {
+      tokenId = matches[1];
+    }
 
-    let token = yield Token.findById(_accessToken);
+    this.assert(tokenId, 400, 'access_token is missing.');
+
+    let token = yield Token.findById(tokenId);
 
     this.assert(token, 401, 'access_token is invalid.');
 
