@@ -22,12 +22,14 @@ export default function(app) {
         return;
       }
 
+      this.status = status;
       switch (this.accepts('html', 'text', 'json')) {
         case 'text':
           this.type = 'text/plain';
           this.body = message;
           break;
         case 'html':
+          this.type = 'text/html';
           yield this.render('error', {
             status: status,
             message: message
@@ -36,8 +38,7 @@ export default function(app) {
         default:
           this.type = 'application/json';
           this.body = {
-            code: status,
-            message: message
+            error: message
           };
       }
     }

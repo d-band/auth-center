@@ -116,8 +116,7 @@ describe('auth-center', function() {
       .get('/404')
       .set('Accept', 'text/plain')
       .end(function(err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
+        expect(res).to.have.status(404);
         expect(res.text).to.match(/Not Found/);
         done();
       });
@@ -128,9 +127,8 @@ describe('auth-center', function() {
       .get('/404')
       .set('Accept', 'application/json')
       .end(function(err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        expect(res.text).to.match(/code/);
+        expect(res).to.have.status(404);
+        expect(res.text).to.match(/error/);
         expect(res.text).to.match(/Not Found/);
         done();
       });
@@ -590,8 +588,7 @@ describe('auth-center', function() {
         redirect_uri: 'http://localhost:3000/invalid'
       })
       .end(function(err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
+        expect(res).to.have.status(400);
         expect(res.text).to.match(/redirect_uri is invalid/);
         done();
       });

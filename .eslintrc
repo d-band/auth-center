@@ -2,6 +2,7 @@ extends: standard
 
 rules:
   arrow-parens: 0
+  camelcase: 0
   eqeqeq: 0
   no-var: 2
   semi: [2, always]
