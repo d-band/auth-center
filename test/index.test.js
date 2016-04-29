@@ -20,6 +20,28 @@ describe('auth-center', function() {
 
   before(function(done) {
     const authServer = AuthServer({
+      orm: {
+        define: {
+          createdAt: 'created_date',
+          updatedAt: 'updated_date',
+          getterMethods: {
+            createdAt: function() {
+              return this.created_date;
+            },
+            updatedAt: function() {
+              return this.updated_date;
+            }
+          },
+          setterMethods: {
+            createdAt: function(date) {
+              this.created_date = date;
+            },
+            updatedAt: function(date) {
+              this.updated_date = date;
+            }
+          }
+        }
+      },
       mail: {
         from: 'admin@example.com',
         name: 'minimal',

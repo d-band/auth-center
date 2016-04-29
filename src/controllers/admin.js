@@ -21,7 +21,9 @@ export function * userList() {
 
   let offset = this.query.offset || 0;
   let users = yield User.findAndCountAll({
-    attributes: ['username', 'totp_key', 'updatedAt'],
+    attributes: {
+      exclude: ['pass_hash', 'pass_salt']
+    },
     where: {
       enable: 1
     },
