@@ -69,7 +69,7 @@ $ auth-center start -h
 #### 2. 采用引入方式执行
 
 ```
-const AuthServer = require('auth-server');
+const AuthServer = require('auth-center');
 
 const server = AuthServer({
   domain: 'http://passport.example.com',

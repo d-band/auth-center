@@ -1,6 +1,6 @@
 'use strict';
 
-const AuthServer = require('auth-server');
+const AuthServer = require('auth-center');
 
 const server = AuthServer({
   debug: true,
