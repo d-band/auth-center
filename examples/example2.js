@@ -37,7 +37,8 @@ if (!module.parent) {
       username: 'test',
       password: 'test',
       email: 'test@example.com',
-      totp_key: '1234'
+      totp_key: '1234',
+      is_admin: true
     });
     yield orm.Client.create({
       id: '12345678',

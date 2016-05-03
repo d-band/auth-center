@@ -61,7 +61,7 @@
   {% if offset > 0 %}
     <li><a href="/users?offset={{offset-1}}">Previous</a></li>
   {% endif %}
-  {% if offset*20+data.rows.length < count %}
+  {% if offset*20+data.rows.length < data.count %}
     <li><a href="/users?offset={{+offset+1}}">Next</a></li>
   {% endif %}
   </ul>
