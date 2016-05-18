@@ -1,6 +1,6 @@
 'use strict';
 
-import { generateToken, totpImage } from '../util';
+import { generateToken, encodeKey, totpImage } from '../util';
 
 export function * checkLogin(next) {
   if (this.session.user) {
@@ -89,10 +89,12 @@ export function * sendTotp() {
       });
       yield this.sendMail(user.email, 'send_totp', {
         username: user.username,
-        cid: 'key'
+        cid: 'key',
+        email: user.email,
+        key: encodeKey(user.totp_key)
       }, [{
         filename: 'key.png',
-        content: totpImage(user.username, user.totp_key),
+        content: totpImage(user.email, user.totp_key),
         cid: 'key'
       }]);
     } else {

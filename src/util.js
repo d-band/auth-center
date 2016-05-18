@@ -40,9 +40,12 @@ export function buildURI(uri, query) {
   return format(obj);
 }
 
+export function encodeKey(key) {
+  return base32.encode(key).toString().replace(/=/g, '');
+}
+
 export function totpURI(user, key) {
-  let encoded = base32.encode(key).toString().replace(/=/g, '');
-  return `otpauth://totp/${user}?secret=${encoded}`;
+  return `otpauth://totp/${user}?secret=${encodeKey(key)}`;
 }
 
 export function totpImage(user, key) {

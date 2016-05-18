@@ -41,6 +41,8 @@ const _config = {
         subject: '[Important] The key of the dynamic password',
         html: '<p>Hello, <strong>{{username}}</strong>, following image is the key for dynamic password.</p>' +
           '<p><img src="cid:{{cid}}"/></p>' +
+          '<p>Or you can use following email and secret key to register :</p>' +
+          '<p>Email: {{email}}<br>Secret Key: {{key}}</p>' +
           '<p>You should download <strong>Google Authenticator</strong> to use it.</p>' +
           '<p>iOS App: <a href="https://itunes.apple.com/cn/app/google-authenticator/id388497605?mt=8">https://itunes.apple.com/cn/app/google-authenticator/id388497605?mt=8</a><br>' +
           'Android App: <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en</a><br>' +
