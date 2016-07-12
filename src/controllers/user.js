@@ -4,9 +4,13 @@ import isEmail from 'validator/lib/isEmail';
 import { totp } from 'notp';
 
 export function * home() {
-  yield this.render('home', {
-    user: this.session.user
-  });
+  if (this.config.redirectURL) {
+    this.redirect(this.config.redirectURL);
+  } else {
+    yield this.render('home', {
+      user: this.session.user
+    });
+  }
 }
 
 export function * checkLogin(next) {
