@@ -19,6 +19,7 @@ const app = App({
           });
           input.on('end', function() {
             let data = Buffer.concat(chunks).toString();
+            console.log(data);
             callback(null, true);
           });
         }
@@ -34,20 +35,27 @@ if (!module.parent) {
       force: true
     });
     yield orm.User.add({
-      username: 'test',
-      password: 'test',
-      email: 'test@example.com',
+      username: 'nick',
+      password: 'nick',
+      email: 'nick@example.com',
+      totp_key: '1234',
+      is_admin: true
+    });
+    yield orm.User.add({
+      username: 'ken',
+      password: 'ken',
+      email: 'ken@example.com',
       totp_key: '1234',
       is_admin: true
     });
     yield orm.Client.create({
-      id: '12345678',
-      name: 'test',
+      id: '740a1d6d-9df8-4552-a97a-5704681b8039',
+      name: 'local',
       secret: '12345678',
       redirect_uri: 'http://localhost:8080'
     });
     yield orm.Client.create({
-      id: '12345678',
+      id: 'bd0e56c1-8f02-49f3-b502-129da70b6f09',
       name: 'test',
       secret: '12345678',
       redirect_uri: 'http://121.199.13.86:8080'
