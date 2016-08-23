@@ -8,21 +8,21 @@ const app = App({
   debug: true,
   isTOTP: false,
   mail: {
-        from: 'admin@example.com',
-        name: 'minimal',
-        version: '0.1.0',
-        send: function(mail, callback) {
-          let input = mail.message.createReadStream();
-          let chunks = [];
-          input.on('data', function(chunk) {
-            chunks.push(chunk);
-          });
-          input.on('end', function() {
-            let data = Buffer.concat(chunks).toString();
-            console.log(data);
-            callback(null, true);
-          });
-        }
+    from: 'admin@example.com',
+    name: 'minimal',
+    version: '0.1.0',
+    send: function(mail, callback) {
+      let input = mail.message.createReadStream();
+      let chunks = [];
+      input.on('data', function(chunk) {
+        chunks.push(chunk);
+      });
+      input.on('end', function() {
+        let data = Buffer.concat(chunks).toString();
+        console.log(data);
+        callback(null, true);
+      });
+    }
   }
 });
 
