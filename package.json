@@ -47,7 +47,7 @@
     "coveralls": "~2.11.12",
     "dool-build": "~1.2.2",
     "eslint": "~3.3.1",
-    "eslint-config-standard": "~5.3.5",
+    "eslint-config-standard": "~6.0.0",
     "eslint-plugin-promise": "~2.0.0",
     "eslint-plugin-standard": "~2.0.0",
     "istanbul": "~0.4.3",
