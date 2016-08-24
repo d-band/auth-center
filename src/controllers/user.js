@@ -142,7 +142,8 @@ export function * passwordChangePage() {
     return;
   }
   yield this.render('change', {
-    codeId: codeId
+    codeId: codeId,
+    title: 'Change password'
   });
 }
 
@@ -197,4 +198,78 @@ export function * getInfo(next) {
     attributes: ['username', 'email'],
     raw: true
   });
+}
+
+export function * passwordInitPage() {
+  const EmailCode = this.orm().EmailCode;
+
+  let codeId = this.query.code;
+
+  if (!codeId) {
+    this.flash('error', 'Code is required');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
+
+  let code = yield EmailCode.findById(codeId);
+  if (!code) {
+    this.flash('error', 'Code is invalid');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
+
+  let expiresAt = code.createdAt.getTime() + this.config.emailInitCodeTTL * 1000;
+  if (expiresAt < Date.now()) {
+    this.flash('error', 'Code is expired');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
+  yield this.render('change', {
+    codeId: codeId,
+    title: 'Initialize password'
+  });
+}
+
+export function * passwordInit() {
+  const User = this.orm().User;
+  const EmailCode = this.orm().EmailCode;
+
+  let {password, password2, codeId} = this.request.body;
+
+  if (!codeId) {
+    this.flash('error', 'Code is required');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
+
+  let code = yield EmailCode.findById(codeId);
+  if (!code) {
+    this.flash('error', 'Code is invalid');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
+
+  let expiresAt = code.createdAt.getTime() + this.config.emailInitCodeTTL * 1000;
+  if (expiresAt < Date.now()) {
+    this.flash('error', 'Code is expired');
+    this.redirect(this._routes.password_reset);
+    return;
+  }
+
+  if (!password || !password2 || password !== password2 || password.length < 8) {
+    this.flash('error', 'Password is invalid');
+    this.redirect('back');
+    return;
+  }
+
+  // TODO: add transaction
+  yield User.changePassword(code.user_id, password);
+  yield EmailCode.destroy({
+    where: {
+      id: codeId
+    }
+  });
+
+  this.flash('success', 'Password have initialized');
+  this.redirect(this._routes.login);
 }

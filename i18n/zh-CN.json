@@ -10,5 +10,6 @@
   "Enter your email address": "请输入邮箱地址",
   "Send Email": "发送邮件",
   "Change password": "修改密码",
-  "Confirm password": "确认密码"
+  "Confirm password": "确认密码",
+  "Initialize password": "初始化密码"
 }

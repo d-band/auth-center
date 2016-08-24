@@ -177,3 +177,68 @@ export function * generateSecret() {
     this.redirect(this._routes.clients);
   }
 }
+
+export function * addUser() {
+  const User = this.orm().User;
+  const EmailCode = this.orm().EmailCode;
+  const sequelize = this.orm().sequelize;
+  const {username, email} = this.request.body;
+  let t = yield sequelize.transaction();
+
+  if (!username) {
+    this.flash('error', 'Username is required');
+    this.redirect(this._routes.users);
+    return;
+  }
+
+  if (!email) {
+    this.flash('error', 'Email is required');
+    this.redirect(this._routes.users);
+    return;
+  }
+
+  try {
+    // add one new
+    let user = yield User.add({
+      username: username,
+      email: email,
+      password: 'helloCNOOD',
+      totp_key: generateToken()
+    }, t);
+    // 生成code
+    let code = yield EmailCode.create({
+      user_id: username
+    }, {
+      transaction: t
+    });
+
+    yield t.commit();
+
+    // send email
+    if (user && code) {
+      yield this.sendMail(user.email, 'add_user', {
+        username: user.username,
+        cid: 'key',
+        email: user.email,
+        key: encodeKey(user.totp_key),
+        ttl: this.config.emailCodeTTL / 3600,
+        link: this.config.domain + this._routes.password_change + '?code=' + code.id
+      }, [{
+        filename: 'key.png',
+        content: totpImage(user.email, user.totp_key),
+        cid: 'key'
+      }]);
+    } else {
+      this.flash('error', 'Add new user failed');
+      this.redirect(this._routes.users);
+      return;
+    }
+
+    this.flash('success', 'Add new user successfully');
+    this.redirect(this._routes.users);
+  } catch (e) {
+    console.error(e.stack);
+    this.flash('error', 'Add new user failed');
+    this.redirect(this._routes.users);
+  }
+}

@@ -30,6 +30,10 @@ export default function routes(app, config) {
   router.get(R.password_change, user.passwordChangePage);
   router.post(R.password_change, user.passwordChange);
 
+  // Initial password
+  router.get(R.password_init, user.passwordInitPage);
+  router.post(R.password_init, user.passwordInit);
+
   // API: get user info
   router.get(R.user, oauth.authenticate, user.getInfo);
 
@@ -43,6 +47,7 @@ export default function routes(app, config) {
   router.post(R.send_totp, admin.checkLogin, admin.sendTotp);
   router.post(R.add_client, admin.checkLogin, admin.addClient);
   router.post(R.generate_secret, admin.checkLogin, admin.generateSecret);
+  router.post(R.add_user, admin.checkLogin, admin.addUser);
 
   app.use(function * injectParams(next) {
     this.state._csrf = this.csrf;

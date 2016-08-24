@@ -68,16 +68,23 @@ export default function(sequelize, DataTypes) {
           }
         });
       },
-      add: function * (user) {
+      add: function * (user, t) {
         let salt = makeSalt();
-        return yield this.create({
+        let u = {
           username: user.username,
           email: user.email,
           pass_salt: salt,
           pass_hash: encrypt(user.password, salt),
           totp_key: user.totp_key,
           is_admin: user.is_admin
-        });
+        };
+        if (t) {
+          return yield this.create(u, {
+            transaction: t
+          });
+        } else {
+          return yield this.create(u);
+        }
       },
       changePassword: function * (username, newPassword) {
         let salt = makeSalt();

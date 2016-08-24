@@ -1,7 +1,7 @@
 {% extends './layout.html' %}
 
 {% block title %}
-<title>{{__("Change password")}}</title>
+<title>{{__(title)}}</title>
 {% endblock %}
 
 {% block content %}
@@ -9,7 +9,7 @@
   <input type="hidden" name="_csrf" value="{{_csrf}}">
   <input type="hidden" name="codeId" value="{{codeId}}">
   <div class="auth-form-header">
-    <h1>{{__("Change password")}}</h1>
+    <h1>{{__(title)}}</h1>
   </div>
   <div class="auth-form-body">
     <div class="input-wrap">
@@ -19,7 +19,7 @@
       <input type="password" name="password2" placeholder="{{__("Confirm password")}}">
     </div>
     <div class="input-wrap">
-      <button class="btn btn-primary btn-block">{{__("Change password")}}</button>
+      <button class="btn btn-primary btn-block">{{__(title)}}</button>
     </div>
     {% if messages.error %}
     <div class="alert alert-danger">{{messages.error}}</div>
