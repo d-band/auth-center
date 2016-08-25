@@ -22,7 +22,7 @@ export default function(sequelize, DataTypes) {
     comment: 'Role table, user all system roles',
     indexes: [{
       unique: true,
-      fields: ['user_id', 'client_id']
+      fields: ['user_id', 'client_id', 'role']
     }]
   });
 }

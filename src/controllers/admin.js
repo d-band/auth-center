@@ -221,7 +221,7 @@ export function * addUser() {
         cid: 'key',
         email: user.email,
         key: encodeKey(user.totp_key),
-        ttl: this.config.emailCodeTTL / 3600,
+        ttl: this.config.emailInitCodeTTL / 3600,
         link: this.config.domain + this._routes.password_change + '?code=' + code.id
       }, [{
         filename: 'key.png',
@@ -240,5 +240,113 @@ export function * addUser() {
     console.error(e.stack);
     this.flash('error', 'Add new user failed');
     this.redirect(this._routes.users);
+  }
+}
+
+export function * roleList() {
+  const Role = this.orm().Role;
+  const Client = this.orm().Client;
+  const DicRole = this.orm().DicRole;
+  const User = this.orm().User;
+
+  let q = this.query.q || '';
+  let offset = this.query.offset || 0;
+  let roles = yield Role.findAndCountAll({
+    attributes: ['id', 'user_id', 'client_id', 'role'],
+    where: {
+      user_id: {
+        $like: '%' + q + '%'
+      }
+    },
+    offset: offset * 20,
+    limit: 20,
+    order: [
+      ['user_id', 'ASC']
+    ]
+  });
+
+  let clients = yield Client.findAll();
+
+  let dics = yield DicRole.findAll();
+
+  // 获取所有用户
+  let users = yield User.findAll({
+    attributes: ['username']
+  });
+
+  yield this.render('admin/roles', {
+    roles: 'active',
+    q: q,
+    data: roles,
+    clients: clients,
+    dics: dics,
+    users: users,
+    offset: offset
+  });
+}
+
+export function * addRole() {
+  const Role = this.orm().Role;
+  const {user, client, role} = this.request.body;
+
+  if (!user) {
+    this.flash('error', 'User is required');
+    this.redirect(this._routes.roles);
+    return;
+  }
+
+  if (!client) {
+    this.flash('error', 'Client is required');
+    this.redirect(this._routes.roles);
+    return;
+  }
+
+  if (!role) {
+    this.flash('error', 'Role is required');
+    this.redirect(this._routes.roles);
+    return;
+  }
+
+  try {
+    // add one new
+    yield Role.create({
+      user_id: user,
+      client_id: client,
+      role: role
+    });
+
+    this.flash('success', 'Add new role successfully');
+    this.redirect(this._routes.roles);
+  } catch (e) {
+    console.error(e.stack);
+    this.flash('error', 'Add new role failed, maybe it is existed');
+    this.redirect(this._routes.roles);
+  }
+}
+
+export function * deleteRole() {
+  const Role = this.orm().Role;
+  const {id} = this.request.body;
+
+  if (!id) {
+    this.flash('error', 'Id is required');
+    this.redirect(this._routes.roles);
+    return;
+  }
+
+  try {
+    // add one new
+    yield Role.destroy({
+      where: {
+        id: id
+      }
+    });
+
+    this.flash('success', 'Delete role successfully');
+    this.redirect(this._routes.roles);
+  } catch (e) {
+    console.error(e.stack);
+    this.flash('error', 'Delete role failed, maybe it is not existed');
+    this.redirect(this._routes.roles);
   }
 }

@@ -1,6 +1,6 @@
 {% extends './layout.html' %}
 {% block head %}
-<title>Users</title>
+<title>Roles</title>
 {% endblock %}
 
 {% block content %}
@@ -16,18 +16,22 @@
   {{messages.error}}
 </div>
 {% endif %}
-<div class="panel text-right">
-  <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#userModal">
-    Add User
+<div class="panel">
+  <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#roleModal">
+    Add Role
   </button>
+  <form action="/roles" method="get">
+    <input type="text" name="q" value="{{q}}">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
 </div>
 <hr>
 <table class="table">
   <thead>
     <tr>
-      <th>Name</th>
-      <th>Key</th>
-      <th>Updated At</th>
+      <th>User</th>
+      <th>Client</th>
+      <th>Role</th>
       <th>Opeartion</th>
     </tr>
   </thead>
@@ -39,21 +43,13 @@
     {% else %}
       {% for d in data.rows %}
       <tr>
-        <td>{{d.username}}</td>
+        <td>{{d.user_id}}</td>
+        <td>{{d.client_id}}</td>
+        <td>{{d.role}}</td>
         <td>
-        {% if d.totp_key %}
-          <span class="text-success">Existed</span>
-        {% else %}
-          <span class="text-danger">Null</span>
-        {% endif %}
-        </td>
-        <td>
-          {{d.updatedAt.toLocaleString('en-US', { hour12: false })}}
-        </td>
-        <td>
-          <form action="/send_totp" method="post">
-            <input type="hidden" name="username" value="{{d.username}}">
-            <button class="btn btn-primary btn-xs" type="submit">Send TOTP</button>
+          <form action="/delete_role" method="post">
+            <input type="hidden" name="id" value="{{d.id}}">
+            <button class="btn btn-danger btn-xs" type="submit">Delete</button>
           </form>
         </td>
       </tr>
@@ -73,23 +69,39 @@
   </ul>
 </nav>
 {% endif %}
-<div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="roleModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Add New User</h4>
+        <h4 class="modal-title" id="myModalLabel">Add New Role</h4>
       </div>
-      <form action="/add_user" method="post">
+      <form action="/add_role" method="post">
         <input type="hidden" name="_csrf" value="{{_csrf}}">
         <div class="modal-body">
           <div class="form-group">
-            <label for="recipient-name" class="control-label">Username</label>
-            <input type="text" class="form-control" name="username">
+            <label for="recipient-name" class="control-label">User</label>
+            <select class="form-control" name="user">
+              {% for u in users %}
+              <option value="{{u.username}}">{{u.username}}</option>
+              {% endfor %}
+            </select>
           </div>
           <div class="form-group">
-            <label for="recipient-name" class="control-label">Email</label>
-            <input type="email" class="form-control" name="email">
+            <label for="recipient-name" class="control-label">Client</label>
+            <select class="form-control" name="client">
+              {% for c in clients %}
+              <option value="{{c.id}}">{{c.name}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="recipient-name" class="control-label">Role</label>
+            <select class="form-control" name="role">
+              {% for r in dics %}
+              <option value="{{r.name}}">{{r.name}}</option>
+              {% endfor %}
+            </select>
           </div>
         </div>
         <div class="modal-footer">

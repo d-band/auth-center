@@ -48,6 +48,9 @@ export default function routes(app, config) {
   router.post(R.add_client, admin.checkLogin, admin.addClient);
   router.post(R.generate_secret, admin.checkLogin, admin.generateSecret);
   router.post(R.add_user, admin.checkLogin, admin.addUser);
+  router.get(R.roles, admin.checkLogin, admin.roleList);
+  router.post(R.add_role, admin.checkLogin, admin.addRole);
+  router.post(R.delete_role, admin.checkLogin, admin.deleteRole);
 
   app.use(function * injectParams(next) {
     this.state._csrf = this.csrf;

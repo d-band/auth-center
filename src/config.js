@@ -14,7 +14,7 @@ const _config = {
   domain: '__domain__',
   logo: '/57e096d191e00d4baacf303782a23c8d.png',
   emailCodeTTL: 3 * 60 * 60,
-  emailInitCodeTTL: 24 * 60 * 60,
+  emailInitCodeTTL: 48 * 60 * 60,
   // I18N config
   messages: {},
   // OAuth config
@@ -74,6 +74,7 @@ const _config = {
     home: '/',
     users: '/users',
     clients: '/clients',
+    roles: '/roles',
     send_totp: '/send_totp',
     add_client: '/add_client',
     generate_secret: '/generate_secret',
@@ -86,7 +87,9 @@ const _config = {
     authorize: '/authorize',
     access_token: '/access_token',
     add_user: '/add_user',
-    password_init: '/password_init'
+    password_init: '/password_init',
+    add_role: '/add_role',
+    delete_role: '/delete_role'
   }
 };
 

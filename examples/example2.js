@@ -58,7 +58,15 @@ if (!module.parent) {
       id: 'bd0e56c1-8f02-49f3-b502-129da70b6f09',
       name: 'test',
       secret: '12345678',
-      redirect_uri: 'http://121.199.13.86:8080'
+      redirect_uri: 'http://oa.cnood.com'
+    });
+    yield orm.DicRole.create({
+      name: 'user',
+      description: 'Normal user'
+    });
+    yield orm.DicRole.create({
+      name: 'document',
+      description: 'Document department'
     });
   }).then(function() {});
   console.log(`Running site at: http://127.0.0.1:8888`);
