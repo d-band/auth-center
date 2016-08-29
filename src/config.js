@@ -73,6 +73,7 @@ const _config = {
   routes: {
     home: '/',
     users: '/users',
+    search_user: '/search_user',
     clients: '/clients',
     roles: '/roles',
     send_totp: '/send_totp',

@@ -2,7 +2,7 @@
 
 import { generateToken, encodeKey, totpImage } from '../util';
 
-export function * checkLogin(next) {
+export function* checkLogin(next) {
   if (this.session.user) {
     if (this.session.user.is_admin) {
       this.state.user = this.session.user;
@@ -16,7 +16,24 @@ export function * checkLogin(next) {
   }
 }
 
-export function * userList() {
+export function* searchUser() {
+  const User = this.orm().User;
+  const q = this.request.body.q || '';
+  const users = yield User.findAll({
+    attributes: ['username'],
+    where: {
+      enable: 1,
+      username: {
+        $like: q + '%'
+      }
+    },
+    offset: 0,
+    limit: 15
+  });
+  this.body = users.map(u => u.username);
+}
+
+export function* userList() {
   const User = this.orm().User;
 
   let offset = this.query.offset || 0;
@@ -41,7 +58,7 @@ export function * userList() {
   });
 }
 
-export function * clientList() {
+export function* clientList() {
   const Client = this.orm().Client;
 
   let offset = this.query.offset || 0;
@@ -61,7 +78,7 @@ export function * clientList() {
   });
 }
 
-export function * sendTotp() {
+export function* sendTotp() {
   const User = this.orm().User;
   const {username} = this.request.body;
 
@@ -111,7 +128,7 @@ export function * sendTotp() {
   }
 }
 
-export function * addClient() {
+export function* addClient() {
   const Client = this.orm().Client;
   const {name, redirect_uri} = this.request.body;
 
@@ -144,7 +161,7 @@ export function * addClient() {
   }
 }
 
-export function * generateSecret() {
+export function* generateSecret() {
   const Client = this.orm().Client;
   const {id} = this.request.body;
 
@@ -178,7 +195,7 @@ export function * generateSecret() {
   }
 }
 
-export function * addUser() {
+export function* addUser() {
   const User = this.orm().User;
   const EmailCode = this.orm().EmailCode;
   const sequelize = this.orm().sequelize;
@@ -243,11 +260,10 @@ export function * addUser() {
   }
 }
 
-export function * roleList() {
+export function* roleList() {
   const Role = this.orm().Role;
   const Client = this.orm().Client;
   const DicRole = this.orm().DicRole;
-  const User = this.orm().User;
 
   let q = this.query.q || '';
   let offset = this.query.offset || 0;
@@ -266,13 +282,7 @@ export function * roleList() {
   });
 
   let clients = yield Client.findAll();
-
   let dics = yield DicRole.findAll();
-
-  // 获取所有用户
-  let users = yield User.findAll({
-    attributes: ['username']
-  });
 
   yield this.render('admin/roles', {
     roles: 'active',
@@ -280,12 +290,11 @@ export function * roleList() {
     data: roles,
     clients: clients,
     dics: dics,
-    users: users,
     offset: offset
   });
 }
 
-export function * addRole() {
+export function* addRole() {
   const Role = this.orm().Role;
   const {user, client, role} = this.request.body;
 
@@ -324,7 +333,7 @@ export function * addRole() {
   }
 }
 
-export function * deleteRole() {
+export function* deleteRole() {
   const Role = this.orm().Role;
   const {id} = this.request.body;
 

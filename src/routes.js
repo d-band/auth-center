@@ -43,6 +43,7 @@ export default function routes(app, config) {
 
   // Admin
   router.get(R.users, admin.checkLogin, admin.userList);
+  router.post(R.search_user, admin.checkLogin, admin.searchUser);
   router.get(R.clients, admin.checkLogin, admin.clientList);
   router.post(R.send_totp, admin.checkLogin, admin.sendTotp);
   router.post(R.add_client, admin.checkLogin, admin.addClient);

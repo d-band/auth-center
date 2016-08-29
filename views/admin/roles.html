@@ -20,9 +20,9 @@
   <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#roleModal">
     Add Role
   </button>
-  <form action="/roles" method="get">
-    <input type="text" name="q" value="{{q}}">
-    <button type="submit" class="btn btn-primary">Search</button>
+  <form action="/roles" method="get" class="form-inline">
+    <input type="text" name="q" class="form-control input-sm" value="{{q}}">
+    <button type="submit" class="btn btn-primary btn-sm">Search</button>
   </form>
 </div>
 <hr>
@@ -81,11 +81,10 @@
         <div class="modal-body">
           <div class="form-group">
             <label for="recipient-name" class="control-label">User</label>
-            <select class="form-control" name="user">
-              {% for u in users %}
-              <option value="{{u.username}}">{{u.username}}</option>
-              {% endfor %}
-            </select>
+            <div id="J_userList" class="dropdown">
+              <input type="text" name="user" class="form-control" autocomplete="off" placeholder="Select user">
+              <ul class="dropdown-menu" style="width:100%;"></ul>
+            </div>
           </div>
           <div class="form-group">
             <label for="recipient-name" class="control-label">Client</label>
