@@ -24,15 +24,15 @@ export default function routes(app, config) {
 
   // Reset password
   router.get(R.password_reset, user.passwordResetPage);
-  router.post(R.password_reset, user.passwordReset);
+  router.post(R.password_reset, csrf, user.passwordReset);
 
   // Change password
   router.get(R.password_change, user.passwordChangePage);
-  router.post(R.password_change, user.passwordChange);
+  router.post(R.password_change, csrf, user.passwordChange);
 
   // Initial password
   router.get(R.password_init, user.passwordInitPage);
-  router.post(R.password_init, user.passwordInit);
+  router.post(R.password_init, csrf, user.passwordInit);
 
   // API: get user info
   router.get(R.user, oauth.authenticate, user.getInfo);
@@ -45,13 +45,13 @@ export default function routes(app, config) {
   router.get(R.users, admin.checkLogin, admin.userList);
   router.post(R.search_user, admin.checkLogin, admin.searchUser);
   router.get(R.clients, admin.checkLogin, admin.clientList);
-  router.post(R.send_totp, admin.checkLogin, admin.sendTotp);
-  router.post(R.add_client, admin.checkLogin, admin.addClient);
-  router.post(R.generate_secret, admin.checkLogin, admin.generateSecret);
-  router.post(R.add_user, admin.checkLogin, admin.addUser);
+  router.post(R.send_totp, csrf, admin.checkLogin, admin.sendTotp);
+  router.post(R.add_client, csrf, admin.checkLogin, admin.addClient);
+  router.post(R.generate_secret, csrf, admin.checkLogin, admin.generateSecret);
+  router.post(R.add_user, csrf, admin.checkLogin, admin.addUser);
   router.get(R.roles, admin.checkLogin, admin.roleList);
-  router.post(R.add_role, admin.checkLogin, admin.addRole);
-  router.post(R.delete_role, admin.checkLogin, admin.deleteRole);
+  router.post(R.add_role, csrf, admin.checkLogin, admin.addRole);
+  router.post(R.delete_role, csrf, admin.checkLogin, admin.deleteRole);
 
   app.use(function * injectParams(next) {
     this.state._csrf = this.csrf;

@@ -1,6 +1,7 @@
 'use strict';
 
 import { generateToken, encodeKey, totpImage } from '../util';
+import rs from 'randomstring';
 
 export function* checkLogin(next) {
   if (this.session.user) {
@@ -219,7 +220,7 @@ export function* addUser() {
     let user = yield User.add({
       username: username,
       email: email,
-      password: 'helloCNOOD',
+      password: rs.generate(),
       totp_key: generateToken()
     }, t);
     // 生成code

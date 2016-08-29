@@ -14,7 +14,9 @@ chai.use(chaiHttp);
 describe('auth-center', function() {
   this.timeout(0);
 
-  var request, emailCode;
+  var request,
+    emailCode,
+    csrf;
   var isSendFail = false;
   var totp_key = util.generateToken();
 
@@ -617,183 +619,257 @@ describe('auth-center', function() {
   });
 
   it('should users => home => logout', function(done) {
-    request
-      .get('/users')
-      .end(function(err, res) {
-        expect(res.text).to.match(/Welcome/);
-        expect(res.text).to.match(/test/);
-        request
-          .get('/logout')
-          .end(function(err, res) {
-            done();
-          });
-      });
+    request.get('/users').end(function(err, res) {
+      expect(res.text).to.match(/Welcome/);
+      expect(res.text).to.match(/test/);
+      request
+        .get('/logout')
+        .end(function(err, res) {
+          done();
+        });
+    });
   });
 
   it('should login => users', function(done) {
-    request
-      .get('/users')
-      .end(function(err, res) {
-        expect(res.text).to.match(/password/);
-        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
-        request
-          .post('/session')
-          .send({
-            _csrf: csrf,
-            username: 'admin',
-            password: 'admin',
-            token: totp.gen(totp_key)
-          })
-          .end(function(err, res) {
-            expect(err).to.be.null;
-            expect(res).to.have.status(200);
-            expect(res.text).to.match(/Name/);
-            expect(res.text).to.match(/Key/);
-            expect(res.text).to.match(/Updated At/);
-            done();
-          });
-      });
+    request.get('/users').end(function(err, res) {
+      expect(res.text).to.match(/password/);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/session')
+        .send({
+          _csrf: csrf,
+          username: 'admin',
+          password: 'admin',
+          token: totp.gen(totp_key)
+        })
+        .end(function(err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.status(200);
+          expect(res.text).to.match(/Name/);
+          expect(res.text).to.match(/Key/);
+          expect(res.text).to.match(/Updated At/);
+          done();
+        });
+    });
   });
 
   it('should send totp: username is required', function(done) {
-    request
-      .post('/send_totp')
-      .end(function(err, res) {
-        expect(res.text).to.match(/Username is required/);
-        done();
-      });
+    request.get('/users').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/send_totp')
+        .send({
+          _csrf: csrf
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Username is required/);
+          done();
+        });
+    });
   });
 
   it('should send totp: user not found', function(done) {
-    request
-      .post('/send_totp')
-      .send({
-        username: 'wrong'
-      })
-      .end(function(err, res) {
-        expect(res.text).to.match(/Update failed/);
-        done();
-      });
+    request.get('/users').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/send_totp')
+        .send({
+          _csrf: csrf,
+          username: 'wrong'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Update failed/);
+          done();
+        });
+    });
   });
 
   it('should send totp: send failed', function(done) {
-    isSendFail = true;
-    request
-      .post('/send_totp')
-      .send({
-        username: 'test'
-      })
-      .end(function(err, res) {
-        expect(res.text).to.match(/Reset and send key failed/);
-        isSendFail = false;
-        done();
-      });
+    request.get('/users').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      isSendFail = true;
+      request
+        .post('/send_totp')
+        .send({
+          _csrf: csrf,
+          username: 'test'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Reset and send key failed/);
+          isSendFail = false;
+          done();
+        });
+    });
   });
 
   it('should send totp', function(done) {
-    request
-      .post('/send_totp')
-      .send({
-        username: 'test'
-      })
-      .end(function(err, res) {
-        expect(res.text).to.match(/successfully/);
-        done();
-      });
+    request.get('/users').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/send_totp')
+        .send({
+          _csrf: csrf,
+          username: 'test'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/successfully/);
+          done();
+        });
+    });
   });
 
   it('should add client: name is required', function(done) {
-    request
-      .post('/add_client')
-      .end(function(err, res) {
-        expect(res.text).to.match(/Name is required/);
-        done();
-      });
+    request.get('/clients').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_client')
+        .send({
+          _csrf: csrf
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Name is required/);
+          done();
+        });
+    });
   });
 
   it('should add client: Redirect URI is required', function(done) {
-    request
-      .post('/add_client')
-      .send({
-        name: 'client1'
-      })
-      .end(function(err, res) {
-        expect(res.text).to.match(/Redirect URI is required/);
-        done();
-      });
+    request.get('/clients').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_client')
+        .send({
+          _csrf: csrf,
+          name: 'client1'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Redirect URI is required/);
+          done();
+        });
+    });
   });
 
   it('should add client failed', function(done) {
-    request
-      .post('/add_client')
-      .send({
-        name: [1, 2, 3],
-        redirect_uri: 'http://localhost'
-      })
-      .end(function(err, res) {
-        expect(res.text).to.match(/Add new client failed/);
-        done();
-      });
+    request.get('/clients').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_client')
+        .send({
+          _csrf: csrf,
+          name: [1, 2, 3],
+          redirect_uri: 'http://localhost'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Add new client failed/);
+          done();
+        });
+    });
   });
 
   it('should add client', function(done) {
-    request
-      .post('/add_client')
-      .send({
-        name: 'client1',
-        redirect_uri: 'http://localhost'
-      })
-      .end(function(err, res) {
-        expect(res.text).to.match(/Add new client successfully/);
-        done();
-      });
+    request.get('/clients').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_client')
+        .send({
+          _csrf: csrf,
+          name: 'client1',
+          redirect_uri: 'http://localhost'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Add new client successfully/);
+          done();
+        });
+    });
   });
 
   it('should generate secret: ID is required', function(done) {
-    request
-      .post('/generate_secret')
-      .end(function(err, res) {
-        expect(res.text).to.match(/ID is required/);
-        done();
-      });
+    request.get('/clients').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/generate_secret')
+        .send({
+          _csrf: csrf
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/ID is required/);
+          done();
+        });
+    });
   });
 
   it('should generate secret: client not found', function(done) {
-    request
-      .post('/generate_secret')
-      .send({
-        id: 'client2'
-      })
-      .end(function(err, res) {
-        expect(res.text).to.match(/Update failed/);
-        done();
-      });
+    request.get('/clients').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/generate_secret')
+        .send({
+          _csrf: csrf,
+          id: 'client2'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Update failed/);
+          done();
+        });
+    });
+  });
+
+  it('should generate secret failed', function(done) {
+    request.get('/clients').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/generate_secret')
+        .send({
+          _csrf: csrf,
+          id: {
+            $or: 123
+          }
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Generate new secret failed/);
+          done();
+        });
+    });
   });
 
   it('should generate secret', function(done) {
-    request
-      .post('/generate_secret')
-      .send({
-        id: {
-          $or: 123
-        }
-      })
-      .end(function(err, res) {
-        expect(res.text).to.match(/Generate new secret failed/);
-        done();
-      });
-  });
-
-  it('should generate secret', function(done) {
-    request
-      .post('/generate_secret')
-      .send({
-        id: '12345678'
-      })
-      .end(function(err, res) {
-        expect(res.text).to.match(/Generate new secret successfully/);
-        done();
-      });
+    request.get('/clients').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/generate_secret')
+        .send({
+          _csrf: csrf,
+          id: '12345678'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Generate new secret successfully/);
+          done();
+        });
+    });
   });
 
   it('should client list', function(done) {

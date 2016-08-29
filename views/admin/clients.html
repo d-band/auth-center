@@ -46,6 +46,7 @@
         <td>{{d.redirect_uri}}</td>
         <td>
           <form action="/generate_secret" method="post">
+            <input type="hidden" name="_csrf" value="{{_csrf}}">
             <input type="hidden" name="id" value="{{d.id}}">
             <button class="btn btn-primary btn-xs" type="submit">Generate</button>
           </form>

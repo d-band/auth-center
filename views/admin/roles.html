@@ -21,6 +21,7 @@
     Add Role
   </button>
   <form action="/roles" method="get" class="form-inline">
+    <input type="hidden" name="_csrf" value="{{_csrf}}">
     <input type="text" name="q" class="form-control input-sm" value="{{q}}">
     <button type="submit" class="btn btn-primary btn-sm">Search</button>
   </form>
@@ -48,6 +49,7 @@
         <td>{{d.role}}</td>
         <td>
           <form action="/delete_role" method="post">
+            <input type="hidden" name="_csrf" value="{{_csrf}}">
             <input type="hidden" name="id" value="{{d.id}}">
             <button class="btn btn-danger btn-xs" type="submit">Delete</button>
           </form>

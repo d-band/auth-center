@@ -52,6 +52,7 @@
         </td>
         <td>
           <form action="/send_totp" method="post">
+            <input type="hidden" name="_csrf" value="{{_csrf}}">
             <input type="hidden" name="username" value="{{d.username}}">
             <button class="btn btn-primary btn-xs" type="submit">Send TOTP</button>
           </form>
