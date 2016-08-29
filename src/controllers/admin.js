@@ -220,7 +220,7 @@ export function* addUser() {
     let user = yield User.add({
       username: username,
       email: email,
-      password: rs.generate(),
+      password: rs.generate(8),
       totp_key: generateToken()
     }, t);
     // 生成code
