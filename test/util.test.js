@@ -2,7 +2,7 @@
 
 const chai = require('chai');
 const expect = chai.expect;
-const util = require('../app/util');
+const util = require('../src/util');
 
 describe('auth-center util', function() {
   this.timeout(0);

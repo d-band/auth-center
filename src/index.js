@@ -16,11 +16,11 @@ import error from './middlewares/error';
 import flash from './middlewares/flash';
 import mail from './middlewares/mail';
 
-export default function(options) {
+export default function (options) {
   const config = Config(options);
   const app = koa();
 
-  app.use(function * injectConfig(next) {
+  app.use(function * injectConfig (next) {
     if (this.config) return yield * next;
     this.__defineGetter__('config', () => {
       return Config();
@@ -43,7 +43,7 @@ export default function(options) {
   /** I18n **/
   const i18n = new I18n(config.messages);
 
-  app.use(function * injectI18n(next) {
+  app.use(function * injectI18n (next) {
     if (this.query.locale) {
       this.session.locale = this.query.locale;
     }
@@ -55,7 +55,7 @@ export default function(options) {
   app.use(view(config.viewPath, {
     noCache: config.debug,
     globals: {
-      __: function(key) {
+      __: function (key) {
         return i18n.message(key);
       }
     }

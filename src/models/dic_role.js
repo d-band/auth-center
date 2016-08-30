@@ -1,6 +1,6 @@
 'use strict';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   return sequelize.define('DicRole', {
     name: {
       type: DataTypes.STRING(100),

@@ -5,13 +5,13 @@ import { join } from 'path';
 
 export default class I18n {
 
-  constructor(messages) {
+  constructor (messages) {
     this._path = join(__dirname, '../i18n');
     this._userMessages = messages || {};
     this.setLocale('en');
   }
 
-  setLocale(locale) {
+  setLocale (locale) {
     if (!locale || this._locale === locale) return;
 
     let temp = this._userMessages[locale] || this._userMessages['*'] || {};
@@ -26,7 +26,7 @@ export default class I18n {
     }
   }
 
-  message(key) {
+  message (key) {
     return this._messages[key] || key;
   }
 

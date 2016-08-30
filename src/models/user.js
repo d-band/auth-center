@@ -2,7 +2,7 @@
 
 import { makeSalt, encrypt } from '../util';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   return sequelize.define('User', {
     username: {
       type: DataTypes.STRING(100),
@@ -44,15 +44,12 @@ export default function(sequelize, DataTypes) {
     tableName: 'user',
     comment: 'user base info',
     classMethods: {
-      auth: function * (username, password) {
+      auth: function*(username, password) {
         let user = yield this.findById(username);
-
         if (!user) {
           user = yield this.findByEmail(username);
         }
-
         if (!user) return null;
-
         if (user.pass_hash !== encrypt(password, user.pass_salt)) {
           return null;
         }
@@ -61,40 +58,31 @@ export default function(sequelize, DataTypes) {
         user.pass_salt = null;
         return user;
       },
-      findByEmail: function * (email) {
+      findByEmail: function*(email) {
         return yield this.find({
-          where: {
-            email: email
-          }
+          where: { email }
         });
       },
-      add: function * (user, t) {
-        let salt = makeSalt();
-        let u = {
-          username: user.username,
-          email: user.email,
+      add: function*({ username, password, email, totp_key, is_admin }, options) {
+        const salt = makeSalt();
+        const hash = encrypt(password, salt);
+        return yield this.create({
+          username,
+          email,
+          totp_key,
+          is_admin,
           pass_salt: salt,
-          pass_hash: encrypt(user.password, salt),
-          totp_key: user.totp_key,
-          is_admin: user.is_admin
-        };
-        if (t) {
-          return yield this.create(u, {
-            transaction: t
-          });
-        } else {
-          return yield this.create(u);
-        }
+          pass_hash: hash
+        }, options);
       },
-      changePassword: function * (username, newPassword) {
-        let salt = makeSalt();
+      changePassword: function*(username, newPwd) {
+        const salt = makeSalt();
+        const hash = encrypt(newPwd, salt);
         return yield this.update({
           pass_salt: salt,
-          pass_hash: encrypt(newPassword, salt)
+          pass_hash: hash
         }, {
-          where: {
-            username: username
-          }
+          where: { username }
         });
       }
     }

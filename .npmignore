@@ -8,3 +8,4 @@ coverage
 test
 src/
 assets/
+.nyc_output

@@ -5,18 +5,24 @@ const chaiHttp = require('chai-http');
 const expect = chai.expect;
 const co = require('co');
 const totp = require('notp').totp;
-const AuthServer = require('../app');
-const util = require('../app/util');
-const Config = require('../app/config');
+const AuthServer = require('../src');
+const util = require('../src/util');
+const Config = require('../src/config');
+
+function decode(input){
+  return input.replace(/[\t\x20]$/gm, '')
+  .replace(/=(?:\r\n?|\n|$)/g, '')
+  .replace(/=([a-fA-F0-9]{2})/g, function($0, $1) {
+    return String.fromCharCode(parseInt($1, 16));
+  });
+}
 
 chai.use(chaiHttp);
 
 describe('auth-center', function() {
   this.timeout(0);
 
-  var request,
-    emailCode,
-    csrf;
+  var request, emailCode;
   var isSendFail = false;
   var totp_key = util.generateToken();
 
@@ -56,7 +62,7 @@ describe('auth-center', function() {
           });
           input.on('end', function() {
             let data = Buffer.concat(chunks).toString();
-            let temp = data.match(/code=3D(.*)\"/);
+            let temp = decode(data).match(/code=(.*)\"/);
             if (temp && temp.length > 1) {
               emailCode = temp[1];
             }

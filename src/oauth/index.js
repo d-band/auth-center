@@ -2,13 +2,13 @@
 
 import { checkURI, buildURI } from '../util';
 
-export default function(config) {
-  function * authorize() {
+export default function (config) {
+  function * authorize () {
     const Client = this.orm().Client;
     const Code = this.orm().Code;
 
     let user = this.session.user;
-    let {client_id, redirect_uri, state} = this.query;
+    let { client_id, redirect_uri, state } = this.query;
 
     this.assert(client_id, 400, 'client_id is missing.');
 
@@ -37,7 +37,7 @@ export default function(config) {
     }));
   }
 
-  function * accessToken() {
+  function * accessToken () {
     const Client = this.orm().Client;
     const Token = this.orm().Token;
     const Code = this.orm().Code;
@@ -45,7 +45,7 @@ export default function(config) {
     let isForm = this.request.is('application/x-www-form-urlencoded');
     this.assert(isForm, 403, 'Content must be application/x-www-form-urlencoded');
 
-    let {client_id, client_secret, code, redirect_uri, state} = this.request.body;
+    let { client_id, client_secret, code, redirect_uri, state } = this.request.body;
 
     this.assert(client_id, 400, 'client_id is missing.');
     this.assert(client_secret, 400, 'client_secret is missing.');
@@ -82,7 +82,7 @@ export default function(config) {
     };
   }
 
-  function * authenticate(next) {
+  function * authenticate (next) {
     const Token = this.orm().Token;
 
     let tokenId = this.get('authorization');

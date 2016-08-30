@@ -3,7 +3,7 @@
 import { generateToken, encodeKey, totpImage } from '../util';
 import rs from 'randomstring';
 
-export function* checkLogin(next) {
+export function* checkLogin (next) {
   if (this.session.user) {
     if (this.session.user.is_admin) {
       this.state.user = this.session.user;
@@ -17,7 +17,7 @@ export function* checkLogin(next) {
   }
 }
 
-export function* searchUser() {
+export function* searchUser () {
   const User = this.orm().User;
   const q = this.request.body.q || '';
   const users = yield User.findAll({
@@ -34,7 +34,7 @@ export function* searchUser() {
   this.body = users.map(u => u.username);
 }
 
-export function* userList() {
+export function* userList () {
   const User = this.orm().User;
 
   let offset = this.query.offset || 0;
@@ -59,7 +59,7 @@ export function* userList() {
   });
 }
 
-export function* clientList() {
+export function* clientList () {
   const Client = this.orm().Client;
 
   let offset = this.query.offset || 0;
@@ -79,9 +79,9 @@ export function* clientList() {
   });
 }
 
-export function* sendTotp() {
+export function* sendTotp () {
   const User = this.orm().User;
-  const {username} = this.request.body;
+  const { username } = this.request.body;
 
   if (!username) {
     this.flash('error', 'Username is required');
@@ -129,9 +129,9 @@ export function* sendTotp() {
   }
 }
 
-export function* addClient() {
+export function* addClient () {
   const Client = this.orm().Client;
-  const {name, redirect_uri} = this.request.body;
+  const { name, redirect_uri } = this.request.body;
 
   if (!name) {
     this.flash('error', 'Name is required');
@@ -162,9 +162,9 @@ export function* addClient() {
   }
 }
 
-export function* generateSecret() {
+export function* generateSecret () {
   const Client = this.orm().Client;
-  const {id} = this.request.body;
+  const { id } = this.request.body;
 
   if (!id) {
     this.flash('error', 'ID is required');
@@ -196,12 +196,11 @@ export function* generateSecret() {
   }
 }
 
-export function* addUser() {
+export function* addUser () {
   const User = this.orm().User;
   const EmailCode = this.orm().EmailCode;
   const sequelize = this.orm().sequelize;
-  const {username, email} = this.request.body;
-  let t = yield sequelize.transaction();
+  const { username, email } = this.request.body;
 
   if (!username) {
     this.flash('error', 'Username is required');
@@ -216,15 +215,20 @@ export function* addUser() {
   }
 
   try {
+    const t = yield sequelize.transaction();
+    const password = rs.generate(8);
+    const key = generateToken();
     // add one new
-    let user = yield User.add({
+    const user = yield User.add({
       username: username,
       email: email,
-      password: rs.generate(8),
-      totp_key: generateToken()
-    }, t);
+      password: password,
+      totp_key: key
+    }, {
+      transaction: t
+    });
     // 生成code
-    let code = yield EmailCode.create({
+    const code = yield EmailCode.create({
       user_id: username
     }, {
       transaction: t
@@ -234,16 +238,17 @@ export function* addUser() {
 
     // send email
     if (user && code) {
-      yield this.sendMail(user.email, 'add_user', {
-        username: user.username,
+      yield this.sendMail(email, 'add_user', {
+        username: username,
+        password: password,
         cid: 'key',
-        email: user.email,
-        key: encodeKey(user.totp_key),
+        email: email,
+        key: encodeKey(key),
         ttl: this.config.emailInitCodeTTL / 3600,
         link: this.config.domain + this._routes.password_change + '?code=' + code.id
       }, [{
         filename: 'key.png',
-        content: totpImage(user.email, user.totp_key),
+        content: totpImage(email, key),
         cid: 'key'
       }]);
     } else {
@@ -261,7 +266,7 @@ export function* addUser() {
   }
 }
 
-export function* roleList() {
+export function* roleList () {
   const Role = this.orm().Role;
   const Client = this.orm().Client;
   const DicRole = this.orm().DicRole;
@@ -295,9 +300,9 @@ export function* roleList() {
   });
 }
 
-export function* addRole() {
+export function* addRole () {
   const Role = this.orm().Role;
-  const {user, client, role} = this.request.body;
+  const { user, client, role } = this.request.body;
 
   if (!user) {
     this.flash('error', 'User is required');
@@ -334,9 +339,9 @@ export function* addRole() {
   }
 }
 
-export function* deleteRole() {
+export function* deleteRole () {
   const Role = this.orm().Role;
-  const {id} = this.request.body;
+  const { id } = this.request.body;
 
   if (!id) {
     this.flash('error', 'Id is required');

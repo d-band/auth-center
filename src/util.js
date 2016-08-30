@@ -5,16 +5,16 @@ import base32 from 'thirty-two';
 import qr from 'qr-image';
 import { parse, format } from 'url';
 
-export function makeSalt() {
+export function makeSalt () {
   return Math.round((new Date().valueOf() * Math.random())) + '';
 }
 
-export function encrypt(pass, salt) {
+export function encrypt (pass, salt) {
   if (!pass) return null;
   return crypto.createHmac('sha1', salt).update(pass).digest('hex');
 }
 
-export function checkURI(base, checked) {
+export function checkURI (base, checked) {
   let url1 = parse(base, false, true);
   let url2 = parse(checked, false, true);
 
@@ -28,26 +28,26 @@ export function checkURI(base, checked) {
     url2.pathname.indexOf(url1.pathname) === 0;
 }
 
-export function generateToken() {
+export function generateToken () {
   let buffer = crypto.randomBytes(256);
   return crypto.createHash('sha1').update(buffer).digest('hex');
 }
 
-export function buildURI(uri, query) {
+export function buildURI (uri, query) {
   let obj = parse(uri, true);
   Object.assign(obj.query, query);
   delete obj.search;
   return format(obj);
 }
 
-export function encodeKey(key) {
+export function encodeKey (key) {
   return base32.encode(key).toString().replace(/=/g, '');
 }
 
-export function totpURI(user, key) {
+export function totpURI (user, key) {
   return `otpauth://totp/${user}?secret=${encodeKey(key)}`;
 }
 
-export function totpImage(user, key) {
+export function totpImage (user, key) {
   return qr.imageSync(totpURI(user, key), 'H');
 }

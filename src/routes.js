@@ -5,12 +5,12 @@ import OAuth from './oauth';
 import * as user from './controllers/user';
 import * as admin from './controllers/admin';
 
-function * csrf(next) {
+function * csrf (next) {
   this.assertCSRF(this.request.body);
   yield next;
 }
 
-export default function routes(app, config) {
+export default function routes (app, config) {
   const R = config.routes;
   const oauth = OAuth(config);
   const router = Router();
@@ -53,7 +53,7 @@ export default function routes(app, config) {
   router.post(R.add_role, csrf, admin.checkLogin, admin.addRole);
   router.post(R.delete_role, csrf, admin.checkLogin, admin.deleteRole);
 
-  app.use(function * injectParams(next) {
+  app.use(function * injectParams (next) {
     this.state._csrf = this.csrf;
     this.state.logo = config.logo;
     this._routes = this.state._routes = R;

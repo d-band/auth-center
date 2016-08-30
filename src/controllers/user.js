@@ -3,7 +3,7 @@
 import isEmail from 'validator/lib/isEmail';
 import { totp } from 'notp';
 
-export function * home() {
+export function * home () {
   if (this.config.redirectURL) {
     this.redirect(this.config.redirectURL);
   } else {
@@ -13,7 +13,7 @@ export function * home() {
   }
 }
 
-export function * checkLogin(next) {
+export function * checkLogin (next) {
   if (this.session.user) {
     yield next;
   } else {
@@ -22,16 +22,16 @@ export function * checkLogin(next) {
   }
 }
 
-export function * login() {
+export function * login () {
   yield this.render('login', {
     isTOTP: this.config.isTOTP
   });
 }
 
-export function * session() {
+export function * session () {
   const User = this.orm().User;
 
-  let {username, password, token} = this.request.body;
+  let { username, password, token } = this.request.body;
 
   if (!username) {
     this.flash('error', 'Username is required');
@@ -70,18 +70,18 @@ export function * session() {
   this.redirect(returnTo || this._routes.home);
 }
 
-export function * logout(next) {
+export function * logout (next) {
   let returnTo = this.query.return_to;
   this.session.user = null;
   this.redirect(returnTo || this._routes.login);
   yield next;
 }
 
-export function * passwordResetPage() {
+export function * passwordResetPage () {
   yield this.render('reset');
 }
 
-export function * passwordReset() {
+export function * passwordReset () {
   const User = this.orm().User;
   const EmailCode = this.orm().EmailCode;
 
@@ -117,7 +117,7 @@ export function * passwordReset() {
   }
 }
 
-export function * passwordChangePage() {
+export function * passwordChangePage () {
   const EmailCode = this.orm().EmailCode;
 
   let codeId = this.query.code;
@@ -147,11 +147,11 @@ export function * passwordChangePage() {
   });
 }
 
-export function * passwordChange() {
+export function * passwordChange () {
   const User = this.orm().User;
   const EmailCode = this.orm().EmailCode;
 
-  let {password, password2, codeId} = this.request.body;
+  let { password, password2, codeId } = this.request.body;
 
   if (!codeId) {
     this.flash('error', 'Code is required');
@@ -191,7 +191,7 @@ export function * passwordChange() {
   this.redirect(this._routes.login);
 }
 
-export function * getInfo(next) {
+export function * getInfo (next) {
   const User = this.orm().User;
 
   this.body = yield User.findById(this._userId, {
@@ -200,7 +200,7 @@ export function * getInfo(next) {
   });
 }
 
-export function * passwordInitPage() {
+export function * passwordInitPage () {
   const EmailCode = this.orm().EmailCode;
 
   let codeId = this.query.code;
@@ -230,11 +230,11 @@ export function * passwordInitPage() {
   });
 }
 
-export function * passwordInit() {
+export function * passwordInit () {
   const User = this.orm().User;
   const EmailCode = this.orm().EmailCode;
 
-  let {password, password2, codeId} = this.request.body;
+  let { password, password2, codeId } = this.request.body;
 
   if (!codeId) {
     this.flash('error', 'Code is required');

@@ -2,11 +2,11 @@
 
 import { buildURI } from '../util';
 
-export default function(app) {
-  app.use(function * errorHandler(next) {
+export default function (app) {
+  app.use(function * errorHandler (next) {
     try {
       yield next;
-      if (404 === this.response.status && !this.response.body) this.throw(404);
+      if (this.response.status === 404 && !this.response.body) this.throw(404);
     } catch (err) {
       console.error(err.stack || err);
 
