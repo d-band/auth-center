@@ -102,7 +102,7 @@ server.listen(3000);
 
 server.orm.database().sync({
   force: true
-});
+}).then(() => { console.log('Sync done.'); });
 ```
 
 ### 参考链接
