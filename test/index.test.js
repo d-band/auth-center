@@ -9,12 +9,12 @@ const AuthServer = require('../src');
 const util = require('../src/util');
 const Config = require('../src/config');
 
-function decode(input){
+function decode(input) {
   return input.replace(/[\t\x20]$/gm, '')
-  .replace(/=(?:\r\n?|\n|$)/g, '')
-  .replace(/=([a-fA-F0-9]{2})/g, function($0, $1) {
-    return String.fromCharCode(parseInt($1, 16));
-  });
+    .replace(/=(?:\r\n?|\n|$)/g, '')
+    .replace(/=([a-fA-F0-9]{2})/g, function($0, $1) {
+      return String.fromCharCode(parseInt($1, 16));
+    });
 }
 
 chai.use(chaiHttp);
