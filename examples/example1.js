@@ -38,7 +38,7 @@ if (!module.parent) {
   server.listen(port);
   console.log(`Running site at: http://127.0.0.1:${port}`);
   // Sync Database to generate tables
-  server.orm.database().sequelize.sync({
+  server.orm.database().sync({
     force: true
-  });
+  }).then(function() { console.log('Sync done.'); });
 }

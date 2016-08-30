@@ -31,7 +31,7 @@ if (!module.parent) {
   app.listen(8888);
   co(function*() {
     const orm = app.orm.database();
-    yield orm.sequelize.sync({
+    yield orm.sync({
       force: true
     });
     yield orm.User.add({
