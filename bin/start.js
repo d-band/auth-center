@@ -24,7 +24,7 @@ module.exports = function(options) {
     let orm = server.orm.database();
 
     if (options.sync) {
-      yield orm.sequelize.sync({
+      yield orm.sync({
         force: true
       });
 

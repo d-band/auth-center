@@ -100,7 +100,7 @@ const server = AuthServer({
 
 server.listen(3000);
 
-server.orm.database().sequelize.sync({
+server.orm.database().sync({
   force: true
 });
 ```

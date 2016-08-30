@@ -82,7 +82,7 @@ describe('auth-center', function() {
 
     co(function*() {
       const orm = authServer.orm.database();
-      yield orm.sequelize.sync({
+      yield orm.sync({
         force: true
       });
       yield orm.User.add({
