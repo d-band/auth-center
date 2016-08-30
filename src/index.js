@@ -21,7 +21,6 @@ export default function (options) {
   const app = koa();
 
   app.use(function * injectConfig (next) {
-    if (this.config) return yield * next;
     this.__defineGetter__('config', () => {
       return Config();
     });

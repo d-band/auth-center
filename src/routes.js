@@ -30,10 +30,6 @@ export default function routes (app, config) {
   router.get(R.password_change, user.passwordChangePage);
   router.post(R.password_change, csrf, user.passwordChange);
 
-  // Initial password
-  router.get(R.password_init, user.passwordInitPage);
-  router.post(R.password_init, csrf, user.passwordInit);
-
   // API: get user info
   router.get(R.user, oauth.authenticate, user.getInfo);
 

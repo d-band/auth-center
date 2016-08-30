@@ -290,6 +290,29 @@ describe('auth-center', function() {
       });
   });
 
+  it('should login username or password is invalid', function(done) {
+    request
+      .get('/login')
+      .end(function(err, res) {
+        expect(res.text).to.match(/password/);
+        let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+        request
+          .post('/session')
+          .send({
+            _csrf: csrf,
+            username: 'wrong@example.com',
+            password: 'test',
+            token: '123456'
+          })
+          .end(function(err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.text).to.match(/Username or password is invalid/);
+            done();
+          });
+      });
+  });
+
   it('should login => session => home => logout', function(done) {
     request
       .get('/')
@@ -732,6 +755,87 @@ describe('auth-center', function() {
     });
   });
 
+  it('should add user: username is required', function(done) {
+    request.get('/users').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_user')
+        .send({
+          _csrf: csrf
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Username is required/);
+          done();
+        });
+    });
+  });
+
+  it('should add user: email is required', function(done) {
+    request.get('/users').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_user')
+        .send({
+          _csrf: csrf,
+          username: 'new1'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Email is required/);
+          done();
+        });
+    });
+  });
+
+  it('should add user: send email failed', function(done) {
+    request.get('/users').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      isSendFail = true;
+      request
+        .post('/add_user')
+        .send({
+          _csrf: csrf,
+          username: 'new1',
+          email: 'new1@example.com'
+        })
+        .end(function(err, res) {
+          isSendFail = false;
+          expect(res.text).to.match(/Add new user failed/);
+          done();
+        });
+    });
+  });
+
+  it('should add user: success', function(done) {
+    request.get('/users').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_user')
+        .send({
+          _csrf: csrf,
+          username: 'new1',
+          email: 'new1@example.com'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/successfully/);
+          request.post('/search_user').send({
+            _csrf: csrf,
+            q: 'new1'
+          }).end(function(err, res) {
+            expect(res.body).to.deep.equal(['new1']);
+            done();
+          });
+        });
+    });
+  });
+
   it('should add client: name is required', function(done) {
     request.get('/clients').end(function(err, res) {
       expect(err).to.be.null;
@@ -885,6 +989,149 @@ describe('auth-center', function() {
         expect(res.text).to.match(/test_client/);
         done();
       });
+  });
+
+  it('should client list', function(done) {
+    Config({ redirectURL: '/clients' });
+    request
+      .get('/')
+      .end(function(err, res) {
+        expect(res.text).to.match(/test_client/);
+        done();
+      });
+  });
+
+  it('should add role: user is required', function(done) {
+    request.get('/roles').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_role')
+        .send({
+          _csrf: csrf
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/User is required/);
+          done();
+        });
+    });
+  });
+
+  it('should add role: client is required', function(done) {
+    request.get('/roles').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_role')
+        .send({
+          _csrf: csrf,
+          user: 'test'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Client is required/);
+          done();
+        });
+    });
+  });
+
+  it('should add role: role is required', function(done) {
+    request.get('/roles').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_role')
+        .send({
+          _csrf: csrf,
+          user: 'test',
+          client: 12345678
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Role is required/);
+          done();
+        });
+    });
+  });
+
+  it('should add role: success', function(done) {
+    request.get('/roles').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_role')
+        .send({
+          _csrf: csrf,
+          user: 'test',
+          client: 12345678,
+          role: 'test'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/successfully/);
+          done();
+        });
+    });
+  });
+
+  it('should add role: existed', function(done) {
+    request.get('/roles').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/add_role')
+        .send({
+          _csrf: csrf,
+          user: 'test',
+          client: 12345678,
+          role: 'test'
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/existed/);
+          done();
+        });
+    });
+  });
+
+  it('should delete role: id is required', function(done) {
+    request.get('/roles').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request
+        .post('/delete_role')
+        .send({
+          _csrf: csrf
+        })
+        .end(function(err, res) {
+          expect(res.text).to.match(/Id is required/);
+          done();
+        });
+    });
+  });
+
+  it('should delete role: success & existed', function(done) {
+    request.get('/roles').end(function(err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      let id = res.text.match(/<input.*name=\"id\".*value=\"(.*)\"/)[1];
+      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
+      request.post('/delete_role').send({
+        _csrf: csrf,
+        id: id
+      }).end(function(err, res) {
+        expect(res.text).to.match(/successfully/);
+        request.post('/delete_role').send({
+          _csrf: csrf,
+          id: id
+        }).end(function(err, res) {
+          expect(res.text).to.match(/existed/);
+          done();
+        });
+      });
+    });
   });
 
 });

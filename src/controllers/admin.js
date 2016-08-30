@@ -53,7 +53,7 @@ export function* userList () {
   });
 
   yield this.render('admin/users', {
-    users: 'active',
+    navUsers: 'active',
     data: users,
     offset: offset
   });
@@ -73,7 +73,7 @@ export function* clientList () {
   });
 
   yield this.render('admin/clients', {
-    clients: 'active',
+    navClients: 'active',
     data: clients,
     offset: offset
   });
@@ -197,9 +197,7 @@ export function* generateSecret () {
 }
 
 export function* addUser () {
-  const User = this.orm().User;
-  const EmailCode = this.orm().EmailCode;
-  const sequelize = this.orm().sequelize;
+  const { User, EmailCode, sequelize } = this.orm();
   const { username, email } = this.request.body;
 
   if (!username) {
@@ -214,8 +212,9 @@ export function* addUser () {
     return;
   }
 
+  const t = yield sequelize.transaction();
+
   try {
-    const t = yield sequelize.transaction();
     const password = rs.generate(8);
     const key = generateToken();
     // add one new
@@ -229,38 +228,32 @@ export function* addUser () {
     });
     // 生成code
     const code = yield EmailCode.create({
-      user_id: username
+      user_id: user.username
     }, {
       transaction: t
     });
+    // send email
+    yield this.sendMail(user.email, 'add_user', {
+      username: user.username,
+      password: password,
+      cid: 'key',
+      email: user.email,
+      key: encodeKey(key),
+      ttl: this.config.emailCodeTTL / 3600,
+      link: this.config.domain + this._routes.password_change + '?code=' + code.id
+    }, [{
+      filename: 'key.png',
+      content: totpImage(user.email, key),
+      cid: 'key'
+    }]);
 
     yield t.commit();
-
-    // send email
-    if (user && code) {
-      yield this.sendMail(email, 'add_user', {
-        username: username,
-        password: password,
-        cid: 'key',
-        email: email,
-        key: encodeKey(key),
-        ttl: this.config.emailInitCodeTTL / 3600,
-        link: this.config.domain + this._routes.password_change + '?code=' + code.id
-      }, [{
-        filename: 'key.png',
-        content: totpImage(email, key),
-        cid: 'key'
-      }]);
-    } else {
-      this.flash('error', 'Add new user failed');
-      this.redirect(this._routes.users);
-      return;
-    }
 
     this.flash('success', 'Add new user successfully');
     this.redirect(this._routes.users);
   } catch (e) {
     console.error(e.stack);
+    t.rollback();
     this.flash('error', 'Add new user failed');
     this.redirect(this._routes.users);
   }
@@ -291,7 +284,7 @@ export function* roleList () {
   let dics = yield DicRole.findAll();
 
   yield this.render('admin/roles', {
-    roles: 'active',
+    navRoles: 'active',
     q: q,
     data: roles,
     clients: clients,
@@ -301,7 +294,7 @@ export function* roleList () {
 }
 
 export function* addRole () {
-  const Role = this.orm().Role;
+  const { Role } = this.orm();
   const { user, client, role } = this.request.body;
 
   if (!user) {
@@ -348,20 +341,17 @@ export function* deleteRole () {
     this.redirect(this._routes.roles);
     return;
   }
+  // Delete role
+  const num = yield Role.destroy({
+    where: { id }
+  });
 
-  try {
-    // add one new
-    yield Role.destroy({
-      where: {
-        id: id
-      }
-    });
-
-    this.flash('success', 'Delete role successfully');
-    this.redirect(this._routes.roles);
-  } catch (e) {
-    console.error(e.stack);
+  if (num <= 0) {
     this.flash('error', 'Delete role failed, maybe it is not existed');
     this.redirect(this._routes.roles);
+    return;
   }
+
+  this.flash('success', 'Delete role successfully');
+  this.redirect(this._routes.roles);
 }
