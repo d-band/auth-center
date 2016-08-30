@@ -58,7 +58,7 @@ if (!module.parent) {
       id: 'bd0e56c1-8f02-49f3-b502-129da70b6f09',
       name: 'test',
       secret: '12345678',
-      redirect_uri: 'http://oa.cnood.com'
+      redirect_uri: 'http://localhost:9090'
     });
     yield orm.DicRole.create({
       name: 'user',
