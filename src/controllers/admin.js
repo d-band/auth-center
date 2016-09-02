@@ -260,13 +260,11 @@ export function* addUser () {
 }
 
 export function* roleList () {
-  const Role = this.orm().Role;
-  const Client = this.orm().Client;
-  const DicRole = this.orm().DicRole;
+  const { Role, Client, DicRole } = this.orm();
 
-  let q = this.query.q || '';
-  let offset = this.query.offset || 0;
-  let roles = yield Role.findAndCountAll({
+  const q = this.query.q || '';
+  const offset = this.query.offset || 0;
+  const roles = yield Role.findAndCountAll({
     attributes: ['id', 'user_id', 'client_id', 'role'],
     where: {
       user_id: {
@@ -280,14 +278,18 @@ export function* roleList () {
     ]
   });
 
-  let clients = yield Client.findAll();
-  let dics = yield DicRole.findAll();
-
+  const clients = yield Client.findAll();
+  const dics = yield DicRole.findAll();
+  const clientMap = clients.reduce((o, c) => {
+    o[c.id] = c.name;
+    return o;
+  }, {});
   yield this.render('admin/roles', {
     navRoles: 'active',
     q: q,
     data: roles,
     clients: clients,
+    clientMap: clientMap,
     dics: dics,
     offset: offset
   });

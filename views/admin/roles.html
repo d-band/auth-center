@@ -44,7 +44,7 @@
       {% for d in data.rows %}
       <tr>
         <td>{{d.user_id}}</td>
-        <td>{{d.client_id}}</td>
+        <td>{{clientMap[d.client_id]}}</td>
         <td>{{d.role}}</td>
         <td>
           <form action="{{_routes.admin.delete_role}}" method="post">
