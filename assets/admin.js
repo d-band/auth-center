@@ -4,9 +4,10 @@ require('bootstrap');
 import Select from './select';
 
 $(function() {
-  new Select('#J_userList', {
+  const elem = $('#J_userList');
+  new Select(elem, {
     data: function(q, cb) {
-      $.post('/search_user', { q }).done(cb);
+      $.post(elem.data('url'), { q }).done(cb);
     }
   });
 });
