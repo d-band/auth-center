@@ -20,7 +20,7 @@
   <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#roleModal">
     Add Role
   </button>
-  <form action="/roles" method="get" class="form-inline">
+  <form action="{{_routes.admin.roles}}" method="get" class="form-inline">
     <input type="text" name="q" class="form-control input-sm" value="{{q}}">
     <button type="submit" class="btn btn-primary btn-sm">Search</button>
   </form>
@@ -47,7 +47,7 @@
         <td>{{d.client_id}}</td>
         <td>{{d.role}}</td>
         <td>
-          <form action="/delete_role" method="post">
+          <form action="{{_routes.admin.delete_role}}" method="post">
             <input type="hidden" name="_csrf" value="{{_csrf}}">
             <input type="hidden" name="id" value="{{d.id}}">
             <button class="btn btn-danger btn-xs" type="submit">Delete</button>
@@ -62,10 +62,10 @@
 <nav>
   <ul class="pager">
   {% if offset > 0 %}
-    <li><a href="/users?offset={{offset-1}}">Previous</a></li>
+    <li><a href="{{_routes.admin.roles}}?offset={{offset-1}}">Previous</a></li>
   {% endif %}
   {% if offset*20+data.rows.length < data.count %}
-    <li><a href="/users?offset={{+offset+1}}">Next</a></li>
+    <li><a href="{{_routes.admin.roles}}?offset={{+offset+1}}">Next</a></li>
   {% endif %}
   </ul>
 </nav>
@@ -77,7 +77,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="myModalLabel">Add New Role</h4>
       </div>
-      <form action="/add_role" method="post">
+      <form action="{{_routes.admin.add_role}}" method="post">
         <input type="hidden" name="_csrf" value="{{_csrf}}">
         <div class="modal-body">
           <div class="form-group">

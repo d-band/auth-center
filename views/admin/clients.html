@@ -45,7 +45,7 @@
         <td>{{d.name}}</td>
         <td>{{d.redirect_uri}}</td>
         <td>
-          <form action="/generate_secret" method="post">
+          <form action="{{_routes.admin.generate_secret}}" method="post">
             <input type="hidden" name="_csrf" value="{{_csrf}}">
             <input type="hidden" name="id" value="{{d.id}}">
             <button class="btn btn-primary btn-xs" type="submit">Generate</button>
@@ -60,10 +60,10 @@
 <nav>
   <ul class="pager">
   {% if offset > 0 %}
-    <li><a href="/users?offset={{offset-1}}">Previous</a></li>
+    <li><a href="{{_routes.admin.users}}?offset={{offset-1}}">Previous</a></li>
   {% endif %}
   {% if offset*20+data.rows.length < count %}
-    <li><a href="/users?offset={{+offset+1}}">Next</a></li>
+    <li><a href="{{_routes.admin.users}}?offset={{+offset+1}}">Next</a></li>
   {% endif %}
   </ul>
 </nav>
@@ -75,7 +75,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="myModalLabel">Add New Client</h4>
       </div>
-      <form action="/add_client" method="post">
+      <form action="{{_routes.admin.add_client}}" method="post">
         <input type="hidden" name="_csrf" value="{{_csrf}}">
         <div class="modal-body">
           <div class="form-group">

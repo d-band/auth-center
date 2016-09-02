@@ -82,13 +82,6 @@ const _config = {
   },
   routes: {
     home: '/',
-    users: '/users',
-    search_user: '/search_user',
-    clients: '/clients',
-    roles: '/roles',
-    send_totp: '/send_totp',
-    add_client: '/add_client',
-    generate_secret: '/generate_secret',
     login: '/login',
     logout: '/logout',
     password_reset: '/password_reset',
@@ -97,9 +90,18 @@ const _config = {
     user: '/user',
     authorize: '/authorize',
     access_token: '/access_token',
-    add_user: '/add_user',
-    add_role: '/add_role',
-    delete_role: '/delete_role'
+    admin: {
+      users: '/admin',
+      search_user: '/admin/search_user',
+      clients: '/admin/clients',
+      roles: '/admin/roles',
+      send_totp: '/admin/send_totp',
+      add_client: '/admin/add_client',
+      generate_secret: '/admin/generate_secret',
+      add_user: '/admin/add_user',
+      add_role: '/admin/add_role',
+      delete_role: '/admin/delete_role'
+    }
   }
 };
 

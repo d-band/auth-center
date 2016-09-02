@@ -38,16 +38,16 @@ export default function routes (app, config) {
   router.post(R.access_token, oauth.accessToken);
 
   // Admin
-  router.get(R.users, admin.checkLogin, admin.userList);
-  router.post(R.search_user, admin.checkLogin, admin.searchUser);
-  router.get(R.clients, admin.checkLogin, admin.clientList);
-  router.post(R.send_totp, csrf, admin.checkLogin, admin.sendTotp);
-  router.post(R.add_client, csrf, admin.checkLogin, admin.addClient);
-  router.post(R.generate_secret, csrf, admin.checkLogin, admin.generateSecret);
-  router.post(R.add_user, csrf, admin.checkLogin, admin.addUser);
-  router.get(R.roles, admin.checkLogin, admin.roleList);
-  router.post(R.add_role, csrf, admin.checkLogin, admin.addRole);
-  router.post(R.delete_role, csrf, admin.checkLogin, admin.deleteRole);
+  router.get(R.admin.users, admin.checkLogin, admin.userList);
+  router.post(R.admin.search_user, admin.checkLogin, admin.searchUser);
+  router.get(R.admin.clients, admin.checkLogin, admin.clientList);
+  router.post(R.admin.send_totp, csrf, admin.checkLogin, admin.sendTotp);
+  router.post(R.admin.add_client, csrf, admin.checkLogin, admin.addClient);
+  router.post(R.admin.generate_secret, csrf, admin.checkLogin, admin.generateSecret);
+  router.post(R.admin.add_user, csrf, admin.checkLogin, admin.addUser);
+  router.get(R.admin.roles, admin.checkLogin, admin.roleList);
+  router.post(R.admin.add_role, csrf, admin.checkLogin, admin.addRole);
+  router.post(R.admin.delete_role, csrf, admin.checkLogin, admin.deleteRole);
 
   app.use(function * injectParams (next) {
     this.state._csrf = this.csrf;

@@ -25,6 +25,7 @@ describe('auth-center', function() {
   var request, emailCode;
   var isSendFail = false;
   var totp_key = util.generateToken();
+  var R = Config().routes;
 
   before(function(done) {
     const authServer = AuthServer({
@@ -130,9 +131,20 @@ describe('auth-center', function() {
     done();
   });
 
+  it('should i18n zh-CN', function(done) {
+    request
+      .get(R.login + '?locale=zh-CN')
+      .end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.text).to.match(/登录/);
+        done();
+      });
+  });
+
   it('should i18n default en', function(done) {
     request
-      .get('/login?locale=xxxxx')
+      .get(R.login + '?locale=xxxxx')
       .end(function(err, res) {
         expect(err).to.be.null;
         expect(res).to.have.status(200);
@@ -180,12 +192,12 @@ describe('auth-center', function() {
 
   it('should login => username required', function(done) {
     request
-      .get('/login')
+      .get(R.login)
       .end(function(err, res) {
         expect(res.text).to.match(/password/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/session')
+          .post(R.session)
           .send({
             _csrf: csrf,
             password: 'test'
@@ -201,12 +213,12 @@ describe('auth-center', function() {
 
   it('should login => password required', function(done) {
     request
-      .get('/login')
+      .get(R.login)
       .end(function(err, res) {
         expect(res.text).to.match(/password/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/session')
+          .post(R.session)
           .send({
             _csrf: csrf,
             username: 'test@example.com'
@@ -222,12 +234,12 @@ describe('auth-center', function() {
 
   it('should login => password error', function(done) {
     request
-      .get('/login')
+      .get(R.login)
       .end(function(err, res) {
         expect(res.text).to.match(/password/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/session')
+          .post(R.session)
           .send({
             _csrf: csrf,
             username: 'test@example.com',
@@ -247,12 +259,12 @@ describe('auth-center', function() {
       isTOTP: true
     });
     request
-      .get('/login')
+      .get(R.login)
       .end(function(err, res) {
         expect(res.text).to.match(/password/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/session')
+          .post(R.session)
           .send({
             _csrf: csrf,
             username: 'test@example.com',
@@ -269,12 +281,12 @@ describe('auth-center', function() {
 
   it('should login totp token invalid', function(done) {
     request
-      .get('/login')
+      .get(R.login)
       .end(function(err, res) {
         expect(res.text).to.match(/password/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/session')
+          .post(R.session)
           .send({
             _csrf: csrf,
             username: 'test@example.com',
@@ -292,12 +304,12 @@ describe('auth-center', function() {
 
   it('should login username or password is invalid', function(done) {
     request
-      .get('/login')
+      .get(R.login)
       .end(function(err, res) {
         expect(res.text).to.match(/password/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/session')
+          .post(R.session)
           .send({
             _csrf: csrf,
             username: 'wrong@example.com',
@@ -315,12 +327,12 @@ describe('auth-center', function() {
 
   it('should login => session => home => logout', function(done) {
     request
-      .get('/')
+      .get(R.home)
       .end(function(err, res) {
         expect(res.text).to.match(/password/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/session')
+          .post(R.session)
           .send({
             _csrf: csrf,
             username: 'test@example.com',
@@ -333,9 +345,9 @@ describe('auth-center', function() {
             expect(res.text).to.match(/Welcome/);
             expect(res.text).to.match(/test/);
             request
-              .get('/logout')
+              .get(R.logout)
               .query({
-                return_to: '/login'
+                return_to: R.login
               })
               .end(function(err, res) {
                 expect(err).to.be.null;
@@ -349,12 +361,12 @@ describe('auth-center', function() {
 
   it('should password reset email error', function(done) {
     request
-      .get('/password_reset')
+      .get(R.password_reset)
       .end(function(err, res) {
         expect(res.text).to.match(/email/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/password_reset')
+          .post(R.password_reset)
           .send({
             _csrf: csrf,
             email: 'test'
@@ -370,12 +382,12 @@ describe('auth-center', function() {
 
   it('should password reset user not found', function(done) {
     request
-      .get('/password_reset')
+      .get(R.password_reset)
       .end(function(err, res) {
         expect(res.text).to.match(/email/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/password_reset')
+          .post(R.password_reset)
           .send({
             _csrf: csrf,
             email: 'test2@example.com'
@@ -392,12 +404,12 @@ describe('auth-center', function() {
   it('should password reset: send email fail', function(done) {
     isSendFail = true;
     request
-      .get('/password_reset')
+      .get(R.password_reset)
       .end(function(err, res) {
         expect(res.text).to.match(/email/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/password_reset')
+          .post(R.password_reset)
           .send({
             _csrf: csrf,
             email: 'test@example.com'
@@ -414,12 +426,12 @@ describe('auth-center', function() {
 
   it('should password reset', function(done) {
     request
-      .get('/password_reset')
+      .get(R.password_reset)
       .end(function(err, res) {
         expect(res.text).to.match(/email/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/password_reset')
+          .post(R.password_reset)
           .send({
             _csrf: csrf,
             email: 'test@example.com'
@@ -435,7 +447,7 @@ describe('auth-center', function() {
 
   it('should password change page: code required', function(done) {
     request
-      .get('/password_change')
+      .get(R.password_change)
       .end(function(err, res) {
         expect(res.text).to.match(/Code is required/);
         done();
@@ -444,7 +456,7 @@ describe('auth-center', function() {
 
   it('should password change page: code invalid', function(done) {
     request
-      .get('/password_change')
+      .get(R.password_change)
       .query({
         code: 'wrong'
       })
@@ -456,7 +468,7 @@ describe('auth-center', function() {
 
   it('should password change page: code expired', function(done) {
     request
-      .get('/password_change')
+      .get(R.password_change)
       .query({
         code: 'expired_code'
       })
@@ -468,7 +480,7 @@ describe('auth-center', function() {
 
   it('should password change: code required', function(done) {
     request
-      .get('/password_change')
+      .get(R.password_change)
       .query({
         code: emailCode
       })
@@ -476,7 +488,7 @@ describe('auth-center', function() {
         expect(res.text).to.match(/password2/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/password_change')
+          .post(R.password_change)
           .send({
             _csrf: csrf
           })
@@ -489,7 +501,7 @@ describe('auth-center', function() {
 
   it('should password change: code invalid', function(done) {
     request
-      .get('/password_change')
+      .get(R.password_change)
       .query({
         code: emailCode
       })
@@ -497,7 +509,7 @@ describe('auth-center', function() {
         expect(res.text).to.match(/password2/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/password_change')
+          .post(R.password_change)
           .send({
             _csrf: csrf,
             codeId: 'wrong'
@@ -511,7 +523,7 @@ describe('auth-center', function() {
 
   it('should password change: code expired', function(done) {
     request
-      .get('/password_change')
+      .get(R.password_change)
       .query({
         code: emailCode
       })
@@ -519,7 +531,7 @@ describe('auth-center', function() {
         expect(res.text).to.match(/password2/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/password_change')
+          .post(R.password_change)
           .send({
             _csrf: csrf,
             codeId: 'expired_code'
@@ -533,7 +545,7 @@ describe('auth-center', function() {
 
   it('should password change: password invalid', function(done) {
     request
-      .get('/password_change')
+      .get(R.password_change)
       .query({
         code: emailCode
       })
@@ -541,7 +553,7 @@ describe('auth-center', function() {
         expect(res.text).to.match(/password2/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/password_change')
+          .post(R.password_change)
           .set('Referer', '/password_change?code=' + emailCode)
           .send({
             _csrf: csrf,
@@ -558,7 +570,7 @@ describe('auth-center', function() {
 
   it('should password change', function(done) {
     request
-      .get('/password_change')
+      .get(R.password_change)
       .query({
         code: emailCode
       })
@@ -566,7 +578,7 @@ describe('auth-center', function() {
         expect(res.text).to.match(/password2/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/password_change')
+          .post(R.password_change)
           .send({
             _csrf: csrf,
             codeId: emailCode,
@@ -589,7 +601,7 @@ describe('auth-center', function() {
       isTOTP: false
     });
     request
-      .get('/authorize')
+      .get(R.authorize)
       .query({
         response_type: 'code',
         client_id: '12345678',
@@ -599,7 +611,7 @@ describe('auth-center', function() {
         expect(res.text).to.match(/password/);
         let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
         request
-          .post('/session')
+          .post(R.session)
           .send({
             _csrf: csrf,
             username: 'test@example.com',
@@ -618,7 +630,7 @@ describe('auth-center', function() {
 
   it('should authorize => client', function(done) {
     request
-      .get('/authorize')
+      .get(R.authorize)
       .query({
         response_type: 'code',
         client_id: '12345678'
@@ -634,7 +646,7 @@ describe('auth-center', function() {
 
   it('should return redirect_uri is invalid', function(done) {
     request
-      .get('/authorize')
+      .get(R.authorize)
       .query({
         response_type: 'code',
         client_id: '12345678',
@@ -648,11 +660,11 @@ describe('auth-center', function() {
   });
 
   it('should users => home => logout', function(done) {
-    request.get('/users').end(function(err, res) {
+    request.get(R.admin.users).end(function(err, res) {
       expect(res.text).to.match(/Welcome/);
       expect(res.text).to.match(/test/);
       request
-        .get('/logout')
+        .get(R.logout)
         .end(function(err, res) {
           done();
         });
@@ -660,11 +672,11 @@ describe('auth-center', function() {
   });
 
   it('should login => users', function(done) {
-    request.get('/users').end(function(err, res) {
+    request.get(R.admin.users).end(function(err, res) {
       expect(res.text).to.match(/password/);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/session')
+        .post(R.session)
         .send({
           _csrf: csrf,
           username: 'admin',
@@ -683,12 +695,12 @@ describe('auth-center', function() {
   });
 
   it('should send totp: username is required', function(done) {
-    request.get('/users').end(function(err, res) {
+    request.get(R.admin.users).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/send_totp')
+        .post(R.admin.send_totp)
         .send({
           _csrf: csrf
         })
@@ -700,12 +712,12 @@ describe('auth-center', function() {
   });
 
   it('should send totp: user not found', function(done) {
-    request.get('/users').end(function(err, res) {
+    request.get(R.admin.users).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/send_totp')
+        .post(R.admin.send_totp)
         .send({
           _csrf: csrf,
           username: 'wrong'
@@ -718,13 +730,13 @@ describe('auth-center', function() {
   });
 
   it('should send totp: send failed', function(done) {
-    request.get('/users').end(function(err, res) {
+    request.get(R.admin.users).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       isSendFail = true;
       request
-        .post('/send_totp')
+        .post(R.admin.send_totp)
         .send({
           _csrf: csrf,
           username: 'test'
@@ -738,12 +750,12 @@ describe('auth-center', function() {
   });
 
   it('should send totp', function(done) {
-    request.get('/users').end(function(err, res) {
+    request.get(R.admin.users).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/send_totp')
+        .post(R.admin.send_totp)
         .send({
           _csrf: csrf,
           username: 'test'
@@ -756,12 +768,12 @@ describe('auth-center', function() {
   });
 
   it('should add user: username is required', function(done) {
-    request.get('/users').end(function(err, res) {
+    request.get(R.admin.users).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_user')
+        .post(R.admin.add_user)
         .send({
           _csrf: csrf
         })
@@ -773,12 +785,12 @@ describe('auth-center', function() {
   });
 
   it('should add user: email is required', function(done) {
-    request.get('/users').end(function(err, res) {
+    request.get(R.admin.users).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_user')
+        .post(R.admin.add_user)
         .send({
           _csrf: csrf,
           username: 'new1'
@@ -791,13 +803,13 @@ describe('auth-center', function() {
   });
 
   it('should add user: send email failed', function(done) {
-    request.get('/users').end(function(err, res) {
+    request.get(R.admin.users).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       isSendFail = true;
       request
-        .post('/add_user')
+        .post(R.admin.add_user)
         .send({
           _csrf: csrf,
           username: 'new1',
@@ -812,12 +824,12 @@ describe('auth-center', function() {
   });
 
   it('should add user: success', function(done) {
-    request.get('/users').end(function(err, res) {
+    request.get(R.admin.users).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_user')
+        .post(R.admin.add_user)
         .send({
           _csrf: csrf,
           username: 'new1',
@@ -825,7 +837,7 @@ describe('auth-center', function() {
         })
         .end(function(err, res) {
           expect(res.text).to.match(/successfully/);
-          request.post('/search_user').send({
+          request.post(R.admin.search_user).send({
             _csrf: csrf,
             q: 'new1'
           }).end(function(err, res) {
@@ -837,12 +849,12 @@ describe('auth-center', function() {
   });
 
   it('should add client: name is required', function(done) {
-    request.get('/clients').end(function(err, res) {
+    request.get(R.admin.clients).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_client')
+        .post(R.admin.add_client)
         .send({
           _csrf: csrf
         })
@@ -854,12 +866,12 @@ describe('auth-center', function() {
   });
 
   it('should add client: Redirect URI is required', function(done) {
-    request.get('/clients').end(function(err, res) {
+    request.get(R.admin.clients).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_client')
+        .post(R.admin.add_client)
         .send({
           _csrf: csrf,
           name: 'client1'
@@ -872,12 +884,12 @@ describe('auth-center', function() {
   });
 
   it('should add client failed', function(done) {
-    request.get('/clients').end(function(err, res) {
+    request.get(R.admin.clients).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_client')
+        .post(R.admin.add_client)
         .send({
           _csrf: csrf,
           name: [1, 2, 3],
@@ -891,12 +903,12 @@ describe('auth-center', function() {
   });
 
   it('should add client', function(done) {
-    request.get('/clients').end(function(err, res) {
+    request.get(R.admin.clients).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_client')
+        .post(R.admin.add_client)
         .send({
           _csrf: csrf,
           name: 'client1',
@@ -910,12 +922,12 @@ describe('auth-center', function() {
   });
 
   it('should generate secret: ID is required', function(done) {
-    request.get('/clients').end(function(err, res) {
+    request.get(R.admin.clients).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/generate_secret')
+        .post(R.admin.generate_secret)
         .send({
           _csrf: csrf
         })
@@ -927,12 +939,12 @@ describe('auth-center', function() {
   });
 
   it('should generate secret: client not found', function(done) {
-    request.get('/clients').end(function(err, res) {
+    request.get(R.admin.clients).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/generate_secret')
+        .post(R.admin.generate_secret)
         .send({
           _csrf: csrf,
           id: 'client2'
@@ -945,12 +957,12 @@ describe('auth-center', function() {
   });
 
   it('should generate secret failed', function(done) {
-    request.get('/clients').end(function(err, res) {
+    request.get(R.admin.clients).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/generate_secret')
+        .post(R.admin.generate_secret)
         .send({
           _csrf: csrf,
           id: {
@@ -965,12 +977,12 @@ describe('auth-center', function() {
   });
 
   it('should generate secret', function(done) {
-    request.get('/clients').end(function(err, res) {
+    request.get(R.admin.clients).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/generate_secret')
+        .post(R.admin.generate_secret)
         .send({
           _csrf: csrf,
           id: '12345678'
@@ -984,7 +996,7 @@ describe('auth-center', function() {
 
   it('should client list', function(done) {
     request
-      .get('/clients')
+      .get(R.admin.clients)
       .end(function(err, res) {
         expect(res.text).to.match(/test_client/);
         done();
@@ -992,9 +1004,9 @@ describe('auth-center', function() {
   });
 
   it('should client list', function(done) {
-    Config({ redirectURL: '/clients' });
+    Config({ redirectURL: R.admin.clients });
     request
-      .get('/')
+      .get(R.home)
       .end(function(err, res) {
         expect(res.text).to.match(/test_client/);
         done();
@@ -1002,12 +1014,12 @@ describe('auth-center', function() {
   });
 
   it('should add role: user is required', function(done) {
-    request.get('/roles').end(function(err, res) {
+    request.get(R.admin.roles).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_role')
+        .post(R.admin.add_role)
         .send({
           _csrf: csrf
         })
@@ -1019,12 +1031,12 @@ describe('auth-center', function() {
   });
 
   it('should add role: client is required', function(done) {
-    request.get('/roles').end(function(err, res) {
+    request.get(R.admin.roles).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_role')
+        .post(R.admin.add_role)
         .send({
           _csrf: csrf,
           user: 'test'
@@ -1037,12 +1049,12 @@ describe('auth-center', function() {
   });
 
   it('should add role: role is required', function(done) {
-    request.get('/roles').end(function(err, res) {
+    request.get(R.admin.roles).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_role')
+        .post(R.admin.add_role)
         .send({
           _csrf: csrf,
           user: 'test',
@@ -1056,12 +1068,12 @@ describe('auth-center', function() {
   });
 
   it('should add role: success', function(done) {
-    request.get('/roles').end(function(err, res) {
+    request.get(R.admin.roles).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_role')
+        .post(R.admin.add_role)
         .send({
           _csrf: csrf,
           user: 'test',
@@ -1076,12 +1088,12 @@ describe('auth-center', function() {
   });
 
   it('should add role: existed', function(done) {
-    request.get('/roles').end(function(err, res) {
+    request.get(R.admin.roles).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/add_role')
+        .post(R.admin.add_role)
         .send({
           _csrf: csrf,
           user: 'test',
@@ -1096,12 +1108,12 @@ describe('auth-center', function() {
   });
 
   it('should delete role: id is required', function(done) {
-    request.get('/roles').end(function(err, res) {
+    request.get(R.admin.roles).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
       request
-        .post('/delete_role')
+        .post(R.admin.delete_role)
         .send({
           _csrf: csrf
         })
@@ -1113,17 +1125,17 @@ describe('auth-center', function() {
   });
 
   it('should delete role: success & existed', function(done) {
-    request.get('/roles').end(function(err, res) {
+    request.get(R.admin.roles).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       let id = res.text.match(/<input.*name=\"id\".*value=\"(.*)\"/)[1];
       let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
-      request.post('/delete_role').send({
+      request.post(R.admin.delete_role).send({
         _csrf: csrf,
         id: id
       }).end(function(err, res) {
         expect(res.text).to.match(/successfully/);
-        request.post('/delete_role').send({
+        request.post(R.admin.delete_role).send({
           _csrf: csrf,
           id: id
         }).end(function(err, res) {

@@ -85,7 +85,7 @@ export function* sendTotp () {
 
   if (!username) {
     this.flash('error', 'Username is required');
-    this.redirect(this._routes.users);
+    this.redirect(this._routes.admin.users);
     return;
   }
 
@@ -117,15 +117,15 @@ export function* sendTotp () {
       }]);
     } else {
       this.flash('error', 'Update failed');
-      this.redirect(this._routes.users);
+      this.redirect(this._routes.admin.users);
       return;
     }
     this.flash('success', 'Reset and send TOTP key successfully');
-    this.redirect(this._routes.users);
+    this.redirect(this._routes.admin.users);
   } catch (e) {
     console.error(e.stack);
     this.flash('error', 'Reset and send key failed');
-    this.redirect(this._routes.users);
+    this.redirect(this._routes.admin.users);
   }
 }
 
@@ -135,13 +135,13 @@ export function* addClient () {
 
   if (!name) {
     this.flash('error', 'Name is required');
-    this.redirect(this._routes.clients);
+    this.redirect(this._routes.admin.clients);
     return;
   }
 
   if (!redirect_uri) {
     this.flash('error', 'Redirect URI is required');
-    this.redirect(this._routes.clients);
+    this.redirect(this._routes.admin.clients);
     return;
   }
 
@@ -154,11 +154,11 @@ export function* addClient () {
     });
 
     this.flash('success', 'Add new client successfully');
-    this.redirect(this._routes.clients);
+    this.redirect(this._routes.admin.clients);
   } catch (e) {
     console.error(e.stack);
     this.flash('error', 'Add new client failed');
-    this.redirect(this._routes.clients);
+    this.redirect(this._routes.admin.clients);
   }
 }
 
@@ -168,7 +168,7 @@ export function* generateSecret () {
 
   if (!id) {
     this.flash('error', 'ID is required');
-    this.redirect(this._routes.clients);
+    this.redirect(this._routes.admin.clients);
     return;
   }
 
@@ -183,16 +183,16 @@ export function* generateSecret () {
     });
     if (res[0]) {
       this.flash('success', 'Generate new secret successfully');
-      this.redirect(this._routes.clients);
+      this.redirect(this._routes.admin.clients);
     } else {
       this.flash('error', 'Update failed');
-      this.redirect(this._routes.clients);
+      this.redirect(this._routes.admin.clients);
       return;
     }
   } catch (e) {
     console.error(e.stack);
     this.flash('error', 'Generate new secret failed');
-    this.redirect(this._routes.clients);
+    this.redirect(this._routes.admin.clients);
   }
 }
 
@@ -202,13 +202,13 @@ export function* addUser () {
 
   if (!username) {
     this.flash('error', 'Username is required');
-    this.redirect(this._routes.users);
+    this.redirect(this._routes.admin.users);
     return;
   }
 
   if (!email) {
     this.flash('error', 'Email is required');
-    this.redirect(this._routes.users);
+    this.redirect(this._routes.admin.users);
     return;
   }
 
@@ -240,7 +240,7 @@ export function* addUser () {
       email: user.email,
       key: encodeKey(key),
       ttl: this.config.emailCodeTTL / 3600,
-      link: this.config.domain + this._routes.password_change + '?code=' + code.id
+      link: this.config.domain + this._routes.admin.password_change + '?code=' + code.id
     }, [{
       filename: 'key.png',
       content: totpImage(user.email, key),
@@ -250,12 +250,12 @@ export function* addUser () {
     yield t.commit();
 
     this.flash('success', 'Add new user successfully');
-    this.redirect(this._routes.users);
+    this.redirect(this._routes.admin.users);
   } catch (e) {
     console.error(e.stack);
     t.rollback();
     this.flash('error', 'Add new user failed');
-    this.redirect(this._routes.users);
+    this.redirect(this._routes.admin.users);
   }
 }
 
@@ -299,19 +299,19 @@ export function* addRole () {
 
   if (!user) {
     this.flash('error', 'User is required');
-    this.redirect(this._routes.roles);
+    this.redirect(this._routes.admin.roles);
     return;
   }
 
   if (!client) {
     this.flash('error', 'Client is required');
-    this.redirect(this._routes.roles);
+    this.redirect(this._routes.admin.roles);
     return;
   }
 
   if (!role) {
     this.flash('error', 'Role is required');
-    this.redirect(this._routes.roles);
+    this.redirect(this._routes.admin.roles);
     return;
   }
 
@@ -324,11 +324,11 @@ export function* addRole () {
     });
 
     this.flash('success', 'Add new role successfully');
-    this.redirect(this._routes.roles);
+    this.redirect(this._routes.admin.roles);
   } catch (e) {
     console.error(e.stack);
     this.flash('error', 'Add new role failed, maybe it is existed');
-    this.redirect(this._routes.roles);
+    this.redirect(this._routes.admin.roles);
   }
 }
 
@@ -338,7 +338,7 @@ export function* deleteRole () {
 
   if (!id) {
     this.flash('error', 'Id is required');
-    this.redirect(this._routes.roles);
+    this.redirect(this._routes.admin.roles);
     return;
   }
   // Delete role
@@ -348,10 +348,10 @@ export function* deleteRole () {
 
   if (num <= 0) {
     this.flash('error', 'Delete role failed, maybe it is not existed');
-    this.redirect(this._routes.roles);
+    this.redirect(this._routes.admin.roles);
     return;
   }
 
   this.flash('success', 'Delete role successfully');
-  this.redirect(this._routes.roles);
+  this.redirect(this._routes.admin.roles);
 }

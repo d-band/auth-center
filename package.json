@@ -78,7 +78,7 @@
     "co": "~4.6.0",
     "commander": "~2.9.0",
     "inquirer": "~1.1.2",
-    "koa": "~1.2.1",
+    "koa": "~1.2.2",
     "koa-bodyparser": "~2.2.0",
     "koa-csrf": "~2.5.0",
     "koa-generic-session": "~1.11.3",
@@ -93,6 +93,6 @@
     "qr-image": "~3.1.0",
     "randomstring": "~1.1.5",
     "thirty-two": "~1.0.2",
-    "validator": "~5.5.0"
+    "validator": "~5.6.0"
   }
 }
