@@ -1,6 +1,6 @@
 {
   "name": "auth-center",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "auth center with TOTP",
   "main": "app/index.js",
   "bin": {
