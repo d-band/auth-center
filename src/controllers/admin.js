@@ -240,7 +240,7 @@ export function* addUser () {
       email: user.email,
       key: encodeKey(key),
       ttl: this.config.emailCodeTTL / 3600,
-      link: this.config.domain + this._routes.admin.password_change + '?code=' + code.id
+      link: this.config.domain + this._routes.password_change + '?code=' + code.id
     }, [{
       filename: 'key.png',
       content: totpImage(user.email, key),
