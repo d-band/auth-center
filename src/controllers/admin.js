@@ -3,7 +3,7 @@
 import { generateToken, encodeKey, totpImage } from '../util';
 import rs from 'randomstring';
 
-export function* checkLogin (next) {
+export function * checkLogin (next) {
   if (this.session.user) {
     if (this.session.user.is_admin) {
       this.state.user = this.session.user;
@@ -17,7 +17,7 @@ export function* checkLogin (next) {
   }
 }
 
-export function* searchUser () {
+export function * searchUser () {
   const User = this.orm().User;
   const q = this.request.body.q || '';
   const users = yield User.findAll({
@@ -34,7 +34,7 @@ export function* searchUser () {
   this.body = users.map(u => u.username);
 }
 
-export function* userList () {
+export function * userList () {
   const User = this.orm().User;
 
   let offset = this.query.offset || 0;
@@ -59,7 +59,7 @@ export function* userList () {
   });
 }
 
-export function* clientList () {
+export function * clientList () {
   const Client = this.orm().Client;
 
   let offset = this.query.offset || 0;
@@ -79,7 +79,7 @@ export function* clientList () {
   });
 }
 
-export function* sendTotp () {
+export function * sendTotp () {
   const User = this.orm().User;
   const { username } = this.request.body;
 
@@ -129,7 +129,7 @@ export function* sendTotp () {
   }
 }
 
-export function* addClient () {
+export function * addClient () {
   const Client = this.orm().Client;
   const { name, redirect_uri } = this.request.body;
 
@@ -162,7 +162,7 @@ export function* addClient () {
   }
 }
 
-export function* generateSecret () {
+export function * generateSecret () {
   const Client = this.orm().Client;
   const { id } = this.request.body;
 
@@ -196,7 +196,7 @@ export function* generateSecret () {
   }
 }
 
-export function* addUser () {
+export function * addUser () {
   const { User, EmailCode, sequelize } = this.orm();
   const { username, email } = this.request.body;
 
@@ -259,7 +259,7 @@ export function* addUser () {
   }
 }
 
-export function* roleList () {
+export function * roleList () {
   const { Role, Client, DicRole } = this.orm();
 
   const q = this.query.q || '';
@@ -295,7 +295,7 @@ export function* roleList () {
   });
 }
 
-export function* addRole () {
+export function * addRole () {
   const { Role } = this.orm();
   const { user, client, role } = this.request.body;
 
@@ -334,7 +334,7 @@ export function* addRole () {
   }
 }
 
-export function* deleteRole () {
+export function * deleteRole () {
   const Role = this.orm().Role;
   const { id } = this.request.body;
 

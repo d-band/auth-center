@@ -1,6 +1,6 @@
 'use strict';
 
-import { checkURI, buildURI } from '../util';
+import { checkURI, buildURI, getHost } from '../util';
 
 export default function (config) {
   function * authorize () {
@@ -30,7 +30,8 @@ export default function (config) {
       client_id: client.id,
       redirect_uri: uri
     });
-
+    this.set('Access-Control-Allow-Origin', getHost(uri));
+    this.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE');
     this.redirect(buildURI(uri, {
       code: code.id,
       state: state
@@ -61,7 +62,7 @@ export default function (config) {
 
     this.assert(_code, 401, 'code is invalid.');
 
-    const expiresAt = _code.createdAt.getTime() + config.codeTTL * 1000;
+    const expiresAt = _code.createdAt.getTime() + (config.codeTTL * 1000);
     this.assert(expiresAt > Date.now(), 401, 'code expired.');
 
     const isChecked = checkURI(_code.redirect_uri, redirect_uri);
@@ -99,7 +100,7 @@ export default function (config) {
 
     this.assert(token, 401, 'access_token is invalid.');
 
-    const expiresAt = token.createdAt.getTime() + config.accessTokenTTL * 1000;
+    const expiresAt = token.createdAt.getTime() + (config.accessTokenTTL * 1000);
     this.assert(expiresAt > Date.now(), 401, 'access_token expired.');
 
     this._userId = token.user_id;

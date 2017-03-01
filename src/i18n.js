@@ -4,7 +4,6 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 
 export default class I18n {
-
   constructor (messages) {
     this._path = join(__dirname, '../i18n');
     this._userMessages = messages || {};
@@ -29,5 +28,4 @@ export default class I18n {
   message (key) {
     return this._messages[key] || key;
   }
-
 }

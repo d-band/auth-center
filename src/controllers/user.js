@@ -133,7 +133,7 @@ export function * passwordChangePage () {
     return;
   }
 
-  let expiresAt = code.createdAt.getTime() + this.config.emailCodeTTL * 1000;
+  let expiresAt = code.createdAt.getTime() + (this.config.emailCodeTTL * 1000);
   if (expiresAt < Date.now()) {
     this.flash('error', 'Code is expired');
     this.redirect(this._routes.password_reset);
@@ -162,7 +162,7 @@ export function * passwordChange () {
     return;
   }
 
-  const expiresAt = code.createdAt.getTime() + this.config.emailCodeTTL * 1000;
+  const expiresAt = code.createdAt.getTime() + (this.config.emailCodeTTL * 1000);
   if (expiresAt < Date.now()) {
     this.flash('error', 'Code is expired');
     this.redirect(this._routes.password_reset);

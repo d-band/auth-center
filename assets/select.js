@@ -1,4 +1,4 @@
-export default class Select {
+class Select {
   constructor(elem, options = {}) {
     this.$elem = typeof elem === 'string' ? $(elem) : elem;
     if (!this.$elem.length) return;
@@ -85,3 +85,5 @@ export default class Select {
     }
   }
 }
+
+module.exports = Select;

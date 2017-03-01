@@ -1,7 +1,7 @@
 window.$ = window.jQuery = require('jquery');
 require('bootstrap');
 
-import Select from './select';
+const Select = require('./select');
 
 $(function() {
   const elem = $('#J_userList');
