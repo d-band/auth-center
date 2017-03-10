@@ -56,7 +56,7 @@ export function * session () {
     return;
   }
 
-  if (this.config.isTOTP && !totp.verify(token, user.totp_key)) {
+  if (this.config.isTOTP && !totp.verify(token, user.totp_key, { window: 3 })) {
     this.flash('error', 'Token is invalid');
     this.redirect(this._routes.login);
     return;
