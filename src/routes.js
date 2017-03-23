@@ -36,6 +36,8 @@ export default function routes (app, config) {
   // OAuth
   router.get(R.authorize, user.checkLogin, oauth.authorize);
   router.post(R.access_token, oauth.accessToken);
+  router.options(R.authorize, user.checkLogin, oauth.authorize);
+  router.options(R.access_token, oauth.accessToken);
 
   // Admin
   router.get(R.admin.users, admin.checkLogin, admin.userList);
