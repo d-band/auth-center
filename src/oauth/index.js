@@ -19,8 +19,10 @@ export default function (config) {
     let uri = client.redirect_uri;
 
     if (this.method === 'OPTIONS') {
+      const headers = this.get('access-control-request-headers');
       this.set('Access-Control-Allow-Origin', getHost(uri));
       this.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE');
+      this.set('Access-Control-Allow-Headers', headers);
       return yield next;
     }
     if (redirect_uri) {
@@ -63,8 +65,10 @@ export default function (config) {
     this.assert(client.secret === client_secret, 401, 'client_secret is invalid.');
 
     if (this.method === 'OPTIONS') {
+      const headers = this.get('access-control-request-headers');
       this.set('Access-Control-Allow-Origin', getHost(client.redirect_uri));
       this.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE');
+      this.set('Access-Control-Allow-Headers', headers);
       return yield next;
     }
 
