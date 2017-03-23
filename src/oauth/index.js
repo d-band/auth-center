@@ -22,6 +22,7 @@ export default function (config) {
       const headers = this.get('access-control-request-headers');
       this.set('Access-Control-Allow-Origin', getHost(uri));
       this.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE');
+      this.set('Access-Control-Allow-Credentials', 'true');
       this.set('Access-Control-Allow-Headers', headers);
       return yield next;
     }
@@ -68,6 +69,7 @@ export default function (config) {
       const headers = this.get('access-control-request-headers');
       this.set('Access-Control-Allow-Origin', getHost(client.redirect_uri));
       this.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE');
+      this.set('Access-Control-Allow-Credentials', 'true');
       this.set('Access-Control-Allow-Headers', headers);
       return yield next;
     }
