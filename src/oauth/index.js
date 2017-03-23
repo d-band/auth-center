@@ -21,7 +21,7 @@ export default function (config) {
     if (this.method === 'OPTIONS') {
       this.set('Access-Control-Allow-Origin', getHost(uri));
       this.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE');
-      return yield next();
+      return yield next;
     }
     if (redirect_uri) {
       const isChecked = checkURI(client.redirect_uri, redirect_uri);
@@ -65,7 +65,7 @@ export default function (config) {
     if (this.method === 'OPTIONS') {
       this.set('Access-Control-Allow-Origin', getHost(client.redirect_uri));
       this.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE');
-      return yield next();
+      return yield next;
     }
 
     const _code = yield Code.findById(code);

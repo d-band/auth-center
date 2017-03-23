@@ -644,6 +644,20 @@ describe('auth-center', function() {
       });
   });
 
+  it('should authorize => client (options)', function(done) {
+    request
+      .options(R.authorize)
+      .query({
+        response_type: 'code',
+        client_id: '12345678'
+      })
+      .end(function(err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(204);
+        done();
+      });
+  });
+
   it('should return redirect_uri is invalid', function(done) {
     request
       .get(R.authorize)
