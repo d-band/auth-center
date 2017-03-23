@@ -1,9 +1,9 @@
 'use strict';
 
-import { checkURI, buildURI, getHost } from '../util';
+import { checkURI, buildURI } from '../util';
 
 export default function (config) {
-  function * authorize (next) {
+  function * authorize () {
     const Client = this.orm().Client;
     const Code = this.orm().Code;
 
@@ -17,15 +17,6 @@ export default function (config) {
     this.assert(client, 401, 'client_id is invalid.');
 
     let uri = client.redirect_uri;
-
-    if (this.method === 'OPTIONS') {
-      const headers = this.get('access-control-request-headers');
-      this.set('Access-Control-Allow-Origin', getHost(uri));
-      this.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE');
-      this.set('Access-Control-Allow-Credentials', 'true');
-      this.set('Access-Control-Allow-Headers', headers);
-      return yield next;
-    }
     if (redirect_uri) {
       const isChecked = checkURI(client.redirect_uri, redirect_uri);
       this.assert(isChecked, 401, 'redirect_uri is invalid.', {
@@ -45,7 +36,7 @@ export default function (config) {
     }));
   }
 
-  function * accessToken (next) {
+  function * accessToken () {
     const Client = this.orm().Client;
     const Token = this.orm().Token;
     const Code = this.orm().Code;
@@ -64,15 +55,6 @@ export default function (config) {
 
     this.assert(client, 401, 'client_id is invalid.');
     this.assert(client.secret === client_secret, 401, 'client_secret is invalid.');
-
-    if (this.method === 'OPTIONS') {
-      const headers = this.get('access-control-request-headers');
-      this.set('Access-Control-Allow-Origin', getHost(client.redirect_uri));
-      this.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE');
-      this.set('Access-Control-Allow-Credentials', 'true');
-      this.set('Access-Control-Allow-Headers', headers);
-      return yield next;
-    }
 
     const _code = yield Code.findById(code);
 

@@ -28,11 +28,6 @@ export function checkURI (base, checked) {
     url2.pathname.indexOf(url1.pathname) === 0;
 }
 
-export function getHost (url) {
-  const uri = parse(url);
-  return `${uri.protocol}//${uri.host}`;
-}
-
 export function generateToken () {
   let buffer = crypto.randomBytes(256);
   return crypto.createHash('sha1').update(buffer).digest('hex');
