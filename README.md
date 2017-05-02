@@ -1,6 +1,8 @@
 Auth Center (OAuth2.0 + TOTP)
 ===
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/d-band/auth-center.svg)](https://greenkeeper.io/)
+
 [![NPM version](https://img.shields.io/npm/v/auth-center.svg)](https://www.npmjs.com/package/auth-center)
 [![NPM downloads](https://img.shields.io/npm/dm/auth-center.svg)](https://www.npmjs.com/package/auth-center)
 [![Build Status](https://travis-ci.org/d-band/auth-center.svg?branch=master)](https://travis-ci.org/d-band/auth-center)
