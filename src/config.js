@@ -101,6 +101,9 @@ const _config = {
       add_user: '/admin/add_user',
       add_role: '/admin/add_role',
       delete_role: '/admin/delete_role'
+    },
+    app: {
+      login: '/app/login'
     }
   }
 };

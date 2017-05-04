@@ -195,3 +195,38 @@ export function * getInfo (next) {
     raw: true
   });
 }
+
+export function * appLogin () {
+  const { User, Client, Token } = this.orm();
+  const { username, password, token, client_id, client_secret } = this.request.body;
+
+  // verify condition
+  this.assert(username, 400, 'Username is missing');
+  this.assert(password, 400, 'Password is missing');
+  if (this.config.isTOTP) {
+    this.assert(token, 400, 'Token is missing');
+  }
+  this.assert(client_id && client_secret, 400, 'system error');
+
+  // verify user
+  const user = yield User.auth(username, password);
+  this.assert(user, 400, 'Username or password is invalid');
+
+  if (this.config.isTOTP) {
+    this.assert(totp.verify(token, user.totp_key), 400, 'Token is invalid');
+  }
+
+  const client = yield Client.findById(client_id);
+
+  this.assert(client, 401, 'System error');
+  this.assert(client.secret === client_secret, 401, 'System error');
+
+  const accessToken = yield Token.create({
+    client_id: client.id,
+    user_id: username
+  });
+
+  this.body = {
+    access_token: accessToken.id
+  };
+}
