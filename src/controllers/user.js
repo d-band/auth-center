@@ -56,7 +56,7 @@ export function * session () {
     return;
   }
 
-  if (this.config.isTOTP && !totp.verify(token, user.totp_key)) {
+  if (this.config.isTOTP && !totp.verify(token, user.totp_key, { window: 3 })) {
     this.flash('error', 'Token is invalid');
     this.redirect(this._routes.login);
     return;
@@ -133,7 +133,7 @@ export function * passwordChangePage () {
     return;
   }
 
-  let expiresAt = code.createdAt.getTime() + this.config.emailCodeTTL * 1000;
+  let expiresAt = code.createdAt.getTime() + (this.config.emailCodeTTL * 1000);
   if (expiresAt < Date.now()) {
     this.flash('error', 'Code is expired');
     this.redirect(this._routes.password_reset);
@@ -162,7 +162,7 @@ export function * passwordChange () {
     return;
   }
 
-  const expiresAt = code.createdAt.getTime() + this.config.emailCodeTTL * 1000;
+  const expiresAt = code.createdAt.getTime() + (this.config.emailCodeTTL * 1000);
   if (expiresAt < Date.now()) {
     this.flash('error', 'Code is expired');
     this.redirect(this._routes.password_reset);

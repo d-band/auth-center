@@ -44,8 +44,10 @@ export default function (sequelize, DataTypes) {
     tableName: 'user',
     comment: 'user base info',
     classMethods: {
-      auth: function*(username, password) {
-        let user = yield this.findById(username);
+      auth: function * (username, password) {
+        let user = yield this.findById(username, {
+          where: { enable: 1 }
+        });
         if (!user) {
           user = yield this.findByEmail(username);
         }
@@ -58,12 +60,13 @@ export default function (sequelize, DataTypes) {
         user.pass_salt = null;
         return user;
       },
-      findByEmail: function*(email) {
+      findByEmail: function * (email) {
+        const enable = 1;
         return yield this.find({
-          where: { email }
+          where: { email, enable }
         });
       },
-      add: function*({ username, password, email, totp_key, is_admin }, options) {
+      add: function * ({ username, password, email, totp_key, is_admin }, options) {
         const salt = makeSalt();
         const hash = encrypt(password, salt);
         return yield this.create({
@@ -75,7 +78,7 @@ export default function (sequelize, DataTypes) {
           pass_hash: hash
         }, options);
       },
-      changePassword: function*(username, newPwd) {
+      changePassword: function * (username, newPwd) {
         const salt = makeSalt();
         const hash = encrypt(newPwd, salt);
         return yield this.update({

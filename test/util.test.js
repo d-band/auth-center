@@ -30,6 +30,8 @@ describe('auth-center util', function() {
     expect(util.checkURI('https://example.com/', '//example.com')).to.be.true;
     expect(util.checkURI('http://localhost', 'http://localhost/')).to.be.true;
     expect(util.checkURI('http://localhost/', 'http://localhost')).to.be.true;
+    expect(util.checkURI('file://', 'file:///index.html')).to.be.true;
+    expect(util.checkURI('file:///', 'file:///index.html')).to.be.true;
 
     expect(util.checkURI(base, 'http://example.com/path')).to.be.true;
     expect(util.checkURI(base, 'http://example.com/path/subdir/other')).to.be.true;
