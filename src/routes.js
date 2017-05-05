@@ -49,9 +49,6 @@ export default function routes (app, config) {
   router.post(R.admin.add_role, csrf, admin.checkLogin, admin.addRole);
   router.post(R.admin.delete_role, csrf, admin.checkLogin, admin.deleteRole);
 
-  // APP Login
-  router.post(R.app.login, user.appLogin);
-
   app.use(function * injectParams (next) {
     this.state._csrf = this.csrf;
     this.state.logo = config.logo;
