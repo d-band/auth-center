@@ -68,7 +68,8 @@ export default function (config) {
 
     const token = yield Token.create({
       client_id: client.id,
-      user_id: _code.user_id
+      user_id: _code.user_id,
+      ttl: config.accessTokenTTL
     });
 
     this.set('Cache-Control', 'no-store');
@@ -76,7 +77,7 @@ export default function (config) {
     this.body = {
       access_token: token.id,
       token_type: 'bearer',
-      expires_in: config.accessTokenTTL,
+      expires_in: token.ttl,
       state: state
     };
   }
@@ -98,7 +99,7 @@ export default function (config) {
 
     this.assert(token, 401, 'access_token is invalid.');
 
-    const expiresAt = token.createdAt.getTime() + (config.accessTokenTTL * 1000);
+    const expiresAt = token.createdAt.getTime() + (token.ttl * 1000);
     this.assert(expiresAt > Date.now(), 401, 'access_token expired.');
 
     this._userId = token.user_id;

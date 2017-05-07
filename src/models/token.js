@@ -17,6 +17,10 @@ export default function (sequelize, DataTypes) {
       type: DataTypes.STRING(100),
       allowNull: false,
       comment: 'User ID'
+    },
+    ttl: {
+      type: DataTypes.BIGINT,
+      allowNull: false
     }
   }, {
     tableName: 'token',
