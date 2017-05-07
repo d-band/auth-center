@@ -1,6 +1,6 @@
 {
   "name": "auth-center",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "auth center with TOTP",
   "main": "app/index.js",
   "bin": {
@@ -89,7 +89,7 @@
     "koa-view": "^1.1.0",
     "lodash.merge": "^4.6.0",
     "lodash.template": "^4.4.0",
-    "nodemailer": "^3.1.4",
+    "nodemailer": "^4.0.1",
     "notp": "^2.0.3",
     "qr-image": "^3.1.0",
     "randomstring": "^1.1.5",
