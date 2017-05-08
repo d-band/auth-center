@@ -19,7 +19,7 @@ export default function (sequelize, DataTypes) {
       comment: 'User ID'
     },
     ttl: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false
     }
   }, {
