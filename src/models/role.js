@@ -3,7 +3,7 @@
 export default function (sequelize, DataTypes) {
   return sequelize.define('Role', {
     user_id: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
       comment: 'User ID'
     },

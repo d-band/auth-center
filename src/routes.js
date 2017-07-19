@@ -44,7 +44,6 @@ export default function routes (app, config) {
   router.post(R.admin.send_totp, csrf, admin.checkLogin, admin.sendTotp);
   router.post(R.admin.add_client, csrf, admin.checkLogin, admin.addClient);
   router.post(R.admin.generate_secret, csrf, admin.checkLogin, admin.generateSecret);
-  router.post(R.admin.add_user, csrf, admin.checkLogin, admin.addUser);
   router.get(R.admin.roles, admin.checkLogin, admin.roleList);
   router.post(R.admin.add_role, csrf, admin.checkLogin, admin.addRole);
   router.post(R.admin.delete_role, csrf, admin.checkLogin, admin.deleteRole);

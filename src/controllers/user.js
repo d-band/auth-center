@@ -30,10 +30,10 @@ export function * login () {
 
 export function * session () {
   const { User } = this.orm();
-  const { username, password, token } = this.request.body;
+  const { email, password, token } = this.request.body;
 
-  if (!username) {
-    this.flash('error', 'Username is required');
+  if (!email) {
+    this.flash('error', 'Email is required');
     this.redirect(this._routes.login);
     return;
   }
@@ -48,10 +48,10 @@ export function * session () {
     return;
   }
 
-  const user = yield User.auth(username, password);
+  const user = yield User.auth(email, password);
 
   if (!user) {
-    this.flash('error', 'Username or password is invalid');
+    this.flash('error', 'Email or password is invalid');
     this.redirect(this._routes.login);
     return;
   }
@@ -99,10 +99,10 @@ export function * passwordReset () {
 
   try {
     const code = yield EmailCode.create({
-      user_id: user.username
+      user_id: user.user_id
     });
     yield this.sendMail(user.email, 'password_reset', {
-      username: user.username,
+      username: user.email,
       ttl: this.config.emailCodeTTL / 3600,
       link: this.config.domain + this._routes.password_change + '?code=' + code.id
     });
@@ -191,7 +191,7 @@ export function * getInfo (next) {
   const { User } = this.orm();
 
   this.body = yield User.findById(this._userId, {
-    attributes: ['username', 'email'],
+    attributes: ['user_id', 'email'],
     raw: true
   });
 }

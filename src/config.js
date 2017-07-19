@@ -52,31 +52,6 @@ const _config = {
           Install Help: <a href="https://support.google.com/accounts/answer/1066447?hl=en">https://support.google.com/accounts/answer/1066447?hl=en</a></p>
           <p>Thanks!</p>
         `
-      },
-      add_user: {
-        subject: '[Important] Initial password and dynamic token',
-        html: `
-          <p>Hello, <strong>{{username}}</strong> : </p>
-          <p>Your initial password : {{password}}</p>
-          <p>Please follow the steps:</p>
-          <p><strong>1. Reset password</strong><br>
-            You can use the following link to reset password:<br>
-            <a href="{{link}}">{{link}}</a><br>
-            If you don’t use this link within {{ttl}} hours, it will expire.
-          </p>
-          <p><strong>2. Download Google Authenticator</strong><br>
-            iOS App: <a href="https://itunes.apple.com/cn/app/google-authenticator/id388497605?mt=8">https://itunes.apple.com/cn/app/google-authenticator/id388497605?mt=8</a><br>
-            Android App: <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en</a><br>
-            Install Help: <a href="https://support.google.com/accounts/answer/1066447?hl=en">https://support.google.com/accounts/answer/1066447?hl=en</a>
-          </p>
-          <p><strong>3. Add dynamic token in Google Authenticator</strong><br>
-            The following image is the key for dynamic token:<br>
-            <img src="cid:{{cid}}"/><br>
-            Or you can use following email and secret key to register:<br>
-            Email: {{email}}<br>Secret Key: {{key}}
-          </p>
-          <p>Thanks!</p>
-        `
       }
     }
   },
@@ -98,7 +73,6 @@ const _config = {
       send_totp: '/admin/send_totp',
       add_client: '/admin/add_client',
       generate_secret: '/admin/generate_secret',
-      add_user: '/admin/add_user',
       add_role: '/admin/add_role',
       delete_role: '/admin/delete_role'
     }

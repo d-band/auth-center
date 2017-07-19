@@ -14,7 +14,7 @@ export default function (sequelize, DataTypes) {
       comment: 'Client ID'
     },
     user_id: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
       comment: 'User ID'
     },

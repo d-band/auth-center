@@ -14,9 +14,9 @@ export default function (sequelize, DataTypes) {
       comment: 'client id'
     },
     user_id: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
-      comment: 'user id'
+      comment: 'User ID'
     },
     redirect_uri: {
       type: DataTypes.STRING(255),

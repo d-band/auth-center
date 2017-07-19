@@ -87,13 +87,13 @@ describe('auth-center', function() {
         force: true
       });
       yield orm.User.add({
-        username: 'test',
+        user_id: 10001,
         password: 'test',
         email: 'test@example.com',
         totp_key: totp_key
       });
       yield orm.User.add({
-        username: 'admin',
+        user_id: 10002,
         password: 'admin',
         email: 'admin@example.com',
         totp_key: totp_key
@@ -102,7 +102,7 @@ describe('auth-center', function() {
         is_admin: true
       }, {
         where: {
-          username: 'admin'
+          user_id: 10001
         }
       });
       yield orm.Client.create({

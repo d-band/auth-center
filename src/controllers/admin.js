@@ -1,7 +1,6 @@
 'use strict';
 
 import { generateToken, encodeKey, totpImage } from '../util';
-import rs from 'randomstring';
 
 export function * checkLogin (next) {
   if (this.session.user) {
@@ -21,17 +20,17 @@ export function * searchUser () {
   const User = this.orm().User;
   const q = this.request.body.q || '';
   const users = yield User.findAll({
-    attributes: ['username'],
+    attributes: ['email'],
     where: {
       enable: 1,
-      username: {
+      email: {
         $like: q + '%'
       }
     },
     offset: 0,
     limit: 15
   });
-  this.body = users.map(u => u.username);
+  this.body = users.map(u => u.email);
 }
 
 export function * userList () {
@@ -48,7 +47,7 @@ export function * userList () {
     offset: offset * 20,
     limit: 20,
     order: [
-      ['username', 'ASC']
+      ['email', 'ASC']
     ]
   });
 
@@ -81,10 +80,10 @@ export function * clientList () {
 
 export function * sendTotp () {
   const User = this.orm().User;
-  const { username } = this.request.body;
+  const { id } = this.request.body;
 
-  if (!username) {
-    this.flash('error', 'Username is required');
+  if (!id) {
+    this.flash('error', 'ID is required');
     this.redirect(this._routes.admin.users);
     return;
   }
@@ -94,19 +93,13 @@ export function * sendTotp () {
     let res = yield User.update({
       totp_key: generateToken()
     }, {
-      where: {
-        username: username
-      }
+      where: { id }
     });
     // send email
     if (res[0]) {
-      let user = yield User.findOne({
-        where: {
-          username: username
-        }
-      });
+      let user = yield User.findById(id);
       yield this.sendMail(user.email, 'send_totp', {
-        username: user.username,
+        username: user.email,
         cid: 'key',
         email: user.email,
         key: encodeKey(user.totp_key)
@@ -196,87 +189,31 @@ export function * generateSecret () {
   }
 }
 
-export function * addUser () {
-  const { User, EmailCode, sequelize } = this.orm();
-  const { username, email } = this.request.body;
-
-  if (!username) {
-    this.flash('error', 'Username is required');
-    this.redirect(this._routes.admin.users);
-    return;
-  }
-
-  if (!email) {
-    this.flash('error', 'Email is required');
-    this.redirect(this._routes.admin.users);
-    return;
-  }
-
-  const t = yield sequelize.transaction();
-
-  try {
-    const password = rs.generate(8);
-    const key = generateToken();
-    // add one new
-    const user = yield User.add({
-      username: username,
-      email: email,
-      password: password,
-      totp_key: key
-    }, {
-      transaction: t
-    });
-    // 生成code
-    const code = yield EmailCode.create({
-      user_id: user.username
-    }, {
-      transaction: t
-    });
-    // send email
-    yield this.sendMail(user.email, 'add_user', {
-      username: user.username,
-      password: password,
-      cid: 'key',
-      email: user.email,
-      key: encodeKey(key),
-      ttl: this.config.emailCodeTTL / 3600,
-      link: this.config.domain + this._routes.password_change + '?code=' + code.id
-    }, [{
-      filename: 'key.png',
-      content: totpImage(user.email, key),
-      cid: 'key'
-    }]);
-
-    yield t.commit();
-
-    this.flash('success', 'Add new user successfully');
-    this.redirect(this._routes.admin.users);
-  } catch (e) {
-    console.error(e.stack);
-    t.rollback();
-    this.flash('error', 'Add new user failed');
-    this.redirect(this._routes.admin.users);
-  }
-}
-
 export function * roleList () {
-  const { Role, Client, DicRole } = this.orm();
+  const { User, Role, Client, DicRole } = this.orm();
 
-  const q = this.query.q || '';
   const offset = this.query.offset || 0;
   const roles = yield Role.findAndCountAll({
     attributes: ['id', 'user_id', 'client_id', 'role'],
-    where: {
-      user_id: {
-        $like: '%' + q + '%'
-      }
-    },
     offset: offset * 20,
     limit: 20,
     order: [
       ['user_id', 'ASC']
     ]
   });
+
+  const ids = roles.count ? yield roles.rows.map(v => v.user_id) : [];
+  const users = ids.length ? yield User.findAll({
+    where: {
+      user_id: {
+        $in: ids
+      }
+    }
+  }) : [];
+  const userMap = users.reduce((o, c) => {
+    o[c.user_id] = c.email;
+    return o;
+  }, {});
 
   const clients = yield Client.findAll();
   const dics = yield DicRole.findAll();
@@ -286,21 +223,21 @@ export function * roleList () {
   }, {});
   yield this.render('admin/roles', {
     navRoles: 'active',
-    q: q,
     data: roles,
     clients: clients,
     clientMap: clientMap,
+    userMap: userMap,
     dics: dics,
     offset: offset
   });
 }
 
 export function * addRole () {
-  const { Role } = this.orm();
-  const { user, client, role } = this.request.body;
+  const { Role, User } = this.orm();
+  const { email, client, role } = this.request.body;
 
-  if (!user) {
-    this.flash('error', 'User is required');
+  if (!email) {
+    this.flash('error', 'Email is required');
     this.redirect(this._routes.admin.roles);
     return;
   }
@@ -317,10 +254,17 @@ export function * addRole () {
     return;
   }
 
+  const user = yield User.findByEmail(email);
+  if (!user) {
+    this.flash('error', 'User is not existed');
+    this.redirect(this._routes.admin.roles);
+    return;
+  }
+
   try {
     // add one new
     yield Role.create({
-      user_id: user,
+      user_id: user.user_id,
       client_id: client,
       role: role
     });

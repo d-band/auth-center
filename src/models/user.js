@@ -4,10 +4,17 @@ import { makeSalt, encrypt } from '../util';
 
 export default function (sequelize, DataTypes) {
   return sequelize.define('User', {
-    username: {
-      type: DataTypes.STRING(100),
+    id: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: false,
       primaryKey: true,
-      comment: 'user name'
+      autoIncrement: true
+    },
+    user_id: {
+      type: DataTypes.BIGINT.UNSIGNED,
+      allowNull: false,
+      defaultValue: 0,
+      comment: 'User ID'
     },
     email: {
       type: DataTypes.STRING(100),
@@ -44,13 +51,8 @@ export default function (sequelize, DataTypes) {
     tableName: 'user',
     comment: 'user base info',
     classMethods: {
-      auth: function * (username, password) {
-        let user = yield this.findById(username, {
-          where: { enable: 1 }
-        });
-        if (!user) {
-          user = yield this.findByEmail(username);
-        }
+      auth: function * (email, password) {
+        let user = yield this.findByEmail(email);
         if (!user) return null;
         if (user.pass_hash !== encrypt(password, user.pass_salt)) {
           return null;
@@ -66,11 +68,11 @@ export default function (sequelize, DataTypes) {
           where: { email, enable }
         });
       },
-      add: function * ({ username, password, email, totp_key, is_admin }, options) {
+      add: function * ({ user_id, password, email, totp_key, is_admin }, options) {
         const salt = makeSalt();
         const hash = encrypt(password, salt);
         return yield this.create({
-          username,
+          user_id,
           email,
           totp_key,
           is_admin,
@@ -78,14 +80,14 @@ export default function (sequelize, DataTypes) {
           pass_hash: hash
         }, options);
       },
-      changePassword: function * (username, newPwd) {
+      changePassword: function * (email, newPwd) {
         const salt = makeSalt();
         const hash = encrypt(newPwd, salt);
         return yield this.update({
           pass_salt: salt,
           pass_hash: hash
         }, {
-          where: { username }
+          where: { email }
         });
       }
     }

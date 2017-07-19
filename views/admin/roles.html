@@ -16,14 +16,10 @@
   {{messages.error}}
 </div>
 {% endif %}
-<div class="panel">
+<div class="panel clearfix">
   <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#roleModal">
     Add Role
   </button>
-  <form action="{{_routes.admin.roles}}" method="get" class="form-inline">
-    <input type="text" name="q" class="form-control input-sm" value="{{q}}">
-    <button type="submit" class="btn btn-primary btn-sm">Search</button>
-  </form>
 </div>
 <hr>
 <table class="table">
@@ -32,7 +28,7 @@
       <th>User</th>
       <th>Client</th>
       <th>Role</th>
-      <th>Opeartion</th>
+      <th>Operation</th>
     </tr>
   </thead>
   <tbody>
@@ -43,7 +39,7 @@
     {% else %}
       {% for d in data.rows %}
       <tr>
-        <td>{{d.user_id}}</td>
+        <td>{{userMap[d.user_id]}}</td>
         <td>{{clientMap[d.client_id]}}</td>
         <td>{{d.role}}</td>
         <td>
@@ -83,7 +79,7 @@
           <div class="form-group">
             <label for="recipient-name" class="control-label">User</label>
             <div id="J_userList" class="dropdown" data-url="{{_routes.admin.search_user}}">
-              <input type="text" name="user" class="form-control" autocomplete="off" placeholder="Select user">
+              <input type="text" name="email" class="form-control" autocomplete="off" placeholder="Select email">
               <ul class="dropdown-menu" style="width:100%;"></ul>
             </div>
           </div>

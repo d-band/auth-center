@@ -26,7 +26,7 @@ export default function (config) {
     }
 
     const code = yield Code.create({
-      user_id: user.username,
+      user_id: user.user_id,
       client_id: client.id,
       redirect_uri: uri
     });
