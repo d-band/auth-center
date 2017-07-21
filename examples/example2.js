@@ -35,14 +35,14 @@ if (!module.parent) {
       force: true
     });
     yield orm.User.add({
-      user_id: 10001,
+      id: 10001,
       password: 'nick',
       email: 'nick@example.com',
       totp_key: '1234',
       is_admin: true
     });
     yield orm.User.add({
-      user_id: 10002,
+      id: 10002,
       password: 'ken',
       email: 'ken@example.com',
       totp_key: '1234',
