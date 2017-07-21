@@ -51,6 +51,7 @@ export default function routes (app, config) {
   app.use(function * injectParams (next) {
     this.state._csrf = this.csrf;
     this.state.logo = config.logo;
+    this.state.favicon = config.favicon;
     this._routes = this.state._routes = R;
     yield * next;
   });
