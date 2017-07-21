@@ -16,7 +16,7 @@ module.exports = function(app) {
   };
 
   passport.serializeUser(function(user, done) {
-    done(null, user.username);
+    done(null, user.id);
   });
 
   passport.deserializeUser(function(id, done) {
@@ -30,7 +30,7 @@ module.exports = function(app) {
     clientSecret: '12345678',
     callbackURL: 'http://localhost:3000/auth/callback'
   }, function(accessToken, refreshToken, profile, cb) {
-    store[profile.username] = profile;
+    store[profile.id] = profile;
     cb(null, profile);
   }));
 

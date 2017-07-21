@@ -7,14 +7,7 @@ export default function (sequelize, DataTypes) {
     id: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    user_id: {
-      type: DataTypes.BIGINT.UNSIGNED,
-      allowNull: false,
-      defaultValue: 0,
-      comment: 'User ID'
+      primaryKey: true
     },
     email: {
       type: DataTypes.STRING(100),
@@ -68,11 +61,11 @@ export default function (sequelize, DataTypes) {
           where: { email, enable }
         });
       },
-      add: function * ({ user_id, password, email, totp_key, is_admin }, options) {
+      add: function * ({ id, password, email, totp_key, is_admin }, options) {
         const salt = makeSalt();
         const hash = encrypt(password, salt);
         return yield this.create({
-          user_id,
+          id,
           email,
           totp_key,
           is_admin,
@@ -80,14 +73,14 @@ export default function (sequelize, DataTypes) {
           pass_hash: hash
         }, options);
       },
-      changePassword: function * (email, newPwd) {
+      changePassword: function * (id, newPwd) {
         const salt = makeSalt();
         const hash = encrypt(newPwd, salt);
         return yield this.update({
           pass_salt: salt,
           pass_hash: hash
         }, {
-          where: { email }
+          where: { id }
         });
       }
     }

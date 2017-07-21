@@ -205,13 +205,13 @@ export function * roleList () {
   const ids = roles.count ? yield roles.rows.map(v => v.user_id) : [];
   const users = ids.length ? yield User.findAll({
     where: {
-      user_id: {
+      id: {
         $in: ids
       }
     }
   }) : [];
   const userMap = users.reduce((o, c) => {
-    o[c.user_id] = c.email;
+    o[c.id] = c.email;
     return o;
   }, {});
 
@@ -264,7 +264,7 @@ export function * addRole () {
   try {
     // add one new
     yield Role.create({
-      user_id: user.user_id,
+      user_id: user.id,
       client_id: client,
       role: role
     });

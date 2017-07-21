@@ -99,7 +99,7 @@ export function * passwordReset () {
 
   try {
     const code = yield EmailCode.create({
-      user_id: user.user_id
+      user_id: user.id
     });
     yield this.sendMail(user.email, 'password_reset', {
       username: user.email,
@@ -191,7 +191,7 @@ export function * getInfo (next) {
   const { User } = this.orm();
 
   this.body = yield User.findById(this._userId, {
-    attributes: ['user_id', 'email'],
+    attributes: ['id', 'email'],
     raw: true
   });
 }

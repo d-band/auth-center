@@ -87,13 +87,13 @@ describe('auth-center', function() {
         force: true
       });
       yield orm.User.add({
-        user_id: 10001,
+        id: 10001,
         password: 'test',
         email: 'test@example.com',
         totp_key: totp_key
       });
       yield orm.User.add({
-        user_id: 10002,
+        id: 10002,
         password: 'admin',
         email: 'admin@example.com',
         totp_key: totp_key
@@ -102,7 +102,7 @@ describe('auth-center', function() {
         is_admin: true
       }, {
         where: {
-          user_id: 10001
+          id: 10002
         }
       });
       yield orm.Client.create({
@@ -113,7 +113,7 @@ describe('auth-center', function() {
       });
       yield orm.EmailCode.create({
         id: 'expired_code',
-        user_id: 'test',
+        user_id: 10001,
         createdAt: new Date(Date.now() - 3600 * 12000)
       });
     }).then(function() {
@@ -127,7 +127,7 @@ describe('auth-center', function() {
     let config = Config(__dirname + '/config');
     expect(config).to.have.property('isTOTP');
     expect(config.isTOTP).to.be.false;
-    expect(config).to.have.deep.property('mail.name');
+    expect(config).to.have.nested.property('mail.name');
     done();
   });
 
@@ -205,7 +205,7 @@ describe('auth-center', function() {
           .end(function(err, res) {
             expect(err).to.be.null;
             expect(res).to.have.status(200);
-            expect(res.text).to.match(/Username is required/);
+            expect(res.text).to.match(/Email is required/);
             done();
           });
       });
@@ -221,7 +221,7 @@ describe('auth-center', function() {
           .post(R.session)
           .send({
             _csrf: csrf,
-            username: 'test@example.com'
+            email: 'test@example.com'
           })
           .end(function(err, res) {
             expect(err).to.be.null;
@@ -242,13 +242,13 @@ describe('auth-center', function() {
           .post(R.session)
           .send({
             _csrf: csrf,
-            username: 'test@example.com',
+            email: 'test@example.com',
             password: 'wrong'
           })
           .end(function(err, res) {
             expect(err).to.be.null;
             expect(res).to.have.status(200);
-            expect(res.text).to.match(/Username or password is invalid/);
+            expect(res.text).to.match(/Email or password is invalid/);
             done();
           });
       });
@@ -267,7 +267,7 @@ describe('auth-center', function() {
           .post(R.session)
           .send({
             _csrf: csrf,
-            username: 'test@example.com',
+            email: 'test@example.com',
             password: 'test'
           })
           .end(function(err, res) {
@@ -289,7 +289,7 @@ describe('auth-center', function() {
           .post(R.session)
           .send({
             _csrf: csrf,
-            username: 'test@example.com',
+            email: 'test@example.com',
             password: 'test',
             token: '123456'
           })
@@ -312,14 +312,14 @@ describe('auth-center', function() {
           .post(R.session)
           .send({
             _csrf: csrf,
-            username: 'wrong@example.com',
+            email: 'wrong@example.com',
             password: 'test',
             token: '123456'
           })
           .end(function(err, res) {
             expect(err).to.be.null;
             expect(res).to.have.status(200);
-            expect(res.text).to.match(/Username or password is invalid/);
+            expect(res.text).to.match(/Email or password is invalid/);
             done();
           });
       });
@@ -335,7 +335,7 @@ describe('auth-center', function() {
           .post(R.session)
           .send({
             _csrf: csrf,
-            username: 'test@example.com',
+            email: 'test@example.com',
             password: 'test',
             token: totp.gen(totp_key)
           })
@@ -582,13 +582,13 @@ describe('auth-center', function() {
           .send({
             _csrf: csrf,
             codeId: emailCode,
-            password: '12345678',
-            password2: '12345678'
+            password: 'testnewpwd',
+            password2: 'testnewpwd'
           })
           .end(function(err, res) {
             expect(err).to.be.null;
             expect(res).to.have.status(200);
-            expect(res.text).to.match(/username/);
+            expect(res.text).to.match(/email/);
             expect(res.text).to.match(/password/);
             expect(res.text).to.match(/Password have changed/);
             done();
@@ -614,14 +614,14 @@ describe('auth-center', function() {
           .post(R.session)
           .send({
             _csrf: csrf,
-            username: 'test@example.com',
-            password: '12345678'
+            email: 'test@example.com',
+            password: 'testnewpwd'
           })
           .end(function(err, res) {
             expect(err).to.be.null;
             expect(res).to.have.status(200);
             expect(res.redirects).to.have.lengthOf(3);
-            expect(res.text).to.match(/username/);
+            expect(res.text).to.match(/email/);
             expect(res.text).to.match(/test/);
             done();
           });
@@ -638,7 +638,7 @@ describe('auth-center', function() {
       .end(function(err, res) {
         expect(err).to.be.null;
         expect(res).to.have.status(200);
-        expect(res.text).to.match(/username/);
+        expect(res.text).to.match(/email/);
         expect(res.text).to.match(/test/);
         done();
       });
@@ -679,14 +679,14 @@ describe('auth-center', function() {
         .post(R.session)
         .send({
           _csrf: csrf,
-          username: 'admin',
+          email: 'admin@example.com',
           password: 'admin',
           token: totp.gen(totp_key)
         })
         .end(function(err, res) {
           expect(err).to.be.null;
           expect(res).to.have.status(200);
-          expect(res.text).to.match(/Name/);
+          expect(res.text).to.match(/Email/);
           expect(res.text).to.match(/Key/);
           expect(res.text).to.match(/Updated At/);
           done();
@@ -694,7 +694,7 @@ describe('auth-center', function() {
     });
   });
 
-  it('should send totp: username is required', function(done) {
+  it('should send totp: ID is required', function(done) {
     request.get(R.admin.users).end(function(err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
@@ -705,7 +705,7 @@ describe('auth-center', function() {
           _csrf: csrf
         })
         .end(function(err, res) {
-          expect(res.text).to.match(/Username is required/);
+          expect(res.text).to.match(/ID is required/);
           done();
         });
     });
@@ -720,7 +720,7 @@ describe('auth-center', function() {
         .post(R.admin.send_totp)
         .send({
           _csrf: csrf,
-          username: 'wrong'
+          id: 'wrong'
         })
         .end(function(err, res) {
           expect(res.text).to.match(/Update failed/);
@@ -739,7 +739,7 @@ describe('auth-center', function() {
         .post(R.admin.send_totp)
         .send({
           _csrf: csrf,
-          username: 'test'
+          id: 10001
         })
         .end(function(err, res) {
           expect(res.text).to.match(/Reset and send key failed/);
@@ -758,92 +758,11 @@ describe('auth-center', function() {
         .post(R.admin.send_totp)
         .send({
           _csrf: csrf,
-          username: 'test'
+          id: 10001
         })
         .end(function(err, res) {
           expect(res.text).to.match(/successfully/);
           done();
-        });
-    });
-  });
-
-  it('should add user: username is required', function(done) {
-    request.get(R.admin.users).end(function(err, res) {
-      expect(err).to.be.null;
-      expect(res).to.have.status(200);
-      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
-      request
-        .post(R.admin.add_user)
-        .send({
-          _csrf: csrf
-        })
-        .end(function(err, res) {
-          expect(res.text).to.match(/Username is required/);
-          done();
-        });
-    });
-  });
-
-  it('should add user: email is required', function(done) {
-    request.get(R.admin.users).end(function(err, res) {
-      expect(err).to.be.null;
-      expect(res).to.have.status(200);
-      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
-      request
-        .post(R.admin.add_user)
-        .send({
-          _csrf: csrf,
-          username: 'new1'
-        })
-        .end(function(err, res) {
-          expect(res.text).to.match(/Email is required/);
-          done();
-        });
-    });
-  });
-
-  it('should add user: send email failed', function(done) {
-    request.get(R.admin.users).end(function(err, res) {
-      expect(err).to.be.null;
-      expect(res).to.have.status(200);
-      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
-      isSendFail = true;
-      request
-        .post(R.admin.add_user)
-        .send({
-          _csrf: csrf,
-          username: 'new1',
-          email: 'new1@example.com'
-        })
-        .end(function(err, res) {
-          isSendFail = false;
-          expect(res.text).to.match(/Add new user failed/);
-          done();
-        });
-    });
-  });
-
-  it('should add user: success', function(done) {
-    request.get(R.admin.users).end(function(err, res) {
-      expect(err).to.be.null;
-      expect(res).to.have.status(200);
-      let csrf = res.text.match(/<input.*name=\"_csrf\".*value=\"(.*)\"/)[1];
-      request
-        .post(R.admin.add_user)
-        .send({
-          _csrf: csrf,
-          username: 'new1',
-          email: 'new1@example.com'
-        })
-        .end(function(err, res) {
-          expect(res.text).to.match(/successfully/);
-          request.post(R.admin.search_user).send({
-            _csrf: csrf,
-            q: 'new1'
-          }).end(function(err, res) {
-            expect(res.body).to.deep.equal(['new1']);
-            done();
-          });
         });
     });
   });
@@ -1024,7 +943,7 @@ describe('auth-center', function() {
           _csrf: csrf
         })
         .end(function(err, res) {
-          expect(res.text).to.match(/User is required/);
+          expect(res.text).to.match(/Email is required/);
           done();
         });
     });
@@ -1039,7 +958,7 @@ describe('auth-center', function() {
         .post(R.admin.add_role)
         .send({
           _csrf: csrf,
-          user: 'test'
+          email: 'test@example.com'
         })
         .end(function(err, res) {
           expect(res.text).to.match(/Client is required/);
@@ -1057,7 +976,7 @@ describe('auth-center', function() {
         .post(R.admin.add_role)
         .send({
           _csrf: csrf,
-          user: 'test',
+          email: 'test@example.com',
           client: 12345678
         })
         .end(function(err, res) {
@@ -1076,7 +995,7 @@ describe('auth-center', function() {
         .post(R.admin.add_role)
         .send({
           _csrf: csrf,
-          user: 'test',
+          email: 'test@example.com',
           client: 12345678,
           role: 'test'
         })
@@ -1096,7 +1015,7 @@ describe('auth-center', function() {
         .post(R.admin.add_role)
         .send({
           _csrf: csrf,
-          user: 'test',
+          email: 'test@example.com',
           client: 12345678,
           role: 'test'
         })
