@@ -67,4 +67,15 @@ describe('auth-center util', function() {
     expect(buf[3]).to.be.equal(0x47);
   });
 
+  it('should pagination', function() {
+    const link = i => i;
+    expect(util.pagination(1, 1, link)).to.be.equal('');
+    expect(util.pagination(1, 3, link)).to.be.equal('<ul class="pagination"><li class="active"><a href="1">1</a></li><li class=""><a href="2">2</a></li><li class=""><a href="3">3</a></li><li><a href="2">&raquo;</a></li></ul>');
+    expect(util.pagination(2, 3, link)).to.be.equal('<ul class="pagination"><li><a href="1">&laquo;</a></li><li class=""><a href="1">1</a></li><li class="active"><a href="2">2</a></li><li class=""><a href="3">3</a></li><li><a href="3">&raquo;</a></li></ul>');
+    expect(util.pagination(1, 6, link)).to.be.equal('<ul class="pagination"><li class="active"><a href="1">1</a></li><li class=""><a href="2">2</a></li><li class=""><a href="3">3</a></li><li class=""><a href="4">4</a></li><li class=""><a href="5">5</a></li><li><a href="2">&raquo;</a></li></ul>');
+    expect(util.pagination(4, 6, link)).to.be.equal('<ul class="pagination"><li><a href="3">&laquo;</a></li><li class=""><a href="2">2</a></li><li class=""><a href="3">3</a></li><li class="active"><a href="4">4</a></li><li class=""><a href="5">5</a></li><li class=""><a href="6">6</a></li><li><a href="5">&raquo;</a></li></ul>');
+    expect(util.pagination(5, 6, link)).to.be.equal('<ul class="pagination"><li><a href="4">&laquo;</a></li><li class=""><a href="2">2</a></li><li class=""><a href="3">3</a></li><li class=""><a href="4">4</a></li><li class="active"><a href="5">5</a></li><li class=""><a href="6">6</a></li><li><a href="6">&raquo;</a></li></ul>');
+    expect(util.pagination(6, 6, link)).to.be.equal('<ul class="pagination"><li><a href="5">&laquo;</a></li><li class=""><a href="2">2</a></li><li class=""><a href="3">3</a></li><li class=""><a href="4">4</a></li><li class=""><a href="5">5</a></li><li class="active"><a href="6">6</a></li></ul>');
+  });
+
 });

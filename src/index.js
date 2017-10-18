@@ -15,6 +15,7 @@ import routes from './routes';
 import error from './middlewares/error';
 import flash from './middlewares/flash';
 import mail from './middlewares/mail';
+import { pagination } from './util';
 
 export default function (options) {
   const config = Config(options);
@@ -54,6 +55,7 @@ export default function (options) {
   app.use(view(config.viewPath, {
     noCache: config.debug,
     globals: {
+      pagination,
       __: function (key) {
         return i18n.message(key);
       }

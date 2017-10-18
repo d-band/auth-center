@@ -1,5 +1,6 @@
 'use strict';
 
+import qs from 'querystring';
 import { generateToken, encodeKey, totpImage } from '../util';
 
 export function * checkLogin (next) {
@@ -34,47 +35,60 @@ export function * searchUser () {
 }
 
 export function * userList () {
-  const User = this.orm().User;
-
-  let offset = this.query.offset || 0;
-  let users = yield User.findAndCountAll({
+  const { User } = this.orm();
+  const page = parseInt(this.query.p, 10) || 1;
+  const query = this.query.q || '';
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  const where = { enable: 1 };
+  if (query) {
+    where['email'] = { $like: `%${query}%` };
+  }
+  const users = yield User.findAndCountAll({
+    where,
+    limit,
+    offset,
+    order: 'email ASC',
     attributes: {
       exclude: ['pass_hash', 'pass_salt']
-    },
-    where: {
-      enable: 1
-    },
-    offset: offset * 20,
-    limit: 20,
-    order: [
-      ['email', 'ASC']
-    ]
+    }
   });
 
   yield this.render('admin/users', {
+    page,
+    users,
+    query,
     navUsers: 'active',
-    data: users,
-    offset: offset
+    total: Math.ceil(users.count / limit),
+    link: p => `?${qs.stringify({ q: query, p })}`
   });
 }
 
 export function * clientList () {
-  const Client = this.orm().Client;
-
-  let offset = this.query.offset || 0;
-  let clients = yield Client.findAndCountAll({
-    attributes: ['id', 'secret', 'redirect_uri', 'name'],
-    offset: offset * 20,
-    limit: 20,
-    order: [
-      ['name', 'ASC']
-    ]
+  const { Client } = this.orm();
+  const page = parseInt(this.query.p, 10) || 1;
+  const query = this.query.q || '';
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  const where = {};
+  if (query) {
+    where['name'] = { $like: `%${query}%` };
+  }
+  const clients = yield Client.findAndCountAll({
+    where,
+    limit,
+    offset,
+    order: 'name ASC',
+    attributes: ['id', 'secret', 'redirect_uri', 'name']
   });
 
   yield this.render('admin/clients', {
+    page,
+    query,
+    clients,
     navClients: 'active',
-    data: clients,
-    offset: offset
+    total: Math.ceil(clients.count / limit),
+    link: p => `?${qs.stringify({ q: query, p })}`
   });
 }
 
@@ -191,25 +205,37 @@ export function * generateSecret () {
 
 export function * roleList () {
   const { User, Role, Client, DicRole } = this.orm();
-
-  const offset = this.query.offset || 0;
-  const roles = yield Role.findAndCountAll({
-    attributes: ['id', 'user_id', 'client_id', 'role'],
-    offset: offset * 20,
-    limit: 20,
-    order: [
-      ['user_id', 'ASC']
-    ]
-  });
-
-  const ids = roles.count ? yield roles.rows.map(v => v.user_id) : [];
-  const users = ids.length ? yield User.findAll({
-    where: {
-      id: {
-        $in: ids
+  const page = parseInt(this.query.p, 10) || 1;
+  const query = this.query.q || '';
+  const where = {};
+  if (query) {
+    const temp = yield User.findAll({
+      offset: 0,
+      limit: 100,
+      attributes: ['id'],
+      where: {
+        email: { $like: `%${query}%` }
       }
+    });
+    where['user_id'] = {
+      $in: temp.map(v => v.id)
+    };
+  }
+  const limit = 20;
+  const offset = (page - 1) * limit;
+  const roles = yield Role.findAndCountAll({
+    where,
+    limit,
+    offset,
+    order: 'user_id ASC',
+    attributes: ['id', 'user_id', 'client_id', 'role']
+  });
+  const users = yield User.findAll({
+    attributes: ['id', 'email'],
+    where: {
+      id: { $in: roles.rows.map(v => v.user_id) }
     }
-  }) : [];
+  });
   const userMap = users.reduce((o, c) => {
     o[c.id] = c.email;
     return o;
@@ -222,13 +248,16 @@ export function * roleList () {
     return o;
   }, {});
   yield this.render('admin/roles', {
+    dics,
+    page,
+    query,
+    roles,
+    clients,
+    userMap,
+    clientMap,
     navRoles: 'active',
-    data: roles,
-    clients: clients,
-    clientMap: clientMap,
-    userMap: userMap,
-    dics: dics,
-    offset: offset
+    total: Math.ceil(roles.count / limit),
+    link: p => `?${qs.stringify({ q: query, p })}`
   });
 }
 

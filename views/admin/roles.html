@@ -16,7 +16,13 @@
   {{messages.error}}
 </div>
 {% endif %}
-<div class="panel clearfix">
+<div class="clearfix">
+  <form action="?" class="form-inline pull-left" method="GET">
+    <div class="form-group">
+      <input type="text" name="q" value="{{query}}" class="form-control input-sm" style="width: 200px;" placeholder="Email">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Search</button>
+  </form>
   <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#roleModal">
     Add Role
   </button>
@@ -32,12 +38,12 @@
     </tr>
   </thead>
   <tbody>
-    {% if data.rows.length == 0 %}
+    {% if roles.rows.length == 0 %}
       <tr>
         <td colspan="4" class="text-center">No data available in table</td>
       </tr>
     {% else %}
-      {% for d in data.rows %}
+      {% for d in roles.rows %}
       <tr>
         <td>{{userMap[d.user_id]}}</td>
         <td>{{clientMap[d.client_id]}}</td>
@@ -54,18 +60,9 @@
     {% endif %}
   </tbody>
 </table>
-{% if data.rows.length > 0 %}
-<nav>
-  <ul class="pager">
-  {% if offset > 0 %}
-    <li><a href="{{_routes.admin.roles}}?offset={{offset-1}}">Previous</a></li>
-  {% endif %}
-  {% if offset*20+data.rows.length < data.count %}
-    <li><a href="{{_routes.admin.roles}}?offset={{+offset+1}}">Next</a></li>
-  {% endif %}
-  </ul>
+<nav class="text-center">
+  {{pagination(page, total, link) | safe}}
 </nav>
-{% endif %}
 <div class="modal fade" id="roleModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
