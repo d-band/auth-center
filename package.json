@@ -11,7 +11,7 @@
     "build-app": "rimraf app && babel src --out-dir app",
     "build-assets": "rimraf public && cd assets && dool-build -o $PWD/../public",
     "prepublish": "npm run build",
-    "test": "NODE_ENV=test nyc mocha --no-timeouts",
+    "test": "NODE_ENV=test nyc mocha --exit",
     "report": "nyc report --reporter=html",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint --ext .js src test"
@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.14.0",
-    "babel-eslint": "^7.1.1",
+    "babel-eslint": "^8.0.1",
     "babel-plugin-add-module-exports": "^0.2.0",
     "babel-plugin-istanbul": "^4.0.0",
     "babel-preset-env": "^1.1.10",
@@ -58,7 +58,7 @@
     "bootstrap": "^3.3.7",
     "chai": "^4.1.0",
     "chai-http": "^3.0.0",
-    "coveralls": "^2.11.12",
+    "coveralls": "^3.0.0",
     "dool-build": "^2.0.0",
     "eslint": "^4.2.0",
     "eslint-config-standard": "^10.2.1",
@@ -68,7 +68,7 @@
     "eslint-plugin-standard": "^3.0.1",
     "jquery": "^3.1.0",
     "koa-passport": "^1.3.0",
-    "mocha": "^3.0.2",
+    "mocha": "^4.0.1",
     "mysql": "^2.11.1",
     "nyc": "^11.0.3",
     "passport-oauth2": "^1.3.0",
@@ -95,6 +95,6 @@
     "notp": "^2.0.3",
     "qr-image": "^3.1.0",
     "thirty-two": "^1.0.2",
-    "validator": "^8.0.0"
+    "validator": "^9.0.0"
   }
 }
