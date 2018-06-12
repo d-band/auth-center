@@ -31,12 +31,10 @@
       <button class="btn btn-primary btn-block">{{__("Sign In")}}</button>
     </div>
     {% if messages.error %}
-    <div class="alert alert-danger">{{messages.error}}</div>
-    {% endif %}
-    {% if messages.success %}
-    <div class="alert alert-success">{{messages.success}}</div>
-    {% endif %}
-    {% if isTOTP %}
+    <div class="alert alert-danger" id="J_tips">{{messages.error}}</div>
+    {% elseif messages.success %}
+    <div class="alert alert-success" id="J_tips">{{messages.success}}</div>
+    {% else %}
     <div class="alert" style="display: none;" id="J_tips"></div>
     {% endif %}
   </div>
