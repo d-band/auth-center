@@ -7,6 +7,9 @@ export default function (app, options = {}) {
   const templates = options.templates || {};
   const transport = nm.createTransport(options);
   Object.keys(templates).forEach(k => {
+    templates[k].title = template(templates[k].subject, {
+      interpolate: /{{([\s\S]+?)}}/g
+    });
     templates[k].render = template(templates[k].html, {
       interpolate: /{{([\s\S]+?)}}/g
     });
@@ -18,7 +21,7 @@ export default function (app, options = {}) {
         from: options.from,
         to: to,
         attachments: attachments,
-        subject: tpl.subject,
+        subject: tpl.title(context),
         html: tpl.render(context)
       });
     };
