@@ -20,6 +20,7 @@ export default function routes (app, config) {
   // Login & Logout
   router.get(R.login, user.login);
   router.get(R.logout, user.logout);
+  router.post(R.send_token, user.sendToken);
   router.post(R.session, csrf, user.session);
 
   // Reset password

@@ -92,7 +92,7 @@ export function * passwordReset () {
 
   const user = yield User.findByEmail(email);
   if (!user) {
-    this.flash('error', 'User not found');
+    this.flash('error', 'User is not found');
     this.redirect(this._routes.password_reset);
     return;
   }
@@ -194,4 +194,27 @@ export function * getInfo (next) {
     attributes: ['id', 'email'],
     raw: true
   });
+}
+
+export function * sendToken () {
+  const { User } = this.orm();
+  const { email } = this.request.body;
+  const { lastTime } = this.session;
+
+  this.assert(email, 400, 'Email is required');
+  // wait 1 minute
+  const min = 60 * 1000;
+  const now = Date.now();
+  this.assert(!lastTime || (now - lastTime) > min, 400, 'Try again in a minute');
+  this.session.lastTime = now;
+
+  const user = yield User.findByEmail(email);
+  this.assert(user, 400, 'User is not found');
+  yield this.sendMail(email, 'send_token', {
+    username: email,
+    sender: this.config.mail.from,
+    token: totp.gen(user.totp_key, { time: this.config.dynamicTokenTTL })
+  });
+
+  this.body = { code: 0 };
 }

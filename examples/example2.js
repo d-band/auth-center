@@ -6,7 +6,7 @@ const co = require('co');
 
 const app = App({
   debug: true,
-  isTOTP: false,
+  isTOTP: true,
   mail: {
     from: 'admin@example.com',
     name: 'minimal',

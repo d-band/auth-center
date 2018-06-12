@@ -2,6 +2,7 @@
   "files": [
     "./main.less",
     "./admin.less",
-    "./admin.js"
+    "./admin.js",
+    "./login.js"
   ]
 }
