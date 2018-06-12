@@ -20,7 +20,6 @@ const _config = {
   isTOTP: true,
   codeTTL: 10 * 60,
   accessTokenTTL: 60 * 60,
-  dynamicTokenTTL: 5 * 60,
   // ORM config
   orm: {
     database: ':memory:',

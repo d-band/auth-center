@@ -56,7 +56,7 @@ export function * session () {
     return;
   }
 
-  if (this.config.isTOTP && !totp.verify(token, user.totp_key, { window: 3 })) {
+  if (this.config.isTOTP && !totp.verify(token, user.totp_key, { window: 20 })) {
     this.flash('error', 'Token is invalid');
     this.redirect(this._routes.login);
     return;
@@ -210,10 +210,11 @@ export function * sendToken () {
 
   const user = yield User.findByEmail(email);
   this.assert(user, 400, 'User is not found');
+  console.log(user.totp_key);
   yield this.sendMail(email, 'send_token', {
     username: email,
     sender: this.config.mail.from,
-    token: totp.gen(user.totp_key, { time: this.config.dynamicTokenTTL })
+    token: totp.gen(user.totp_key)
   });
 
   this.body = { code: 0 };
