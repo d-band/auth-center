@@ -79,7 +79,7 @@ export function * clientList () {
     limit,
     offset,
     order: 'name ASC',
-    attributes: ['id', 'secret', 'redirect_uri', 'name']
+    attributes: ['id', 'secret', 'redirect_uri', 'name', 'name_cn']
   });
 
   yield this.render('admin/clients', {
@@ -138,10 +138,16 @@ export function * sendTotp () {
 
 export function * addClient () {
   const Client = this.orm().Client;
-  const { name, redirect_uri } = this.request.body;
+  const { name, name_cn, redirect_uri } = this.request.body;
 
   if (!name) {
     this.flash('error', 'Name is required');
+    this.redirect(this._routes.admin.clients);
+    return;
+  }
+
+  if (!name_cn) {
+    this.flash('error', 'Name CN is required');
     this.redirect(this._routes.admin.clients);
     return;
   }
@@ -157,6 +163,7 @@ export function * addClient () {
     yield Client.create({
       secret: generateToken(),
       name: name,
+      name_cn: name_cn,
       redirect_uri: redirect_uri
     });
 

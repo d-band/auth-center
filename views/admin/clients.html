@@ -31,9 +31,9 @@
 <table class="table">
   <thead>
     <tr>
+      <th>Name</th>
       <th>ID</th>
       <th>Secret</th>
-      <th>Name</th>
       <th>Redirect URI</th>
       <th>Operation</th>
     </tr>
@@ -46,9 +46,12 @@
     {% else %}
       {% for d in clients.rows %}
       <tr>
+        <td>
+          {{d.name}}<br>
+          <span class="text-muted">{{d.name_cn}}</span>
+        </td>
         <td>{{d.id}}</td>
         <td>{{d.secret}}</td>
-        <td>{{d.name}}</td>
         <td>{{d.redirect_uri}}</td>
         <td>
           <form action="{{_routes.admin.generate_secret}}" method="post">
@@ -78,6 +81,10 @@
           <div class="form-group">
             <label for="recipient-name" class="control-label">Name</label>
             <input type="text" class="form-control" name="name">
+          </div>
+          <div class="form-group">
+            <label for="recipient-name" class="control-label">Name CN</label>
+            <input type="text" class="form-control" name="name_cn">
           </div>
           <div class="form-group">
             <label for="recipient-name" class="control-label">Redirect URI</label>

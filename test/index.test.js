@@ -108,6 +108,7 @@ describe('auth-center', function() {
       yield orm.Client.create({
         id: '12345678',
         name: 'test_client',
+        name_cn: '测试应用',
         secret: '12345678',
         redirect_uri: 'http://localhost:3000/auth/callback'
       });
@@ -342,7 +343,7 @@ describe('auth-center', function() {
           .end(function(err, res) {
             expect(err).to.be.null;
             expect(res).to.have.status(200);
-            expect(res.text).to.match(/Welcome/);
+            expect(res.text).to.match(/test@example\.com/);
             expect(res.text).to.match(/test/);
             request
               .get(R.logout)
@@ -661,7 +662,7 @@ describe('auth-center', function() {
 
   it('should users => home => logout', function(done) {
     request.get(R.admin.users).end(function(err, res) {
-      expect(res.text).to.match(/Welcome/);
+      expect(res.text).to.match(/test@example\.com/);
       expect(res.text).to.match(/test/);
       request
         .get(R.logout)
@@ -793,7 +794,8 @@ describe('auth-center', function() {
         .post(R.admin.add_client)
         .send({
           _csrf: csrf,
-          name: 'client1'
+          name: 'client1',
+          name_cn: '应用1'
         })
         .end(function(err, res) {
           expect(res.text).to.match(/Redirect URI is required/);
@@ -812,6 +814,7 @@ describe('auth-center', function() {
         .send({
           _csrf: csrf,
           name: [1, 2, 3],
+          name_cn: '应用1',
           redirect_uri: 'http://localhost'
         })
         .end(function(err, res) {
@@ -831,6 +834,7 @@ describe('auth-center', function() {
         .send({
           _csrf: csrf,
           name: 'client1',
+          name_cn: '应用1',
           redirect_uri: 'http://localhost'
         })
         .end(function(err, res) {
@@ -916,16 +920,6 @@ describe('auth-center', function() {
   it('should client list', function(done) {
     request
       .get(R.admin.clients)
-      .end(function(err, res) {
-        expect(res.text).to.match(/test_client/);
-        done();
-      });
-  });
-
-  it('should client list', function(done) {
-    Config({ redirectURL: R.admin.clients });
-    request
-      .get(R.home)
       .end(function(err, res) {
         expect(res.text).to.match(/test_client/);
         done();

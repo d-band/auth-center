@@ -2,15 +2,27 @@
 
 import isEmail from 'validator/lib/isEmail';
 import { totp } from 'notp';
+import randomColor from 'randomcolor';
 
 export function * home () {
-  if (this.config.redirectURL) {
-    this.redirect(this.config.redirectURL);
-  } else {
-    yield this.render('home', {
-      user: this.session.user
-    });
-  }
+  const { Role, Client } = this.orm();
+  const { user } = this.session;
+  const roles = yield Role.findAll({
+    attributes: ['client_id'],
+    where: { user_id: user.id }
+  });
+  const clients = yield Client.findAll({
+    attributes: ['name', 'name_cn', 'redirect_uri'],
+    where: {
+      id: { $in: roles.map(r => r.client_id) },
+      redirect_uri: { $ne: '' }
+    }
+  });
+  const colors = randomColor({
+    luminosity: 'dark',
+    count: clients.length
+  });
+  yield this.render('home', { user, clients, colors });
 }
 
 export function * checkLogin (next) {

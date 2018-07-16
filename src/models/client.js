@@ -22,6 +22,12 @@ export default function (sequelize, DataTypes) {
       type: DataTypes.STRING(100),
       allowNull: false,
       comment: 'Client Name'
+    },
+    name_cn: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      defaultValue: '',
+      comment: 'Client Name CN'
     }
   }, {
     tableName: 'client',
