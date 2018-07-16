@@ -98,7 +98,7 @@ export function * passwordReset () {
 
   const user = yield User.findByEmail(email);
   if (!user) {
-    this.flash('error', 'User is not found');
+    this.flash('error', 'User not found');
     this.redirect(this._routes.password_reset);
     return;
   }
