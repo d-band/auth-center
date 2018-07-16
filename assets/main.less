@@ -79,6 +79,43 @@ a {
       border-color: #0ac2ff;
     }
   }
+
+  .input-group {
+    position: relative;
+    display: table;
+    border-collapse: separate;
+    .input-group-input {
+      display: table-cell;
+      position: relative;
+      z-index: 2;
+      float: left;
+      width: 100%;
+      margin-bottom: 0;
+    }
+    .input-group-btn {
+      display: table-cell;
+      position: relative;
+      white-space: nowrap;
+      width: 1%;
+      vertical-align: middle;
+      .btn {
+        position: relative;
+        padding: 10px 13px;
+        margin: 0;
+        border: 1px solid #e4e4e4;
+        background-color: #f3f3f3;
+        cursor: default;
+        width: 100px;
+      }
+      .send-btn {
+        cursor: pointer;
+        &:hover {
+          color: #2db7f5;
+          border-color: #2db7f5
+        }
+      }
+    }
+  }
 }
 .btn {
   display: inline-block;

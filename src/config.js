@@ -52,6 +52,14 @@ const _config = {
           Install Help: <a href="https://support.google.com/accounts/answer/1066447?hl=en">https://support.google.com/accounts/answer/1066447?hl=en</a></p>
           <p>Thanks!</p>
         `
+      },
+      send_token: {
+        subject: 'Your dynamic token is {{token}}',
+        html: `
+          Dear {{username}}
+          <br><br>Your dynamic token is <span style="font-weight: 500; color: #f4364c;">{{token}}</span>. It will be expired in 5 minutes.
+          <br><br><br><br>To make sure our emails arrive, please add {{sender}} to your contacts.
+        `
       }
     }
   },
@@ -61,6 +69,7 @@ const _config = {
     logout: '/logout',
     password_reset: '/password_reset',
     password_change: '/password_change',
+    send_token: '/send_token',
     session: '/session',
     user: '/user',
     authorize: '/authorize',

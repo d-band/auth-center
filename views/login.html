@@ -12,28 +12,37 @@
   </div>
   <div class="auth-form-body">
     <div class="input-wrap">
-      <input type="text" name="email" placeholder="{{__("Email")}}">
+      <input type="text" name="email" id="J_email" placeholder="{{__("Email")}}">
     </div>
     <div class="input-wrap">
       <input type="password" name="password" placeholder="{{__("Password")}}">
     </div>
     {% if isTOTP %}
     <div class="input-wrap">
-      <input type="text" name="token" placeholder="{{__("Dynamic token")}}">
+      <div class="input-group">
+        <input class="input-group-input" type="text" name="token" placeholder="{{__("Dynamic token")}}">
+        <span class="input-group-btn">
+          <button class="btn send-btn" type="button" id="J_send">{{__("Send")}}</button>
+        </span>
+      </div>
     </div>
     {% endif %}
     <div class="input-wrap">
       <button class="btn btn-primary btn-block">{{__("Sign In")}}</button>
     </div>
     {% if messages.error %}
-    <div class="alert alert-danger">{{messages.error}}</div>
-    {% endif %}
-    {% if messages.success %}
-    <div class="alert alert-success">{{messages.success}}</div>
+    <div class="alert alert-danger" id="J_tips">{{messages.error}}</div>
+    {% elseif messages.success %}
+    <div class="alert alert-success" id="J_tips">{{messages.success}}</div>
+    {% else %}
+    <div class="alert" style="display: none;" id="J_tips"></div>
     {% endif %}
   </div>
 </form>
 <div class="bottom-link">
   <a href="{{_routes.password_reset}}">{{__("Lost your password?")}}</a>
 </div>
+{% if isTOTP %}
+<script src="/login.js"></script>
+{% endif %}
 {% endblock %}
