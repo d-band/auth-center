@@ -23,6 +23,12 @@ export function * checkLogin (next) {
 }
 
 export function * login () {
+  if (this.session.user) {
+    const returnTo = this.session.returnTo;
+    this.session.returnTo = null;
+    this.redirect(returnTo || this._routes.home);
+    return;
+  }
   yield this.render('login', {
     isTOTP: this.config.isTOTP
   });
