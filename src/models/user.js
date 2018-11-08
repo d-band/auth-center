@@ -3,7 +3,7 @@
 import { makeSalt, encrypt } from '../util';
 
 export default function (sequelize, DataTypes) {
-  return sequelize.define('User', {
+  const User = sequelize.define('User', {
     id: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
@@ -42,47 +42,51 @@ export default function (sequelize, DataTypes) {
     }
   }, {
     tableName: 'user',
-    comment: 'user base info',
-    classMethods: {
-      auth: function * (email, password) {
-        let user = yield this.findByEmail(email);
-        if (!user) return null;
-        if (user.pass_hash !== encrypt(password, user.pass_salt)) {
-          return null;
-        }
-
-        user.pass_hash = null;
-        user.pass_salt = null;
-        return user;
-      },
-      findByEmail: function * (email) {
-        const enable = 1;
-        return yield this.find({
-          where: { email, enable }
-        });
-      },
-      add: function * ({ id, password, email, totp_key, is_admin }, options) {
-        const salt = makeSalt();
-        const hash = encrypt(password, salt);
-        return yield this.create({
-          id,
-          email,
-          totp_key,
-          is_admin,
-          pass_salt: salt,
-          pass_hash: hash
-        }, options);
-      },
-      changePassword: function * (id, newPwd) {
-        const salt = makeSalt();
-        const hash = encrypt(newPwd, salt);
-        return yield this.update({
-          pass_salt: salt,
-          pass_hash: hash
-        }, {
-          where: { id }
-        });
-      }
-    }
+    comment: 'user base info'
   });
+
+  User.auth = async function (email, password) {
+    const user = await this.findByEmail(email);
+    if (!user) return null;
+    if (user.pass_hash !== encrypt(password, user.pass_salt)) {
+      return null;
+    }
+
+    user.pass_hash = null;
+    user.pass_salt = null;
+    return user;
+  };
+
+  User.findByEmail = function (email) {
+    const enable = 1;
+    return this.findOne({
+      where: { email, enable }
+    });
+  };
+
+  User.add = function ({ id, password, email, totp_key, is_admin }, options) {
+    const salt = makeSalt();
+    const hash = encrypt(password, salt);
+    return this.create({
+      id,
+      email,
+      totp_key,
+      is_admin,
+      pass_salt: salt,
+      pass_hash: hash
+    }, options);
+  };
+
+  User.changePassword = function (id, newPwd) {
+    const salt = makeSalt();
+    const hash = encrypt(newPwd, salt);
+    return this.update({
+      pass_salt: salt,
+      pass_hash: hash
+    }, {
+      where: { id }
+    });
+  };
+
+  return User;
 }

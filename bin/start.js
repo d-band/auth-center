@@ -1,13 +1,12 @@
 'use strict';
 
 const AuthServer = require('../app');
-const co = require('co');
 const resolve = require('path').resolve;
-const existsSync = require('fs').existsSync;
+const { existsSync } = require('fs');
 
 module.exports = function(options) {
-  let configPath = options.config || 'config.js';
-  let port = options.port || 3000;
+  const configPath = options.config || 'config.js';
+  const port = options.port || 3000;
   let server;
 
   if (existsSync(configPath)) {
@@ -20,28 +19,27 @@ module.exports = function(options) {
 
   console.log('Running site at: http://127.0.0.1:' + port);
 
-  co(function*() {
-    let orm = server.orm.database();
+  async function init() {
+    const { sync, User } = server.orm.database();
 
     if (options.sync) {
-      yield orm.sync({
-        force: true
-      });
-
+      await sync({ force: true });
       console.log('sync done.');
     }
 
     if (options.data && existsSync(options.data)) {
-      let data = require(resolve(options.data));
-      let users = data.users || [];
+      const data = require(resolve(options.data));
+      const users = data.users || [];
 
       for (let user of users) {
-        yield orm.User.add(user);
+        await User.add(user);
       }
 
       console.log('load data done.');
     }
-  }).catch(function(err) {
+  }
+
+  init().catch((err) => {
     console.log(err.stack || err);
   });
 };

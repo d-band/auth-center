@@ -6,7 +6,7 @@
 
 {% block content %}
 <form action="{{_routes.session}}" method="POST">
-  <input type="hidden" name="_csrf" value="{{_csrf}}">
+  <input id="J_csrf" type="hidden" name="_csrf" value="{{_csrf}}">
   <div class="auth-form-header">
     <h1>{{__("Sign in to system")}}</h1>
   </div>

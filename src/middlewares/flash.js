@@ -1,11 +1,10 @@
 'use strict';
 
 export default function (app) {
-  let key = 'messages';
+  const key = 'messages';
 
-  app.use(function * flashHandler (next) {
-    let ctx = this;
-    this.state[key] = ctx.session[key] || {};
+  app.use(async function flashHandler (ctx, next) {
+    ctx.state[key] = ctx.session[key] || {};
 
     delete ctx.session[key];
 
@@ -14,10 +13,10 @@ export default function (app) {
       ctx.session[key][type] = msg;
     };
 
-    yield * next;
+    await next();
 
-    if (this.status === 302 && this.session && !(this.session[key])) {
-      this.session[key] = this.state[key];
+    if (ctx.status === 302 && ctx.session && !(ctx.session[key])) {
+      ctx.session[key] = ctx.state[key];
     }
   });
 }

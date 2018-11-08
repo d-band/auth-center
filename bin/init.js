@@ -48,6 +48,9 @@ module.exports = function() {
       let pkg = {
         name: path.basename(process.cwd()),
         version: '1.0.0',
+        scripts: {
+          start: 'auth-center start -c config.js'
+        },
         dependencies: {}
       };
 
@@ -60,14 +63,14 @@ module.exports = function() {
           pkg.dependencies['sqlite3'] = 'latest';
           break;
         case 'MySQL':
-          pkg.dependencies['mysql'] = 'latest';
+          pkg.dependencies['mysql2'] = 'latest';
           break;
         case 'PostgreSQL':
           pkg.dependencies['pg'] = 'latest';
           pkg.dependencies['pg-hstore'] = 'latest';
           break;
         case 'MariaDB':
-          pkg.dependencies['mysql'] = 'latest';
+          pkg.dependencies['mysql2'] = 'latest';
           break;
         case 'MSSQL':
           pkg.dependencies['tedious'] = 'latest';

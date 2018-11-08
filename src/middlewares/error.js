@@ -3,41 +3,41 @@
 import { buildURI } from '../util';
 
 export default function (app) {
-  app.use(function * errorHandler (next) {
+  app.use(async function errorHandler (ctx, next) {
     try {
-      yield next;
-      if (this.response.status === 404 && !this.response.body) this.throw(404);
+      await next();
+      if (ctx.response.status === 404 && !ctx.response.body) ctx.throw(404);
     } catch (err) {
       console.error(err.stack || err);
 
-      let status = err.status || 500;
-      let message = err.status ? err.message : 'Internal server error';
+      const status = err.status || 500;
+      const message = err.status ? err.message : 'Internal server error';
 
-      this.app.emit('error', err, this);
+      ctx.app.emit('error', err, ctx);
 
       if (err.returnTo) {
-        this.redirect(buildURI(err.returnTo, {
+        ctx.redirect(buildURI(err.returnTo, {
           error: message
         }));
         return;
       }
 
-      this.status = status;
-      switch (this.accepts('html', 'text', 'json')) {
+      ctx.status = status;
+      switch (ctx.accepts('html', 'text', 'json')) {
         case 'text':
-          this.type = 'text/plain';
-          this.body = message;
+          ctx.type = 'text/plain';
+          ctx.body = message;
           break;
         case 'html':
-          this.type = 'text/html';
-          yield this.render('error', {
+          ctx.type = 'text/html';
+          await ctx.render('error', {
             status: status,
             message: message
           });
           break;
         default:
-          this.type = 'application/json';
-          this.body = {
+          ctx.type = 'application/json';
+          ctx.body = {
             error: message
           };
       }

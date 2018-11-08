@@ -1,18 +1,17 @@
 'use strict';
 
-const chai = require('chai');
-const expect = chai.expect;
-const util = require('../src/util');
+import { expect } from 'chai';
+import * as util from '../src/util';
 
-describe('auth-center util', function() {
+describe('auth-center util', function () {
   this.timeout(0);
 
-  it('should encrypt', function() {
+  it('should encrypt', function () {
     expect(util.encrypt('', 'salt')).to.be.a('null');
     expect(util.encrypt('pass', 'salt')).to.be.equal('a8592083477a8168ca67bb4fdb36a61be698536a');
   });
 
-  it('should checkURI', function() {
+  it('should checkURI', function () {
     /**
      * CALLBACK: http://example.com/path
      * GOOD: http://example.com/path
@@ -24,7 +23,7 @@ describe('auth-center util', function() {
      * BAD:  http://example.org
      */
 
-    let base = 'http://example.com/path';
+    const base = 'http://example.com/path';
 
     expect(util.checkURI('//example.com', 'http://example.com/')).to.be.true;
     expect(util.checkURI('https://example.com/', '//example.com')).to.be.true;
@@ -43,31 +42,31 @@ describe('auth-center util', function() {
     expect(util.checkURI(base, 'http://example.org')).to.be.false;
   });
 
-  it('should generateToken', function() {
+  it('should generateToken', function () {
     expect(util.generateToken()).to.have.lengthOf(40);
     expect(util.generateToken()).to.match(/^[a-f0-9]+$/);
   });
 
-  it('should buildURI', function() {
+  it('should buildURI', function () {
     expect(util.buildURI('http://example.com/path?param=123&param2=234#hello', {
-      test:'123'
+      test: '123'
     })).to.be.equal('http://example.com/path?param=123&param2=234&test=123#hello');
   });
 
-  it('should totpURI', function() {
+  it('should totpURI', function () {
     expect(util.totpURI('test', 'test_key')).to.be.equal('otpauth://totp/test?secret=ORSXG5C7NNSXS');
   });
 
-  it('should totpImage', function() {
-    let buf = util.totpImage('test', 'test_key');
-    
+  it('should totpImage', function () {
+    const buf = util.totpImage('test', 'test_key');
+
     expect(buf[0]).to.be.equal(0x89);
     expect(buf[1]).to.be.equal(0x50);
     expect(buf[2]).to.be.equal(0x4E);
     expect(buf[3]).to.be.equal(0x47);
   });
 
-  it('should pagination', function() {
+  it('should pagination', function () {
     const link = i => i;
     expect(util.pagination(1, 1, link)).to.be.equal('');
     expect(util.pagination(1, 3, link)).to.be.equal('<ul class="pagination"><li class="active"><a href="1">1</a></li><li class=""><a href="2">2</a></li><li class=""><a href="3">3</a></li><li><a href="2">&raquo;</a></li></ul>');
@@ -77,5 +76,4 @@ describe('auth-center util', function() {
     expect(util.pagination(5, 6, link)).to.be.equal('<ul class="pagination"><li><a href="4">&laquo;</a></li><li class=""><a href="2">2</a></li><li class=""><a href="3">3</a></li><li class=""><a href="4">4</a></li><li class="active"><a href="5">5</a></li><li class=""><a href="6">6</a></li><li><a href="6">&raquo;</a></li></ul>');
     expect(util.pagination(6, 6, link)).to.be.equal('<ul class="pagination"><li><a href="5">&laquo;</a></li><li class=""><a href="2">2</a></li><li class=""><a href="3">3</a></li><li class=""><a href="4">4</a></li><li class=""><a href="5">5</a></li><li class="active"><a href="6">6</a></li></ul>');
   });
-
 });

@@ -102,8 +102,8 @@ export default function (param) {
     const modulePath = join(process.cwd(), 'node_modules');
     const moduleName = ({
       sqlite: 'sqlite3',
-      mysql: 'mysql',
-      mariadb: 'mysql',
+      mysql: 'mysql2',
+      mariadb: 'mysql2',
       postgres: 'pg',
       mssql: 'tedious'
     })[_config.orm.dialect];

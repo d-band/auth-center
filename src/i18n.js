@@ -13,8 +13,8 @@ export default class I18n {
   setLocale (locale) {
     if (!locale || this._locale === locale) return;
 
-    let temp = this._userMessages[locale] || this._userMessages['*'] || {};
-    let file = join(this._path, locale + '.json');
+    const temp = this._userMessages[locale] || this._userMessages['*'] || {};
+    const file = join(this._path, locale + '.json');
 
     if (existsSync(file)) {
       this._locale = locale;

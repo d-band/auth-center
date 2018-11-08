@@ -16,7 +16,7 @@ program
   .command('start')
   .description('start server')
   .option("-p, --port <port>", "server port")
-  .option('--config <path>', 'custom config path')
+  .option('-c, --config <path>', 'custom config path')
   .option("--sync", "sync database to generate tables")
   .option("--data <path>", "init data with json file")
   .action(require('./start'));

@@ -9,7 +9,7 @@ export function pagination (cur, total, link, half = 2) {
   if (total <= 1) return '';
 
   let left = Math.max(1, cur - half);
-  let right = Math.min(left + half * 2, total);
+  const right = Math.min(left + half * 2, total);
 
   if (total - cur <= half) {
     left = Math.max(1, total - half * 2);
@@ -39,8 +39,8 @@ export function encrypt (pass, salt) {
 }
 
 export function checkURI (base, checked) {
-  let url1 = parse(base, false, true);
-  let url2 = parse(checked, false, true);
+  const url1 = parse(base, false, true);
+  const url2 = parse(checked, false, true);
 
   url1.port = url1.port || 80;
   url2.port = url2.port || 80;
@@ -53,12 +53,12 @@ export function checkURI (base, checked) {
 }
 
 export function generateToken () {
-  let buffer = crypto.randomBytes(256);
+  const buffer = crypto.randomBytes(256);
   return crypto.createHash('sha1').update(buffer).digest('hex');
 }
 
 export function buildURI (uri, query) {
-  let obj = parse(uri, true);
+  const obj = parse(uri, true);
   Object.assign(obj.query, query);
   delete obj.search;
   return format(obj);

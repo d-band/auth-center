@@ -20,7 +20,10 @@ $(function() {
         elem.html(`${count} s`);
       }
     }, 1000);
-    $.post('/send_token', { email: $('#J_email').val() }, null, 'json').done(() => {
+    $.post('/send_token', {
+      _csrf: $('#J_csrf').val(),
+      email: $('#J_email').val()
+    }, null, 'json').done(() => {
       $('#J_tips').removeClass('alert-danger').addClass('alert-success')
       .html('Send successfully').show();
     }).fail(err => {

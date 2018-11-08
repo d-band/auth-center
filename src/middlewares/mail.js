@@ -14,8 +14,8 @@ export default function (app, options = {}) {
       interpolate: /{{([\s\S]+?)}}/g
     });
   });
-  app.use(function * mailHandler (next) {
-    this.sendMail = function sendMail (to, tplName, context, attachments = null) {
+  app.use(async function mailHandler (ctx, next) {
+    ctx.sendMail = (to, tplName, context, attachments = null) => {
       const tpl = templates[tplName];
       return transport.sendMail({
         from: options.from,
@@ -26,6 +26,6 @@ export default function (app, options = {}) {
       });
     };
 
-    yield * next;
+    await next();
   });
 }

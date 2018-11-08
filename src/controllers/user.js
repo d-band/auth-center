@@ -4,14 +4,14 @@ import isEmail from 'validator/lib/isEmail';
 import { totp } from 'notp';
 import randomColor from 'randomcolor';
 
-export function * home () {
-  const { Role, Client } = this.orm();
-  const { user } = this.session;
-  const roles = yield Role.findAll({
+export async function home (ctx) {
+  const { Role, Client } = ctx.orm();
+  const { user } = ctx.session;
+  const roles = await Role.findAll({
     attributes: ['client_id'],
     where: { user_id: user.id }
   });
-  const clients = yield Client.findAll({
+  const clients = await Client.findAll({
     attributes: ['name', 'name_cn', 'redirect_uri'],
     where: {
       id: { $in: roles.map(r => r.client_id) },
@@ -22,218 +22,218 @@ export function * home () {
     luminosity: 'dark',
     count: clients.length
   });
-  yield this.render('home', { user, clients, colors });
+  await ctx.render('home', { user, clients, colors });
 }
 
-export function * checkLogin (next) {
-  if (this.session.user) {
-    yield next;
+export async function checkLogin (ctx, next) {
+  if (ctx.session.user) {
+    await next();
   } else {
-    this.session.returnTo = this.url;
-    this.redirect(this._routes.login);
+    ctx.session.returnTo = ctx.url;
+    ctx.redirect(ctx._routes.login);
   }
 }
 
-export function * login () {
-  if (this.session.user) {
-    const returnTo = this.session.returnTo;
-    this.session.returnTo = null;
-    this.redirect(returnTo || this._routes.home);
+export async function login (ctx) {
+  if (ctx.session.user) {
+    const returnTo = ctx.session.returnTo;
+    ctx.session.returnTo = null;
+    ctx.redirect(returnTo || ctx._routes.home);
     return;
   }
-  yield this.render('login', {
-    isTOTP: this.config.isTOTP
+  await ctx.render('login', {
+    isTOTP: ctx.config.isTOTP
   });
 }
 
-export function * session () {
-  const { User } = this.orm();
-  const { email, password, token } = this.request.body;
+export async function session (ctx) {
+  const { User } = ctx.orm();
+  const { email, password, token } = ctx.request.body;
 
   if (!email) {
-    this.flash('error', 'Email is required');
-    this.redirect(this._routes.login);
+    ctx.flash('error', 'Email is required');
+    ctx.redirect(ctx._routes.login);
     return;
   }
   if (!password) {
-    this.flash('error', 'Password is required');
-    this.redirect(this._routes.login);
+    ctx.flash('error', 'Password is required');
+    ctx.redirect(ctx._routes.login);
     return;
   }
-  if (this.config.isTOTP && !token) {
-    this.flash('error', 'Token is required');
-    this.redirect(this._routes.login);
+  if (ctx.config.isTOTP && !token) {
+    ctx.flash('error', 'Token is required');
+    ctx.redirect(ctx._routes.login);
     return;
   }
 
-  const user = yield User.auth(email, password);
+  const user = await User.auth(email, password);
 
   if (!user) {
-    this.flash('error', 'Email or password is invalid');
-    this.redirect(this._routes.login);
+    ctx.flash('error', 'Email or password is invalid');
+    ctx.redirect(ctx._routes.login);
     return;
   }
 
-  if (this.config.isTOTP && !totp.verify(token, user.totp_key, { window: 20 })) {
-    this.flash('error', 'Token is invalid');
-    this.redirect(this._routes.login);
+  if (ctx.config.isTOTP && !totp.verify(token, user.totp_key, { window: 20 })) {
+    ctx.flash('error', 'Token is invalid');
+    ctx.redirect(ctx._routes.login);
     return;
   }
 
-  const returnTo = this.session.returnTo;
+  const returnTo = ctx.session.returnTo;
 
-  this.session.returnTo = null;
-  this.session.user = user;
-  this.redirect(returnTo || this._routes.home);
+  ctx.session.returnTo = null;
+  ctx.session.user = user;
+  ctx.redirect(returnTo || ctx._routes.home);
 }
 
-export function * logout (next) {
-  const returnTo = this.query.return_to;
-  this.session.user = null;
-  this.redirect(returnTo || this._routes.login);
-  yield next;
+export async function logout (ctx, next) {
+  const returnTo = ctx.query.return_to;
+  ctx.session.user = null;
+  ctx.redirect(returnTo || ctx._routes.login);
+  await next();
 }
 
-export function * passwordResetPage () {
-  yield this.render('reset');
+export async function passwordResetPage (ctx) {
+  await ctx.render('reset');
 }
 
-export function * passwordReset () {
-  const { User, EmailCode } = this.orm();
-  const { email } = this.request.body;
+export async function passwordReset (ctx) {
+  const { User, EmailCode } = ctx.orm();
+  const { email } = ctx.request.body;
 
   if (!email || !isEmail(email)) {
-    this.flash('error', 'Email is empty or invalid type');
-    this.redirect(this._routes.password_reset);
+    ctx.flash('error', 'Email is empty or invalid type');
+    ctx.redirect(ctx._routes.password_reset);
     return;
   }
 
-  const user = yield User.findByEmail(email);
+  const user = await User.findByEmail(email);
   if (!user) {
-    this.flash('error', 'User not found');
-    this.redirect(this._routes.password_reset);
+    ctx.flash('error', 'User not found');
+    ctx.redirect(ctx._routes.password_reset);
     return;
   }
 
   try {
-    const code = yield EmailCode.create({
+    const code = await EmailCode.create({
       user_id: user.id
     });
-    yield this.sendMail(user.email, 'password_reset', {
+    await ctx.sendMail(user.email, 'password_reset', {
       username: user.email,
-      ttl: this.config.emailCodeTTL / 3600,
-      link: this.config.domain + this._routes.password_change + '?code=' + code.id
+      ttl: ctx.config.emailCodeTTL / 3600,
+      link: ctx.config.domain + ctx._routes.password_change + '?code=' + code.id
     });
-    this.flash('success', 'Check your email for a link to reset your password.');
-    this.redirect(this._routes.login);
+    ctx.flash('success', 'Check your email for a link to reset your password.');
+    ctx.redirect(ctx._routes.login);
   } catch (e) {
     console.error(e.stack);
-    this.flash('error', 'Send email failed');
-    this.redirect(this._routes.password_reset);
+    ctx.flash('error', 'Send email failed');
+    ctx.redirect(ctx._routes.password_reset);
   }
 }
 
-export function * passwordChangePage () {
-  const { EmailCode } = this.orm();
+export async function passwordChangePage (ctx) {
+  const { EmailCode } = ctx.orm();
 
-  let codeId = this.query.code;
+  const codeId = ctx.query.code;
 
   if (!codeId) {
-    this.flash('error', 'Code is required');
-    this.redirect(this._routes.password_reset);
+    ctx.flash('error', 'Code is required');
+    ctx.redirect(ctx._routes.password_reset);
     return;
   }
 
-  let code = yield EmailCode.findById(codeId);
+  const code = await EmailCode.findById(codeId);
   if (!code) {
-    this.flash('error', 'Code is invalid');
-    this.redirect(this._routes.password_reset);
+    ctx.flash('error', 'Code is invalid');
+    ctx.redirect(ctx._routes.password_reset);
     return;
   }
 
-  let expiresAt = code.createdAt.getTime() + (this.config.emailCodeTTL * 1000);
+  const expiresAt = code.createdAt.getTime() + (ctx.config.emailCodeTTL * 1000);
   if (expiresAt < Date.now()) {
-    this.flash('error', 'Code is expired');
-    this.redirect(this._routes.password_reset);
+    ctx.flash('error', 'Code is expired');
+    ctx.redirect(ctx._routes.password_reset);
     return;
   }
-  yield this.render('change', {
+  await ctx.render('change', {
     codeId: codeId,
     title: 'Change password'
   });
 }
 
-export function * passwordChange () {
-  const { User, EmailCode } = this.orm();
-  const { password, password2, codeId } = this.request.body;
+export async function passwordChange (ctx) {
+  const { User, EmailCode } = ctx.orm();
+  const { password, password2, codeId } = ctx.request.body;
 
   if (!codeId) {
-    this.flash('error', 'Code is required');
-    this.redirect(this._routes.password_reset);
+    ctx.flash('error', 'Code is required');
+    ctx.redirect(ctx._routes.password_reset);
     return;
   }
 
-  const code = yield EmailCode.findById(codeId);
+  const code = await EmailCode.findById(codeId);
   if (!code) {
-    this.flash('error', 'Code is invalid');
-    this.redirect(this._routes.password_reset);
+    ctx.flash('error', 'Code is invalid');
+    ctx.redirect(ctx._routes.password_reset);
     return;
   }
 
-  const expiresAt = code.createdAt.getTime() + (this.config.emailCodeTTL * 1000);
+  const expiresAt = code.createdAt.getTime() + (ctx.config.emailCodeTTL * 1000);
   if (expiresAt < Date.now()) {
-    this.flash('error', 'Code is expired');
-    this.redirect(this._routes.password_reset);
+    ctx.flash('error', 'Code is expired');
+    ctx.redirect(ctx._routes.password_reset);
     return;
   }
 
   if (!password || !password2 || password !== password2 || password.length < 8) {
-    this.flash('error', 'Password is invalid');
-    this.redirect('back');
+    ctx.flash('error', 'Password is invalid');
+    ctx.redirect('back');
     return;
   }
 
   // TODO: add transaction
-  yield User.changePassword(code.user_id, password);
-  yield EmailCode.destroy({
+  await User.changePassword(code.user_id, password);
+  await EmailCode.destroy({
     where: {
       id: codeId
     }
   });
 
-  this.flash('success', 'Password have changed');
-  this.redirect(this._routes.login);
+  ctx.flash('success', 'Password have changed');
+  ctx.redirect(ctx._routes.login);
 }
 
-export function * getInfo (next) {
-  const { User } = this.orm();
+export async function getInfo (ctx) {
+  const { User } = ctx.orm();
 
-  this.body = yield User.findById(this._userId, {
+  ctx.body = await User.findById(ctx._userId, {
     attributes: ['id', 'email'],
     raw: true
   });
 }
 
-export function * sendToken () {
-  const { User } = this.orm();
-  const { email } = this.request.body;
-  const { lastTime } = this.session;
+export async function sendToken (ctx) {
+  const { User } = ctx.orm();
+  const { email } = ctx.request.body;
+  const { lastTime } = ctx.session;
 
-  this.assert(email, 400, 'Email is required');
+  ctx.assert(email, 400, 'Email is required');
   // wait 1 minute
   const min = 60 * 1000;
   const now = Date.now();
-  this.assert(!lastTime || (now - lastTime) > min, 400, 'Try again in a minute');
-  this.session.lastTime = now;
+  ctx.assert(!lastTime || (now - lastTime) > min, 400, 'Try again in a minute');
+  ctx.session.lastTime = now;
 
-  const user = yield User.findByEmail(email);
-  this.assert(user, 400, 'User is not found');
+  const user = await User.findByEmail(email);
+  ctx.assert(user, 400, 'User is not found');
   console.log(user.totp_key);
-  yield this.sendMail(email, 'send_token', {
+  await ctx.sendMail(email, 'send_token', {
     username: email,
-    sender: this.config.mail.from,
+    sender: ctx.config.mail.from,
     token: totp.gen(user.totp_key)
   });
 
-  this.body = { code: 0 };
+  ctx.body = { code: 0 };
 }

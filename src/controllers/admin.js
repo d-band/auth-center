@@ -3,24 +3,24 @@
 import qs from 'querystring';
 import { generateToken, encodeKey, totpImage } from '../util';
 
-export function * checkLogin (next) {
-  if (this.session.user) {
-    if (this.session.user.is_admin) {
-      this.state.user = this.session.user;
-      yield * next;
+export async function checkLogin (ctx, next) {
+  if (ctx.session.user) {
+    if (ctx.session.user.is_admin) {
+      ctx.state.user = ctx.session.user;
+      await next();
     } else {
-      this.redirect(this._routes.home);
+      ctx.redirect(ctx._routes.home);
     }
   } else {
-    this.session.returnTo = this.url;
-    this.redirect(this._routes.login);
+    ctx.session.returnTo = ctx.url;
+    ctx.redirect(ctx._routes.login);
   }
 }
 
-export function * searchUser () {
-  const User = this.orm().User;
-  const q = this.request.body.q || '';
-  const users = yield User.findAll({
+export async function searchUser (ctx) {
+  const { User } = ctx.orm();
+  const q = ctx.request.body.q || '';
+  const users = await User.findAll({
     attributes: ['email'],
     where: {
       enable: 1,
@@ -31,30 +31,30 @@ export function * searchUser () {
     offset: 0,
     limit: 15
   });
-  this.body = users.map(u => u.email);
+  ctx.body = users.map(u => u.email);
 }
 
-export function * userList () {
-  const { User } = this.orm();
-  const page = parseInt(this.query.p, 10) || 1;
-  const query = this.query.q || '';
+export async function userList (ctx) {
+  const { User } = ctx.orm();
+  const page = parseInt(ctx.query.p, 10) || 1;
+  const query = ctx.query.q || '';
   const limit = 20;
   const offset = (page - 1) * limit;
   const where = { enable: 1 };
   if (query) {
     where['email'] = { $like: `%${query}%` };
   }
-  const users = yield User.findAndCountAll({
+  const users = await User.findAndCountAll({
     where,
     limit,
     offset,
-    order: 'email ASC',
+    order: [['email', 'ASC']],
     attributes: {
       exclude: ['pass_hash', 'pass_salt']
     }
   });
 
-  yield this.render('admin/users', {
+  await ctx.render('admin/users', {
     page,
     users,
     query,
@@ -64,25 +64,25 @@ export function * userList () {
   });
 }
 
-export function * clientList () {
-  const { Client } = this.orm();
-  const page = parseInt(this.query.p, 10) || 1;
-  const query = this.query.q || '';
+export async function clientList (ctx) {
+  const { Client } = ctx.orm();
+  const page = parseInt(ctx.query.p, 10) || 1;
+  const query = ctx.query.q || '';
   const limit = 20;
   const offset = (page - 1) * limit;
   const where = {};
   if (query) {
     where['name'] = { $like: `%${query}%` };
   }
-  const clients = yield Client.findAndCountAll({
+  const clients = await Client.findAndCountAll({
     where,
     limit,
     offset,
-    order: 'name ASC',
+    order: [['name', 'ASC']],
     attributes: ['id', 'secret', 'redirect_uri', 'name', 'name_cn']
   });
 
-  yield this.render('admin/clients', {
+  await ctx.render('admin/clients', {
     page,
     query,
     clients,
@@ -92,27 +92,27 @@ export function * clientList () {
   });
 }
 
-export function * sendTotp () {
-  const User = this.orm().User;
-  const { id } = this.request.body;
+export async function sendTotp (ctx) {
+  const { User } = ctx.orm();
+  const { id } = ctx.request.body;
 
   if (!id) {
-    this.flash('error', 'ID is required');
-    this.redirect(this._routes.admin.users);
+    ctx.flash('error', 'ID is required');
+    ctx.redirect(ctx._routes.admin.users);
     return;
   }
 
   try {
     // generate new totp key
-    let res = yield User.update({
+    const res = await User.update({
       totp_key: generateToken()
     }, {
       where: { id }
     });
     // send email
     if (res[0]) {
-      let user = yield User.findById(id);
-      yield this.sendMail(user.email, 'send_totp', {
+      const user = await User.findById(id);
+      await ctx.sendMail(user.email, 'send_totp', {
         username: user.email,
         cid: 'key',
         email: user.email,
@@ -123,100 +123,98 @@ export function * sendTotp () {
         cid: 'key'
       }]);
     } else {
-      this.flash('error', 'Update failed');
-      this.redirect(this._routes.admin.users);
+      ctx.flash('error', 'Update failed');
+      ctx.redirect(ctx._routes.admin.users);
       return;
     }
-    this.flash('success', 'Reset and send TOTP key successfully');
-    this.redirect(this._routes.admin.users);
+    ctx.flash('success', 'Reset and send TOTP key successfully');
+    ctx.redirect(ctx._routes.admin.users);
   } catch (e) {
     console.error(e.stack);
-    this.flash('error', 'Reset and send key failed');
-    this.redirect(this._routes.admin.users);
+    ctx.flash('error', 'Reset and send key failed');
+    ctx.redirect(ctx._routes.admin.users);
   }
 }
 
-export function * addClient () {
-  const Client = this.orm().Client;
-  const { name, name_cn, redirect_uri } = this.request.body;
+export async function addClient (ctx) {
+  const { Client } = ctx.orm();
+  const { name, name_cn, redirect_uri } = ctx.request.body;
 
   if (!name) {
-    this.flash('error', 'Name is required');
-    this.redirect(this._routes.admin.clients);
+    ctx.flash('error', 'Name is required');
+    ctx.redirect(ctx._routes.admin.clients);
     return;
   }
 
   if (!name_cn) {
-    this.flash('error', 'Name CN is required');
-    this.redirect(this._routes.admin.clients);
+    ctx.flash('error', 'Name CN is required');
+    ctx.redirect(ctx._routes.admin.clients);
     return;
   }
 
   if (!redirect_uri) {
-    this.flash('error', 'Redirect URI is required');
-    this.redirect(this._routes.admin.clients);
+    ctx.flash('error', 'Redirect URI is required');
+    ctx.redirect(ctx._routes.admin.clients);
     return;
   }
 
   try {
     // add one new
-    yield Client.create({
+    await Client.create({
       secret: generateToken(),
       name: name,
       name_cn: name_cn,
       redirect_uri: redirect_uri
     });
 
-    this.flash('success', 'Add new client successfully');
-    this.redirect(this._routes.admin.clients);
+    ctx.flash('success', 'Add new client successfully');
+    ctx.redirect(ctx._routes.admin.clients);
   } catch (e) {
     console.error(e.stack);
-    this.flash('error', 'Add new client failed');
-    this.redirect(this._routes.admin.clients);
+    ctx.flash('error', 'Add new client failed');
+    ctx.redirect(ctx._routes.admin.clients);
   }
 }
 
-export function * generateSecret () {
-  const Client = this.orm().Client;
-  const { id } = this.request.body;
+export async function generateSecret (ctx) {
+  const { Client } = ctx.orm();
+  const { id } = ctx.request.body;
 
   if (!id) {
-    this.flash('error', 'ID is required');
-    this.redirect(this._routes.admin.clients);
+    ctx.flash('error', 'ID is required');
+    ctx.redirect(ctx._routes.admin.clients);
     return;
   }
 
   try {
     // generate new secret
-    let res = yield Client.update({
+    const res = await Client.update({
       secret: generateToken()
     }, {
-      where: {
-        id: id
-      }
+      where: { id }
     });
     if (res[0]) {
-      this.flash('success', 'Generate new secret successfully');
-      this.redirect(this._routes.admin.clients);
+      ctx.flash('success', 'Generate new secret successfully');
+      ctx.redirect(ctx._routes.admin.clients);
     } else {
-      this.flash('error', 'Update failed');
-      this.redirect(this._routes.admin.clients);
+      ctx.flash('error', 'Update failed');
+      ctx.redirect(ctx._routes.admin.clients);
       return;
     }
   } catch (e) {
     console.error(e.stack);
-    this.flash('error', 'Generate new secret failed');
-    this.redirect(this._routes.admin.clients);
+    ctx.flash('error', 'Generate new secret failed');
+    ctx.redirect(ctx._routes.admin.clients);
   }
 }
 
-export function * roleList () {
-  const { User, Role, Client, DicRole } = this.orm();
-  const page = parseInt(this.query.p, 10) || 1;
-  const query = this.query.q || '';
+export async function roleList (ctx) {
+  const { User, Role, Client, DicRole } = ctx.orm();
+  const page = parseInt(ctx.query.p, 10) || 1;
+  const query = ctx.query.q || '';
   const where = {};
   if (query) {
-    const temp = yield User.findAll({
+    const temp = await User.findAll({
       offset: 0,
       limit: 100,
       attributes: ['id'],
@@ -230,14 +228,14 @@ export function * roleList () {
   }
   const limit = 20;
   const offset = (page - 1) * limit;
-  const roles = yield Role.findAndCountAll({
+  const roles = await Role.findAndCountAll({
     where,
     limit,
     offset,
-    order: 'user_id ASC',
+    order: [['user_id', 'ASC']],
     attributes: ['id', 'user_id', 'client_id', 'role']
   });
-  const users = yield User.findAll({
+  const users = await User.findAll({
     attributes: ['id', 'email'],
     where: {
       id: { $in: roles.rows.map(v => v.user_id) }
@@ -248,13 +246,13 @@ export function * roleList () {
     return o;
   }, {});
 
-  const clients = yield Client.findAll();
-  const dics = yield DicRole.findAll();
+  const clients = await Client.findAll();
+  const dics = await DicRole.findAll();
   const clientMap = clients.reduce((o, c) => {
     o[c.id] = c.name;
     return o;
   }, {});
-  yield this.render('admin/roles', {
+  await ctx.render('admin/roles', {
     dics,
     page,
     query,
@@ -268,72 +266,72 @@ export function * roleList () {
   });
 }
 
-export function * addRole () {
-  const { Role, User } = this.orm();
-  const { email, client, role } = this.request.body;
+export async function addRole (ctx) {
+  const { Role, User } = ctx.orm();
+  const { email, client, role } = ctx.request.body;
 
   if (!email) {
-    this.flash('error', 'Email is required');
-    this.redirect(this._routes.admin.roles);
+    ctx.flash('error', 'Email is required');
+    ctx.redirect(ctx._routes.admin.roles);
     return;
   }
 
   if (!client) {
-    this.flash('error', 'Client is required');
-    this.redirect(this._routes.admin.roles);
+    ctx.flash('error', 'Client is required');
+    ctx.redirect(ctx._routes.admin.roles);
     return;
   }
 
   if (!role) {
-    this.flash('error', 'Role is required');
-    this.redirect(this._routes.admin.roles);
+    ctx.flash('error', 'Role is required');
+    ctx.redirect(ctx._routes.admin.roles);
     return;
   }
 
-  const user = yield User.findByEmail(email);
+  const user = await User.findByEmail(email);
   if (!user) {
-    this.flash('error', 'User is not existed');
-    this.redirect(this._routes.admin.roles);
+    ctx.flash('error', 'User is not existed');
+    ctx.redirect(ctx._routes.admin.roles);
     return;
   }
 
   try {
     // add one new
-    yield Role.create({
+    await Role.create({
       user_id: user.id,
       client_id: client,
       role: role
     });
 
-    this.flash('success', 'Add new role successfully');
-    this.redirect(this._routes.admin.roles);
+    ctx.flash('success', 'Add new role successfully');
+    ctx.redirect(ctx._routes.admin.roles);
   } catch (e) {
     console.error(e.stack);
-    this.flash('error', 'Add new role failed, maybe it is existed');
-    this.redirect(this._routes.admin.roles);
+    ctx.flash('error', 'Add new role failed, maybe it is existed');
+    ctx.redirect(ctx._routes.admin.roles);
   }
 }
 
-export function * deleteRole () {
-  const Role = this.orm().Role;
-  const { id } = this.request.body;
+export async function deleteRole (ctx) {
+  const { Role } = ctx.orm();
+  const { id } = ctx.request.body;
 
   if (!id) {
-    this.flash('error', 'Id is required');
-    this.redirect(this._routes.admin.roles);
+    ctx.flash('error', 'Id is required');
+    ctx.redirect(ctx._routes.admin.roles);
     return;
   }
   // Delete role
-  const num = yield Role.destroy({
+  const num = await Role.destroy({
     where: { id }
   });
 
   if (num <= 0) {
-    this.flash('error', 'Delete role failed, maybe it is not existed');
-    this.redirect(this._routes.admin.roles);
+    ctx.flash('error', 'Delete role failed, maybe it is not existed');
+    ctx.redirect(ctx._routes.admin.roles);
     return;
   }
 
-  this.flash('success', 'Delete role successfully');
-  this.redirect(this._routes.admin.roles);
+  ctx.flash('success', 'Delete role successfully');
+  ctx.redirect(ctx._routes.admin.roles);
 }

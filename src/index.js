@@ -1,12 +1,11 @@
 'use strict';
 
-import koa from 'koa';
+import Koa from 'koa';
 import view from 'koa-view';
 import bodyParser from 'koa-bodyparser';
-import session from 'koa-generic-session';
+import session from 'koa-session';
 import logger from 'koa-logger';
-import statik from 'koa-static';
-import csrf from 'koa-csrf';
+import serve from 'koa-static';
 import orm from 'koa-orm';
 
 import I18n from './i18n';
@@ -19,20 +18,32 @@ import { pagination } from './util';
 
 export default function (options) {
   const config = Config(options);
-  const app = koa();
+  const app = new Koa();
 
-  app.use(function * injectConfig (next) {
-    this.__defineGetter__('config', () => {
+  app.use(async function injectConfig (ctx, next) {
+    ctx.__defineGetter__('config', () => {
       return Config();
     });
-    yield * next;
+    ctx.__defineGetter__('_routes', () => {
+      return Config().routes;
+    });
+    ctx.state.__defineGetter__('logo', () => {
+      return Config().logo;
+    });
+    ctx.state.__defineGetter__('favicon', () => {
+      return Config().favicon;
+    });
+    ctx.state.__defineGetter__('_routes', () => {
+      return Config().routes;
+    });
+    await next();
   });
 
   app.use(bodyParser());
   app.use(logger());
 
   /** Set public path, for css/js/images **/
-  app.use(statik(config.staticPath, {
+  app.use(serve(config.staticPath, {
     maxage: config.debug ? 0 : 60 * 60 * 24 * 7
   }));
 
@@ -43,12 +54,12 @@ export default function (options) {
   /** I18n **/
   const i18n = new I18n(config.messages);
 
-  app.use(function * injectI18n (next) {
-    if (this.query.locale) {
-      this.session.locale = this.query.locale;
+  app.use(async function injectI18n (ctx, next) {
+    if (ctx.query.locale) {
+      ctx.session.locale = ctx.query.locale;
     }
-    i18n.setLocale(this.session.locale);
-    yield * next;
+    i18n.setLocale(ctx.session.locale);
+    await next();
   });
 
   /** View & i18n **/
@@ -65,9 +76,6 @@ export default function (options) {
   /** ORM **/
   app.orm = orm(config.orm);
   app.use(app.orm.middleware);
-
-  /** CSRF */
-  csrf(app);
 
   /** Middlewares **/
   error(app);
