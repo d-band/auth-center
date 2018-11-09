@@ -21,7 +21,7 @@ export default class I18n {
       this._messages = Object.assign(require(file), temp);
     } else {
       this._locale = 'en';
-      this._messages = Object.assign(require(join(this._path, './en.json')), temp);
+      this._messages = Object.assign({}, temp);
     }
   }
 

@@ -51,7 +51,7 @@ a {
 }
 
 .auth-form {
-  width: 320px;
+  width: 360px;
   margin: 0 auto;
 }
 
@@ -106,7 +106,7 @@ a {
       position: relative;
       z-index: 2;
       float: left;
-      width: 100%;
+      width: 210px;
       margin-bottom: 0;
     }
 
@@ -172,6 +172,11 @@ a {
   background-color: @primary-color;
 
   &:focus, &:active, &:hover {
+    color: #fff;
+    background-color: #0069d9;
+  }
+  &:disabled {
+    opacity: .65;
     color: #fff;
     background-color: #0069d9;
   }

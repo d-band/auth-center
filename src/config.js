@@ -13,6 +13,8 @@ const config = {
   },
   domain: '__domain__',
   logo: '/logo.png',
+  favicon: '/logo.png',
+  terms: 'https://en.wikipedia.org/wiki/Terms_of_service',
   emailCodeTTL: 3 * 60 * 60,
   // I18N config
   messages: {},

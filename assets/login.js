@@ -7,6 +7,14 @@ function cookie(name) {
 }
 
 $(function() {
+  $('#terms').on('change', (e) => {
+    const $terms = $(e.currentTarget);
+    if ($terms.prop('checked')) {
+      $('#J_submit').attr('disabled', false);
+    } else {
+      $('#J_submit').attr('disabled', true);
+    }
+  });
   $('#J_send').on('click', e => {
     const elem = $(e.currentTarget);
     const placeholder = elem.text();
@@ -31,10 +39,10 @@ $(function() {
       email: $('#J_email').val()
     }, null, 'json').done(() => {
       $('#J_tips').removeClass('alert-danger').addClass('alert-success')
-      .html('Send successfully').show();
+        .html('The token has been sent.').show();
     }).fail(err => {
       $('#J_tips').removeClass('alert-success').addClass('alert-danger')
-      .html(err.responseJSON.error).show();
+        .html(err.responseJSON.error).show();
     });
   });
 });

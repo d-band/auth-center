@@ -8,6 +8,7 @@ const server = Server({
   isTOTP: true,
   staticPath,
   logo: `${staticPath}/logo.png`,
+  favicon: `${staticPath}/logo.png`,
   mail: {
     from: 'admin@example.com',
     name: 'minimal',

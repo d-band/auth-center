@@ -26,6 +26,7 @@ export default function (options) {
     ctx._routes = cfg.routes;
     ctx.state._routes = cfg.routes;
     ctx.state.logo = cfg.logo;
+    ctx.state.terms = cfg.terms;
     ctx.state.favicon = cfg.favicon;
     ctx.state.staticRoot = isURL(staticPath) ? staticPath : '';
     await next();

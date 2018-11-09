@@ -20,15 +20,20 @@
     {% if isTOTP %}
     <div class="input-wrap">
       <div class="input-group">
-        <input class="input-group-input" type="text" name="token" placeholder="{{__("Dynamic token")}}">
+        <input class="input-group-input" type="text" name="token" autocomplete="off" placeholder="{{__("Dynamic token")}}">
         <span class="input-group-btn">
           <button class="btn send-btn" type="button" id="J_send">{{__("Send")}}</button>
         </span>
       </div>
     </div>
     {% endif %}
+    <p>
+      <input id="terms" type="checkbox" value="1" name="terms">
+      <label for="terms">{{__("I have read and agree to")}}</label>
+      <a href="{{terms}}" target="_blank">{{__("the terms of use.")}}</a>
+    </p>
     <div class="input-wrap">
-      <button class="btn btn-primary btn-block">{{__("Sign In")}}</button>
+      <button id="J_submit" class="btn btn-primary btn-block" disabled>{{__("Sign In")}}</button>
     </div>
     {% if messages.error %}
     <div class="alert alert-danger" id="J_tips">{{messages.error}}</div>
