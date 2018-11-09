@@ -16,6 +16,18 @@ function decode (input) {
     });
 }
 
+function getCSRF (res) {
+  const { headers } = res;
+  const cookies = headers['set-cookie'] || [];
+  for (const cookie of cookies) {
+    const m = cookie.match(/XSRF-TOKEN=(.*);/i);
+    if (m && m[1]) {
+      return m[1];
+    }
+  }
+  return '';
+}
+
 chai.use(chaiHttp);
 
 describe('auth-center', function () {
@@ -204,7 +216,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.session)
           .send({
@@ -226,7 +238,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.session)
           .send({
@@ -248,7 +260,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.session)
           .send({
@@ -274,7 +286,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.session)
           .send({
@@ -297,7 +309,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.session)
           .send({
@@ -321,7 +333,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.session)
           .send({
@@ -345,7 +357,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.session)
           .send({
@@ -380,7 +392,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/email/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.password_reset)
           .send({
@@ -402,7 +414,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/email/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.password_reset)
           .send({
@@ -425,7 +437,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/email/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.password_reset)
           .send({
@@ -448,7 +460,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/email/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.password_reset)
           .send({
@@ -509,7 +521,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password2/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.password_change)
           .send({
@@ -532,7 +544,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password2/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.password_change)
           .send({
@@ -556,7 +568,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password2/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.password_change)
           .send({
@@ -580,7 +592,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password2/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.password_change)
           .set('Referer', '/password_change?code=' + emailCode)
@@ -607,7 +619,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password2/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.password_change)
           .send({
@@ -641,7 +653,7 @@ describe('auth-center', function () {
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/password/);
-        const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+        const csrf = getCSRF(res);
         request
           .post(R.session)
           .send({
@@ -710,7 +722,7 @@ describe('auth-center', function () {
     request.get(R.admin.users).end(function (err, res) {
       expect(err).to.be.null;
       expect(res.text).to.match(/password/);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.session)
         .send({
@@ -734,7 +746,7 @@ describe('auth-center', function () {
     request.get(R.admin.users).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.send_totp)
         .send({
@@ -752,7 +764,7 @@ describe('auth-center', function () {
     request.get(R.admin.users).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.send_totp)
         .send({
@@ -771,7 +783,7 @@ describe('auth-center', function () {
     request.get(R.admin.users).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       isSendFail = true;
       request
         .post(R.admin.send_totp)
@@ -792,7 +804,7 @@ describe('auth-center', function () {
     request.get(R.admin.users).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.send_totp)
         .send({
@@ -811,7 +823,7 @@ describe('auth-center', function () {
     request.get(R.admin.clients).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.add_client)
         .send({
@@ -829,7 +841,7 @@ describe('auth-center', function () {
     request.get(R.admin.clients).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.add_client)
         .send({
@@ -849,7 +861,7 @@ describe('auth-center', function () {
     request.get(R.admin.clients).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.add_client)
         .send({
@@ -870,7 +882,7 @@ describe('auth-center', function () {
     request.get(R.admin.clients).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.add_client)
         .send({
@@ -891,7 +903,7 @@ describe('auth-center', function () {
     request.get(R.admin.clients).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.generate_secret)
         .send({
@@ -909,7 +921,7 @@ describe('auth-center', function () {
     request.get(R.admin.clients).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.generate_secret)
         .send({
@@ -928,7 +940,7 @@ describe('auth-center', function () {
     request.get(R.admin.clients).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.generate_secret)
         .send({
@@ -949,7 +961,7 @@ describe('auth-center', function () {
     request.get(R.admin.clients).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.generate_secret)
         .send({
@@ -978,7 +990,7 @@ describe('auth-center', function () {
     request.get(R.admin.roles).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.add_role)
         .send({
@@ -996,7 +1008,7 @@ describe('auth-center', function () {
     request.get(R.admin.roles).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.add_role)
         .send({
@@ -1015,7 +1027,7 @@ describe('auth-center', function () {
     request.get(R.admin.roles).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.add_role)
         .send({
@@ -1035,7 +1047,7 @@ describe('auth-center', function () {
     request.get(R.admin.roles).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.add_role)
         .send({
@@ -1056,7 +1068,7 @@ describe('auth-center', function () {
     request.get(R.admin.roles).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.add_role)
         .send({
@@ -1077,7 +1089,7 @@ describe('auth-center', function () {
     request.get(R.admin.roles).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request
         .post(R.admin.delete_role)
         .send({
@@ -1096,7 +1108,7 @@ describe('auth-center', function () {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
       const id = res.text.match(/<input.*name="id".*value="(.*)"/)[1];
-      const csrf = res.text.match(/<input.*name="_csrf".*value="(.*)"/)[1];
+      const csrf = getCSRF(res);
       request.post(R.admin.delete_role).send({
         _csrf: csrf,
         id: id

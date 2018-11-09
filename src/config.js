@@ -3,7 +3,7 @@
 import { join, resolve } from 'path';
 import merge from 'lodash.merge';
 
-const _config = {
+const config = {
   debug: process.env.NODE_ENV !== 'production',
   staticPath: join(__dirname, '../public'),
   viewPath: join(__dirname, '../views'),
@@ -12,7 +12,7 @@ const _config = {
     key: 'sid'
   },
   domain: '__domain__',
-  logo: '/57e096d191e00d4baacf303782a23c8d.png',
+  logo: '/logo.png',
   emailCodeTTL: 3 * 60 * 60,
   // I18N config
   messages: {},
@@ -88,17 +88,17 @@ const _config = {
   }
 };
 
-export default function (param) {
+export default function initConfig (param) {
   if (typeof param === 'string') {
     const customConfig = require(resolve(param));
-    merge(_config, customConfig);
+    merge(config, customConfig);
   }
 
   if (typeof param === 'object') {
-    merge(_config, param);
+    merge(config, param);
   }
 
-  if (!_config.orm.dialectModulePath) {
+  if (!config.orm.dialectModulePath) {
     const modulePath = join(process.cwd(), 'node_modules');
     const moduleName = ({
       sqlite: 'sqlite3',
@@ -106,13 +106,13 @@ export default function (param) {
       mariadb: 'mysql2',
       postgres: 'pg',
       mssql: 'tedious'
-    })[_config.orm.dialect];
+    })[config.orm.dialect];
 
-    _config.orm.dialectModulePath = require.resolve(join(modulePath, moduleName));
+    config.orm.dialectModulePath = require.resolve(join(modulePath, moduleName));
   }
 
-  if (!_config.orm.logging) {
-    _config.orm.logging = _config.debug && console.log;
+  if (!config.orm.logging) {
+    config.orm.logging = config.debug && console.log;
   }
-  return _config;
+  return config;
 }

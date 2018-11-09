@@ -5,6 +5,10 @@ import base32 from 'thirty-two';
 import qr from 'qr-image';
 import { parse, format } from 'url';
 
+export function isURL (str) {
+  return /^(https?:|)(\/\/)/i.test(str);
+}
+
 export function pagination (cur, total, link, half = 2) {
   if (total <= 1) return '';
 
@@ -30,7 +34,7 @@ export function pagination (cur, total, link, half = 2) {
 }
 
 export function makeSalt () {
-  return Math.round((new Date().valueOf() * Math.random())) + '';
+  return Math.round(Date.now() * Math.random()).toString();
 }
 
 export function encrypt (pass, salt) {

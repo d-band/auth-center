@@ -1,11 +1,13 @@
 'use strict';
 
-const App = require('../app');
-const co = require('co');
+import Server from '../src';
 
-const app = App({
+const staticPath = 'http://localhost:7777';
+const server = Server({
   debug: true,
   isTOTP: true,
+  staticPath,
+  logo: `${staticPath}/logo.png`,
   mail: {
     from: 'admin@example.com',
     name: 'minimal',
@@ -28,47 +30,53 @@ const app = App({
 /** Start **/
 if (!module.parent) {
   const port = 8888;
-  app.listen(port);
-  co(function*() {
-    const { sync, User, Client, DicRole } = app.orm.database();
-    yield sync({
+  // init
+  async function init() {
+    const {
+      sync, User, Client, DicRole
+    } = server.orm.database();
+    await sync({
       force: true
     });
-    yield User.add({
+    await User.add({
       id: 10001,
       password: 'nick',
       email: 'nick@example.com',
       totp_key: '1234',
       is_admin: true
     });
-    yield User.add({
+    await User.add({
       id: 10002,
       password: 'ken',
       email: 'ken@example.com',
       totp_key: '1234',
       is_admin: true
     });
-    yield Client.create({
+    await Client.create({
       id: '740a1d6d-9df8-4552-a97a-5704681b8039',
       name: 'local',
       secret: '12345678',
       redirect_uri: 'http://localhost:8080'
     });
-    yield Client.create({
+    await Client.create({
       id: 'bd0e56c1-8f02-49f3-b502-129da70b6f09',
       name: 'test',
       secret: '12345678',
       redirect_uri: 'http://localhost:9090'
     });
-    yield DicRole.create({
+    await DicRole.create({
       name: 'user',
       description: 'Normal user'
     });
-    yield DicRole.create({
+    await DicRole.create({
       name: 'document',
       description: 'Document department'
     });
-  }).then(() => {
-    console.log(`Running site at: http://127.0.0.1:${port}`);
+  }
+
+  init().then(() => {
+    server.listen(port);
+    console.log('\nInit database done.');
+    console.log(`\nRunning site at:\x1B[36m http://127.0.0.1:${port}\x1B[39m`);
   });
 }

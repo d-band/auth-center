@@ -7,6 +7,8 @@
     "auth-center": "bin/cli.js"
   },
   "scripts": {
+    "start": "babel-node scripts/server.js",
+    "dev": "cd assets && dool server -p 7777",
     "build": "npm run build-app && npm run build-assets",
     "build-app": "rimraf app && babel src --out-dir app",
     "build-assets": "rimraf public && cd assets && dool build -o $PWD/../public",
@@ -50,8 +52,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
+    "@babel/node": "^7.0.0",
     "@babel/register": "^7.0.0",
     "babel-eslint": "^10.0.1",
     "babel-plugin-add-module-exports": "^1.0.0",
@@ -60,6 +61,7 @@
     "chai": "^4.2.0",
     "chai-http": "^4.2.0",
     "coveralls": "^3.0.0",
+    "dool": "^4.1.0",
     "eslint": "^5.8.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.14.0",

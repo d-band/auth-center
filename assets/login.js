@@ -1,4 +1,10 @@
-window.$ = window.jQuery = require('jquery');
+import $ from 'jquery';
+import '!file-loader?name=[name].[ext]!./logo.png';
+
+function cookie(name) {
+  const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+  return (match ? decodeURIComponent(match[3]) : null);
+}
 
 $(function() {
   $('#J_send').on('click', e => {
@@ -21,7 +27,7 @@ $(function() {
       }
     }, 1000);
     $.post('/send_token', {
-      _csrf: $('#J_csrf').val(),
+      _csrf: cookie('XSRF-TOKEN'),
       email: $('#J_email').val()
     }, null, 'json').done(() => {
       $('#J_tips').removeClass('alert-danger').addClass('alert-success')

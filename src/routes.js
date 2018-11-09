@@ -43,8 +43,11 @@ export default function routes (app, config) {
   app.use(authRouter.routes());
   app.use(authRouter.allowedMethods());
   app.use(new CSRF());
-  app.use(async function injectParams (ctx, next) {
+  app.use(async (ctx, next) => {
     ctx.state._csrf = ctx.csrf;
+    ctx.cookies.set('XSRF-TOKEN', ctx.csrf, {
+      httpOnly: false
+    });
     await next();
   });
   app.use(router.routes());

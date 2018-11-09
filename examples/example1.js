@@ -40,5 +40,7 @@ if (!module.parent) {
   // Sync Database to generate tables
   server.orm.database().sync({
     force: true
-  }).then(function() { console.log('Sync done.'); });
+  }).then(() => {
+    console.log('Sync done.');
+  });
 }

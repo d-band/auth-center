@@ -6,7 +6,7 @@
 
 {% block content %}
 <form action="{{_routes.session}}" method="POST">
-  <input id="J_csrf" type="hidden" name="_csrf" value="{{_csrf}}">
+  <input type="hidden" name="_csrf" value="{{_csrf}}">
   <div class="auth-form-header">
     <h1>{{__("Sign in to system")}}</h1>
   </div>
@@ -43,6 +43,6 @@
   <a href="{{_routes.password_reset}}">{{__("Lost your password?")}}</a>
 </div>
 {% if isTOTP %}
-<script src="/login.js"></script>
+<script src="{{staticRoot}}/login.js"></script>
 {% endif %}
 {% endblock %}

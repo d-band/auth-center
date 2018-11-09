@@ -9,50 +9,44 @@ import serve from 'koa-static';
 import orm from 'koa-orm';
 
 import I18n from './i18n';
-import Config from './config';
+import config from './config';
 import routes from './routes';
 import error from './middlewares/error';
 import flash from './middlewares/flash';
 import mail from './middlewares/mail';
-import { pagination } from './util';
+import { pagination, isURL } from './util';
 
 export default function (options) {
-  const config = Config(options);
+  const cfg = config(options);
   const app = new Koa();
 
+  const { staticPath } = cfg;
   app.use(async function injectConfig (ctx, next) {
-    ctx.__defineGetter__('config', () => {
-      return Config();
-    });
-    ctx.__defineGetter__('_routes', () => {
-      return Config().routes;
-    });
-    ctx.state.__defineGetter__('logo', () => {
-      return Config().logo;
-    });
-    ctx.state.__defineGetter__('favicon', () => {
-      return Config().favicon;
-    });
-    ctx.state.__defineGetter__('_routes', () => {
-      return Config().routes;
-    });
+    ctx.__defineGetter__('config', config);
+    ctx._routes = cfg.routes;
+    ctx.state._routes = cfg.routes;
+    ctx.state.logo = cfg.logo;
+    ctx.state.favicon = cfg.favicon;
+    ctx.state.staticRoot = isURL(staticPath) ? staticPath : '';
     await next();
   });
+
+  /** Set public path, for css/js/images **/
+  if (!isURL(staticPath)) {
+    app.use(serve(cfg.staticPath, {
+      maxage: cfg.debug ? 0 : 60 * 60 * 24 * 7
+    }));
+  }
 
   app.use(bodyParser());
   app.use(logger());
 
-  /** Set public path, for css/js/images **/
-  app.use(serve(config.staticPath, {
-    maxage: config.debug ? 0 : 60 * 60 * 24 * 7
-  }));
-
   /** Sessions **/
-  app.keys = config.keys;
-  app.use(session(config.session, app));
+  app.keys = cfg.keys;
+  app.use(session(cfg.session, app));
 
   /** I18n **/
-  const i18n = new I18n(config.messages);
+  const i18n = new I18n(cfg.messages);
 
   app.use(async function injectI18n (ctx, next) {
     if (ctx.query.locale) {
@@ -63,8 +57,8 @@ export default function (options) {
   });
 
   /** View & i18n **/
-  app.use(view(config.viewPath, {
-    noCache: config.debug,
+  app.use(view(cfg.viewPath, {
+    noCache: cfg.debug,
     globals: {
       pagination,
       __: function (key) {
@@ -74,16 +68,16 @@ export default function (options) {
   }));
 
   /** ORM **/
-  app.orm = orm(config.orm);
+  app.orm = orm(cfg.orm);
   app.use(app.orm.middleware);
 
   /** Middlewares **/
   error(app);
   flash(app);
-  mail(app, config.mail);
+  mail(app, cfg.mail);
 
   /** Router **/
-  routes(app, config);
+  routes(app, cfg);
 
   return app;
 }

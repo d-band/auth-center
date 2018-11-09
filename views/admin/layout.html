@@ -8,7 +8,7 @@
     {% if logo %}
     <link rel="shortcut icon" type="image/x-icon" href="{{logo}}">
     {% endif %}
-    <link rel="stylesheet" href="/admin.css">
+    <link rel="stylesheet" href="{{staticRoot}}/admin.css">
     {% block head %}{% endblock %}
   </head>
   <body>
@@ -48,7 +48,7 @@
         </div>
       </div>
     </div>
-    <script src="/admin.js"></script>
+    <script src="{{staticRoot}}/admin.js"></script>
     {% block foot %}{% endblock %}
   </body>
 </html>

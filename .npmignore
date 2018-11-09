@@ -9,3 +9,7 @@ test
 src/
 assets/
 .nyc_output
+.babelrc
+.editorconfig
+.eslintrc
+.travis.yml
