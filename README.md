@@ -105,6 +105,18 @@ server.orm.database().sync({
 }).then(() => { console.log('Sync done.'); });
 ```
 
+### 开发
+
+```
+git clone https://github.com/d-band/auth-center.git
+cd auth-center
+
+npm install
+
+npm run dev
+npm start
+```
+
 ### 参考链接
 
 - https://github.com/oauthjs/express-oauth-server
