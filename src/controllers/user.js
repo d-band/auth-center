@@ -84,6 +84,7 @@ export async function session (ctx) {
 
   ctx.session.returnTo = null;
   ctx.session.user = user;
+  await ctx.log(user.id, 'LOGIN');
   ctx.redirect(returnTo || ctx._routes.home);
 }
 
@@ -195,6 +196,7 @@ export async function passwordChange (ctx) {
 
   // TODO: add transaction
   await User.changePassword(code.user_id, password);
+  await ctx.log(code.user_id, 'CHANGE_PWD');
   await EmailCode.destroy({
     where: {
       id: codeId
@@ -228,7 +230,7 @@ export async function sendToken (ctx) {
 
   const user = await User.findByEmail(email);
   ctx.assert(user, 400, 'User is not found');
-  console.log(user.totp_key);
+
   await ctx.sendMail(email, 'send_token', {
     username: email,
     sender: ctx.config.mail.from,

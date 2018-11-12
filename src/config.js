@@ -4,6 +4,7 @@ import { join, resolve } from 'path';
 import merge from 'lodash.merge';
 
 const config = {
+  proxy: true,
   debug: process.env.NODE_ENV !== 'production',
   staticPath: join(__dirname, '../public'),
   viewPath: join(__dirname, '../views'),

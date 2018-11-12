@@ -166,7 +166,6 @@ export async function addClient (ctx) {
       name_cn: name_cn,
       redirect_uri: redirect_uri
     });
-
     ctx.flash('success', 'Add new client successfully');
     ctx.redirect(ctx._routes.admin.clients);
   } catch (e) {

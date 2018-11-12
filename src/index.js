@@ -14,11 +14,14 @@ import routes from './routes';
 import error from './middlewares/error';
 import flash from './middlewares/flash';
 import mail from './middlewares/mail';
+import log from './middlewares/log';
 import { pagination, isURL } from './util';
 
 export default function (options) {
   const cfg = config(options);
   const app = new Koa();
+  // Has reversed by proxy
+  app.proxy = cfg.proxy === true;
 
   const { staticPath } = cfg;
   app.use(async function injectConfig (ctx, next) {
@@ -75,6 +78,7 @@ export default function (options) {
   /** Middlewares **/
   error(app);
   flash(app);
+  log(app);
   mail(app, cfg.mail);
 
   /** Router **/
