@@ -1,12 +1,12 @@
 'use strict';
 
-const AuthServer = require('auth-center');
+const Server = require('../src');
 
-const server = AuthServer({
+const server = Server({
   debug: true,
   domain: 'http://passport.example.com',
   orm: {
-    db: 'db_auth',
+    database: 'auth',
     username: 'root',
     password: '112358',
     // Supported: 'mysql', 'sqlite', 'postgres', 'mariadb'
@@ -33,13 +33,13 @@ const server = AuthServer({
 
 /** Start **/
 if (!module.parent) {
-  const port = 3000;
+  const port = 8888;
 
   server.listen(port);
   console.log(`Running site at: http://127.0.0.1:${port}`);
   // Sync Database to generate tables
   server.orm.database().sync({
-    force: true
+    force: false
   }).then(() => {
     console.log('Sync done.');
   });

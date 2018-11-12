@@ -13,13 +13,13 @@ const server = Server({
     from: 'admin@example.com',
     name: 'minimal',
     version: '0.1.0',
-    send: function(mail, callback) {
+    send: (mail, callback) => {
       const input = mail.message.createReadStream();
       const chunks = [];
-      input.on('data', function(chunk) {
+      input.on('data', (chunk) => {
         chunks.push(chunk);
       });
-      input.on('end', function() {
+      input.on('end', () => {
         const data = Buffer.concat(chunks).toString();
         console.log(data);
         callback(null, true);
