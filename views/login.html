@@ -38,9 +38,9 @@
       <button id="J_submit" type="submit" class="btn btn-primary btn-block">{{__("Sign In")}}</button>
     </div>
     {% if messages.error %}
-    <div class="alert alert-danger" id="J_tips">{{messages.error}}</div>
+    <div class="alert alert-danger" id="J_tips">{{__(messages.error)}}</div>
     {% elseif messages.success %}
-    <div class="alert alert-success" id="J_tips">{{messages.success}}</div>
+    <div class="alert alert-success" id="J_tips">{{__(messages.success)}}</div>
     {% else %}
     <div class="alert" style="display: none;" id="J_tips"></div>
     {% endif %}

@@ -233,7 +233,7 @@ export async function sendToken (ctx) {
   ctx.assert(!lastTime || (now - lastTime) > min, 400, 'Try again in a minute');
 
   const user = await User.findByEmail(email);
-  ctx.assert(user, 400, 'User is not found');
+  ctx.assert(user, 400, 'User not found');
 
   await ctx.sendMail(email, 'send_token', {
     username: email,
