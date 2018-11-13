@@ -48,7 +48,7 @@ export async function login (ctx) {
 
 export async function session (ctx) {
   const { User } = ctx.orm();
-  const { email, password, token } = ctx.request.body;
+  const { email, password, token, terms } = ctx.request.body;
 
   if (!email) {
     ctx.flash('error', 'Email is required');
@@ -62,6 +62,11 @@ export async function session (ctx) {
   }
   if (ctx.config.isTOTP && !token) {
     ctx.flash('error', 'Token is required');
+    ctx.redirect(ctx._routes.login);
+    return;
+  }
+  if (ctx.config.terms && String(terms) !== '1') {
+    ctx.flash('error', 'You should agree the terms');
     ctx.redirect(ctx._routes.login);
     return;
   }
@@ -226,7 +231,6 @@ export async function sendToken (ctx) {
   const min = 60 * 1000;
   const now = Date.now();
   ctx.assert(!lastTime || (now - lastTime) > min, 400, 'Try again in a minute');
-  ctx.session.lastTime = now;
 
   const user = await User.findByEmail(email);
   ctx.assert(user, 400, 'User is not found');
@@ -236,6 +240,8 @@ export async function sendToken (ctx) {
     sender: ctx.config.mail.from,
     token: totp.gen(user.totp_key)
   });
+
+  ctx.session.lastTime = now;
 
   ctx.body = { code: 0 };
 }

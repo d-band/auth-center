@@ -266,7 +266,8 @@ describe('auth-center', function () {
           .send({
             _csrf: csrf,
             email: 'test@example.com',
-            password: 'wrong'
+            password: 'wrong',
+            terms: 1
           })
           .end(function (err, res) {
             expect(err).to.be.null;
@@ -316,7 +317,8 @@ describe('auth-center', function () {
             _csrf: csrf,
             email: 'test@example.com',
             password: 'test',
-            token: '123456'
+            token: '123456',
+            terms: 1
           })
           .end(function (err, res) {
             expect(err).to.be.null;
@@ -340,12 +342,40 @@ describe('auth-center', function () {
             _csrf: csrf,
             email: 'wrong@example.com',
             password: 'test',
-            token: '123456'
+            token: '123456',
+            terms: 1
           })
           .end(function (err, res) {
             expect(err).to.be.null;
             expect(res).to.have.status(200);
             expect(res.text).to.match(/Email or password is invalid/);
+            done();
+          });
+      });
+  });
+
+  it('should login terms required', function (done) {
+    Config({
+      isTOTP: true
+    });
+    request
+      .get(R.login)
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res.text).to.match(/password/);
+        const csrf = getCSRF(res);
+        request
+          .post(R.session)
+          .send({
+            _csrf: csrf,
+            email: 'test@example.com',
+            password: 'test',
+            token: totp.gen(totp_key)
+          })
+          .end(function (err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.text).to.match(/You should agree the terms/);
             done();
           });
       });
@@ -364,7 +394,8 @@ describe('auth-center', function () {
             _csrf: csrf,
             email: 'test@example.com',
             password: 'test',
-            token: totp.gen(totp_key)
+            token: totp.gen(totp_key),
+            terms: 1
           })
           .end(function (err, res) {
             expect(err).to.be.null;
@@ -659,7 +690,8 @@ describe('auth-center', function () {
           .send({
             _csrf: csrf,
             email: 'test@example.com',
-            password: 'testnewpwd'
+            password: 'testnewpwd',
+            terms: 1
           })
           .end(function (err, res) {
             expect(err).to.be.null;
@@ -729,7 +761,8 @@ describe('auth-center', function () {
           _csrf: csrf,
           email: 'admin@example.com',
           password: 'admin',
-          token: totp.gen(totp_key)
+          token: totp.gen(totp_key),
+          terms: 1
         })
         .end(function (err, res) {
           expect(err).to.be.null;
