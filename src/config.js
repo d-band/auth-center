@@ -57,7 +57,7 @@ const config = {
         `
       },
       send_token: {
-        subject: 'Your dynamic token is {{token}}',
+        subject: '{{token}} is your dynamic token',
         html: `
           Dear {{username}}
           <br><br>Your dynamic token is <span style="font-weight: 500; color: #f4364c;">{{token}}</span>. It will be expired in 5 minutes.
