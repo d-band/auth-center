@@ -49,10 +49,9 @@ const config = {
           <p><img src="cid:{{cid}}"/></p>
           <p>Or you can use following email and secret key to register :</p>
           <p>Email: {{email}}<br>Secret Key: {{key}}</p>
-          <p>You should download <strong>Google Authenticator</strong> to use it.</p>
-          <p>iOS App: <a href="https://itunes.apple.com/cn/app/google-authenticator/id388497605?mt=8">https://itunes.apple.com/cn/app/google-authenticator/id388497605?mt=8</a><br>
-          Android App: <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en</a><br>
-          Install Help: <a href="https://support.google.com/accounts/answer/1066447?hl=en">https://support.google.com/accounts/answer/1066447?hl=en</a></p>
+          <p>You should download <strong>Takey</strong> to scan it.</p>
+          <p>iOS App: <a href="https://itunes.apple.com/cn/app/takey/id1447343446">https://itunes.apple.com/cn/app/takey/id1447343446</a><br>
+          Android App: <a href="https://dl.jsmartx.com/app/takey.apk">https://dl.jsmartx.com/app/takey.apk</a></p>
           <p>Thanks!</p>
         `
       },
