@@ -11,7 +11,7 @@ export default function (config) {
 
     ctx.assert(client_id, 400, 'client_id is missing.');
 
-    const client = await Client.findById(client_id);
+    const client = await Client.findByPk(client_id);
 
     ctx.assert(client, 401, 'client_id is invalid.');
 
@@ -48,12 +48,12 @@ export default function (config) {
     ctx.assert(redirect_uri, 400, 'redirect_uri is missing.');
     ctx.assert(code, 400, 'code is missing.');
 
-    const client = await Client.findById(client_id);
+    const client = await Client.findByPk(client_id);
 
     ctx.assert(client, 401, 'client_id is invalid.');
     ctx.assert(client.secret === client_secret, 401, 'client_secret is invalid.');
 
-    const _code = await Code.findById(code);
+    const _code = await Code.findByPk(code);
 
     ctx.assert(_code, 401, 'code is invalid.');
 
@@ -92,7 +92,7 @@ export default function (config) {
 
     ctx.assert(tokenId, 400, 'access_token is missing.');
 
-    const token = await Token.findById(tokenId);
+    const token = await Token.findByPk(tokenId);
 
     ctx.assert(token, 401, 'access_token is invalid.');
 

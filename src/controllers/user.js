@@ -150,7 +150,7 @@ export async function passwordChangePage (ctx) {
     return;
   }
 
-  const code = await EmailCode.findById(codeId);
+  const code = await EmailCode.findByPk(codeId);
   if (!code) {
     ctx.flash('error', 'Code is invalid');
     ctx.redirect(ctx._routes.password_reset);
@@ -179,7 +179,7 @@ export async function passwordChange (ctx) {
     return;
   }
 
-  const code = await EmailCode.findById(codeId);
+  const code = await EmailCode.findByPk(codeId);
   if (!code) {
     ctx.flash('error', 'Code is invalid');
     ctx.redirect(ctx._routes.password_reset);
@@ -215,7 +215,7 @@ export async function passwordChange (ctx) {
 export async function getInfo (ctx) {
   const { User } = ctx.orm();
 
-  ctx.body = await User.findById(ctx._userId, {
+  ctx.body = await User.findByPk(ctx._userId, {
     attributes: ['id', 'email'],
     raw: true
   });

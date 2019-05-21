@@ -111,7 +111,7 @@ export async function sendTotp (ctx) {
     });
     // send email
     if (res[0]) {
-      const user = await User.findById(id);
+      const user = await User.findByPk(id);
       await ctx.sendMail(user.email, 'send_totp', {
         username: user.email,
         cid: 'key',
