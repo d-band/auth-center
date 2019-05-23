@@ -6,16 +6,16 @@ export default function (sequelize, DataTypes) {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      comment: 'email code'
+      comment: 'Email Code'
     },
     user_id: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
-      comment: 'User ID'
+      comment: 'User Id'
     }
   }, {
     tableName: 'email_code',
-    comment: 'EmailCode Tale，using when password reset',
+    comment: 'Email Code Tale for password reset',
     indexes: [{
       fields: ['user_id']
     }]

@@ -1,7 +1,7 @@
 'use strict';
 
 import qs from 'querystring';
-import { generateToken, encodeKey, totpImage } from '../util';
+import { generateId, encodeKey, totpImage } from '../util';
 
 export async function checkLogin (ctx, next) {
   if (ctx.session.user) {
@@ -105,7 +105,7 @@ export async function sendTotp (ctx) {
   try {
     // generate new totp key
     const res = await User.update({
-      totp_key: generateToken()
+      totp_key: generateId()
     }, {
       where: { id }
     });
@@ -161,7 +161,7 @@ export async function addClient (ctx) {
   try {
     // add one new
     await Client.create({
-      secret: generateToken(),
+      secret: generateId(),
       name: name,
       name_cn: name_cn,
       redirect_uri: redirect_uri
@@ -188,7 +188,7 @@ export async function generateSecret (ctx) {
   try {
     // generate new secret
     const res = await Client.update({
-      secret: generateToken()
+      secret: generateId()
     }, {
       where: { id }
     });

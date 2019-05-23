@@ -5,7 +5,7 @@ import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import { totp } from 'notp';
 import AuthServer from '../src';
-import { generateToken } from '../src/util';
+import { generateId } from '../src/util';
 import Config from '../src/config';
 
 function decode (input) {
@@ -33,11 +33,12 @@ chai.use(chaiHttp);
 describe('auth-center', function () {
   this.timeout(0);
 
-  const totp_key = generateToken();
+  const totp_key = generateId();
   const R = Config().routes;
 
   let request;
   let emailCode;
+  let totpCode;
   let isSendFail = false;
 
   before(function (done) {
@@ -75,10 +76,14 @@ describe('auth-center', function () {
             chunks.push(chunk);
           });
           input.on('end', function () {
-            const data = Buffer.concat(chunks).toString();
-            const temp = decode(data).match(/code=(.*)"/);
-            if (temp && temp.length > 1) {
-              emailCode = temp[1];
+            const data = decode(Buffer.concat(chunks).toString());
+            const m1 = data.match(/code=(.*)"/);
+            if (m1 && m1.length > 1) {
+              emailCode = m1[1];
+            }
+            const m2 = data.match(/([\d]+) is your dynamic token/);
+            if (m2 && m2.length > 1) {
+              totpCode = m2[1];
             }
             if (isSendFail) {
               callback(new Error('send error'));
@@ -415,6 +420,42 @@ describe('auth-center', function () {
               });
           });
       });
+  });
+
+  it('should login => sendToken => home => logout', function (done) {
+    request.get(R.home).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res.text).to.match(/password/);
+      const _csrf = getCSRF(res);
+      request.post(R.send_token).send({
+        _csrf,
+        email: 'test@example.com'
+      }).end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.property('code', 0);
+        request.post(R.session).send({
+          _csrf,
+          email: 'test@example.com',
+          password: 'test',
+          token: totpCode,
+          terms: 1
+        }).end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.status(200);
+          expect(res.text).to.match(/test@example\.com/);
+          expect(res.text).to.match(/test/);
+          request.get(R.logout).query({
+            return_to: R.login
+          }).end(function (err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.text).to.match(/password/);
+            done();
+          });
+        });
+      });
+    });
   });
 
   it('should password reset email error', function (done) {
@@ -775,6 +816,52 @@ describe('auth-center', function () {
     });
   });
 
+  it('should login redirect home', function (done) {
+    request.get(R.login).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.redirects).to.include('http://127.0.0.1:3000/');
+      expect(res.text).to.match(/admin@example.com/);
+      done();
+    });
+  });
+
+  it('should user list', function (done) {
+    request.get(R.admin.users).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.text).to.match(/test@example\.com/);
+      expect(res.text).to.match(/admin@example\.com/);
+      done();
+    });
+  });
+
+  it('should user list with query', function (done) {
+    request.get(R.admin.users + '?q=admin').end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.text).to.not.match(/test@example\.com/);
+      expect(res.text).to.match(/admin@example\.com/);
+      done();
+    });
+  });
+
+  it('should search user list with query', function (done) {
+    request.get(R.admin.users).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      const _csrf = getCSRF(res);
+      request.post(R.admin.search_user)
+        .send({ q: 'test', _csrf })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.status(200);
+          expect(res.body).to.include('test@example.com');
+          done();
+        });
+    });
+  });
+
   it('should send totp: ID is required', function (done) {
     request.get(R.admin.users).end(function (err, res) {
       expect(err).to.be.null;
@@ -852,7 +939,7 @@ describe('auth-center', function () {
     });
   });
 
-  it('should add client: name is required', function (done) {
+  it('should add client: Name is required', function (done) {
     request.get(R.admin.clients).end(function (err, res) {
       expect(err).to.be.null;
       expect(res).to.have.status(200);
@@ -865,6 +952,25 @@ describe('auth-center', function () {
         .end(function (err, res) {
           expect(err).to.be.null;
           expect(res.text).to.match(/Name is required/);
+          done();
+        });
+    });
+  });
+
+  it('should add client: Name CN is required', function (done) {
+    request.get(R.admin.clients).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      const csrf = getCSRF(res);
+      request
+        .post(R.admin.add_client)
+        .send({
+          _csrf: csrf,
+          name: 'client1'
+        })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.text).to.match(/Name CN is required/);
           done();
         });
     });
@@ -1019,6 +1125,25 @@ describe('auth-center', function () {
       });
   });
 
+  it('should client list with query', function (done) {
+    request
+      .get(R.admin.clients + '?q=notfound')
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res.text).to.match(/No data available in table/);
+        done();
+      });
+  });
+
+  it('should role list search', function (done) {
+    request.get(R.admin.roles + '?q=test').end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.text).to.match(/No data available in table/);
+      done();
+    });
+  });
+
   it('should add role: user is required', function (done) {
     request.get(R.admin.roles).end(function (err, res) {
       expect(err).to.be.null;
@@ -1076,6 +1201,27 @@ describe('auth-center', function () {
     });
   });
 
+  it('should add role: User is not existed', function (done) {
+    request.get(R.admin.roles).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      const csrf = getCSRF(res);
+      request
+        .post(R.admin.add_role)
+        .send({
+          _csrf: csrf,
+          email: 'notfound@example.com',
+          client: 12345678,
+          role: 'test'
+        })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.text).to.match(/User is not existed/);
+          done();
+        });
+    });
+  });
+
   it('should add role: success', function (done) {
     request.get(R.admin.roles).end(function (err, res) {
       expect(err).to.be.null;
@@ -1094,6 +1240,15 @@ describe('auth-center', function () {
           expect(res.text).to.match(/successfully/);
           done();
         });
+    });
+  });
+
+  it('should role list search', function (done) {
+    request.get(R.admin.roles + '?q=test').end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.text).to.match(/test@example\.com/);
+      done();
     });
   });
 

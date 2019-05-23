@@ -3,6 +3,7 @@
 import crypto from 'crypto';
 import base32 from 'thirty-two';
 import qr from 'qr-image';
+import nanoid from 'nanoid';
 import { parse, format } from 'url';
 
 export function isURL (str) {
@@ -56,9 +57,8 @@ export function checkURI (base, checked) {
     url2.pathname.indexOf(url1.pathname) === 0;
 }
 
-export function generateToken () {
-  const buffer = crypto.randomBytes(256);
-  return crypto.createHash('sha1').update(buffer).digest('hex');
+export function generateId () {
+  return nanoid(40);
 }
 
 export function buildURI (uri, query) {

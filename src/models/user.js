@@ -13,36 +13,34 @@ export default function (sequelize, DataTypes) {
       type: DataTypes.STRING(100),
       unique: true,
       allowNull: false,
-      comment: 'user email'
+      comment: 'User Email'
     },
     pass_salt: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      comment: 'user password salt'
+      comment: 'User Password Salt'
     },
     pass_hash: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      comment: 'user password hash'
+      comment: 'User Password Hash'
     },
     totp_key: {
       type: DataTypes.STRING(100),
       defaultValue: '',
-      comment: 'user totp key'
+      comment: 'User TOTP Key'
     },
     enable: {
       type: DataTypes.BOOLEAN(),
-      defaultValue: 1,
-      comment: '有效性，1有效，0无效'
+      defaultValue: true
     },
     is_admin: {
       type: DataTypes.BOOLEAN(),
-      defaultValue: 0,
-      comment: '是否是管理员，1是2不是'
+      defaultValue: false
     }
   }, {
     tableName: 'user',
-    comment: 'user base info'
+    comment: 'User Table'
   });
 
   User.auth = async function (email, password) {

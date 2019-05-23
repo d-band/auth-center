@@ -11,19 +11,26 @@ export default function (sequelize, DataTypes) {
     client_id: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      comment: 'Client ID'
+      comment: 'Client Id'
     },
     user_id: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
-      comment: 'User ID'
+      comment: 'User Id'
     },
     ttl: {
       type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false
+      allowNull: false,
+      comment: 'Time To Live (Second)'
+    },
+    refresh_token: {
+      type: DataTypes.STRING(40),
+      unique: true,
+      allowNull: false,
+      comment: 'Refresh Token'
     }
   }, {
     tableName: 'token',
-    comment: 'Token table，use to get info'
+    comment: 'Access Token Table'
   });
 }

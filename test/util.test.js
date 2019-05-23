@@ -42,9 +42,9 @@ describe('auth-center util', function () {
     expect(util.checkURI(base, 'http://example.org')).to.be.false;
   });
 
-  it('should generateToken', function () {
-    expect(util.generateToken()).to.have.lengthOf(40);
-    expect(util.generateToken()).to.match(/^[a-f0-9]+$/);
+  it('should generateId', function () {
+    expect(util.generateId()).to.have.lengthOf(40);
+    expect(util.generateId()).to.match(/^[A-Za-z0-9_-]+$/);
   });
 
   it('should buildURI', function () {

@@ -23,6 +23,7 @@ const config = {
   isTOTP: true,
   codeTTL: 10 * 60,
   accessTokenTTL: 60 * 60,
+  refreshTokenTTL: 30 * 24 * 3600,
   // ORM config
   orm: {
     database: ':memory:',

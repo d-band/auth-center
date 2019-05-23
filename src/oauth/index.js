@@ -1,6 +1,6 @@
 'use strict';
 
-import { checkURI, buildURI } from '../util';
+import { checkURI, buildURI, generateId } from '../util';
 
 export default function (config) {
   async function authorize (ctx) {
@@ -41,38 +41,63 @@ export default function (config) {
     const isForm = ctx.request.is('application/x-www-form-urlencoded');
     ctx.assert(isForm, 403, 'Content must be application/x-www-form-urlencoded');
 
-    const { client_id, client_secret, code, redirect_uri, state } = ctx.request.body;
-
+    const { grant_type, client_id, client_secret, state } = ctx.request.body;
     ctx.assert(client_id, 400, 'client_id is missing.');
     ctx.assert(client_secret, 400, 'client_secret is missing.');
-    ctx.assert(redirect_uri, 400, 'redirect_uri is missing.');
-    ctx.assert(code, 400, 'code is missing.');
 
     const client = await Client.findByPk(client_id);
-
     ctx.assert(client, 401, 'client_id is invalid.');
     ctx.assert(client.secret === client_secret, 401, 'client_secret is invalid.');
 
-    const _code = await Code.findByPk(code);
+    let user_id;
+    if (grant_type === 'authorization_code') {
+      const { code, redirect_uri } = ctx.request.body;
+      ctx.assert(redirect_uri, 400, 'redirect_uri is missing.');
+      ctx.assert(code, 400, 'code is missing.');
 
-    ctx.assert(_code, 401, 'code is invalid.');
+      const ac = await Code.findByPk(code, {
+        where: { client_id: client.id }
+      });
+      ctx.assert(ac, 401, 'code is invalid.');
 
-    const expiresAt = _code.createdAt.getTime() + (config.codeTTL * 1000);
-    ctx.assert(expiresAt > Date.now(), 401, 'code expired.');
+      const expiresAt = ac.createdAt.getTime() + (config.codeTTL * 1000);
+      ctx.assert(expiresAt > Date.now(), 401, 'code expired.');
 
-    const isChecked = checkURI(_code.redirect_uri, redirect_uri);
-    ctx.assert(isChecked, 401, 'redirect_uri is invalid.');
+      const isChecked = checkURI(ac.redirect_uri, redirect_uri);
+      ctx.assert(isChecked, 401, 'redirect_uri is invalid.');
+      user_id = ac.user_id;
+    } else if (grant_type === 'refresh_token') {
+      const { refresh_token } = ctx.request.body;
+      ctx.assert(refresh_token, 400, 'refresh_token is missing.');
 
+      const tk = await Token.findOne({
+        where: {
+          refresh_token,
+          client_id: client.id
+        }
+      });
+      ctx.assert(tk, 401, 'refresh_token is invalid.');
+
+      const expiresAt = tk.createdAt.getTime() + (config.refreshTokenTTL * 1000);
+      ctx.assert(expiresAt > Date.now(), 401, 'refresh_token expired.');
+      user_id = tk.user_id;
+      // Delete the previous token
+      await tk.destroy();
+    } else {
+      ctx.throw(501, 'unsupported grant type');
+    }
     const token = await Token.create({
+      user_id,
       client_id: client.id,
-      user_id: _code.user_id,
-      ttl: config.accessTokenTTL
+      ttl: config.accessTokenTTL,
+      refresh_token: generateId()
     });
 
     ctx.set('Cache-Control', 'no-store');
     ctx.set('Pragma', 'no-cache');
     ctx.body = {
       access_token: token.id,
+      refresh_token: token.refresh_token,
       token_type: 'bearer',
       expires_in: token.ttl,
       state: state

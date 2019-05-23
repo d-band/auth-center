@@ -5,12 +5,12 @@ export default function (sequelize, DataTypes) {
     user_id: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
-      comment: 'User ID'
+      comment: 'User Id'
     },
     client_id: {
       type: DataTypes.STRING(100),
       allowNull: false,
-      comment: 'Client ID'
+      comment: 'Client Id'
     },
     role: {
       type: DataTypes.STRING(100),
@@ -19,7 +19,7 @@ export default function (sequelize, DataTypes) {
     }
   }, {
     tableName: 'role',
-    comment: 'Role table, user all system roles',
+    comment: 'Role Table, user roles of the clients',
     indexes: [{
       unique: true,
       fields: ['user_id', 'client_id', 'role']

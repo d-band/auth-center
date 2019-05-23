@@ -6,15 +6,15 @@ export default function (sequelize, DataTypes) {
       type: DataTypes.STRING(100),
       allowNull: false,
       primaryKey: true,
-      comment: 'role name'
+      comment: 'Role Name'
     },
     description: {
       type: DataTypes.STRING(100),
       defaultValue: '',
-      comment: 'role description'
+      comment: 'Role Description'
     }
   }, {
     tableName: 'dic_role',
-    comment: 'Role Dic Tale'
+    comment: 'Role Dic Table'
   });
 }

@@ -6,7 +6,7 @@ export default function (sequelize, DataTypes) {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      comment: 'Client ID'
+      comment: 'Client Id'
     },
     secret: {
       type: DataTypes.STRING(100),
@@ -16,7 +16,7 @@ export default function (sequelize, DataTypes) {
     redirect_uri: {
       type: DataTypes.STRING(255),
       allowNull: false,
-      comment: 'Redirect Uri'
+      comment: 'Redirect URI'
     },
     name: {
       type: DataTypes.STRING(100),

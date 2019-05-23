@@ -11,20 +11,20 @@ export default function (sequelize, DataTypes) {
     ip: {
       type: DataTypes.STRING(64),
       allowNull: false,
-      comment: 'request ip'
+      comment: 'Request IP'
     },
     user_id: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,
-      comment: 'User ID'
+      comment: 'User Id'
     },
     action: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      comment: 'User action'
+      comment: 'User Action'
     }
   }, {
     tableName: 'log',
-    comment: 'Log Tale'
+    comment: 'Log Table'
   });
 }
