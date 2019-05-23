@@ -192,7 +192,7 @@ describe('auth-center', function () {
         expect(err).to.be.null;
         expect(res).to.have.status(200);
         expect(res.body).to.have.property('access_token');
-        expect(res.body).to.have.property('refresh_token');
+        expect(res.body).to.have.property('refresh_token', refresh_token);
         expect(res.body).to.have.property('expires_in');
         expect(res.body).to.have.property('token_type', 'bearer');
         done();

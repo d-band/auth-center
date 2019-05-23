@@ -1,10 +1,10 @@
-'use strict';
+import { generateId } from '../util';
 
 export default function (sequelize, DataTypes) {
   return sequelize.define('Token', {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.STRING(40),
+      defaultValue: generateId,
       primaryKey: true,
       comment: 'Access Token'
     },

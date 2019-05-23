@@ -16,13 +16,13 @@ const config = {
   logo: '/logo.png',
   favicon: '/logo.png',
   terms: 'https://en.wikipedia.org/wiki/Terms_of_service',
-  emailCodeTTL: 3 * 60 * 60,
+  emailCodeTTL: 3 * 3600,
   // I18N config
   messages: {},
   // OAuth config
   isTOTP: true,
   codeTTL: 10 * 60,
-  accessTokenTTL: 60 * 60,
+  accessTokenTTL: 12 * 3600,
   refreshTokenTTL: 30 * 24 * 3600,
   // ORM config
   orm: {

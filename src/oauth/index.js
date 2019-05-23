@@ -49,50 +49,52 @@ export default function (config) {
     ctx.assert(client, 401, 'client_id is invalid.');
     ctx.assert(client.secret === client_secret, 401, 'client_secret is invalid.');
 
-    let user_id;
+    let token;
     if (grant_type === 'authorization_code') {
-      const { code, redirect_uri } = ctx.request.body;
+      const { code: code_id, redirect_uri } = ctx.request.body;
       ctx.assert(redirect_uri, 400, 'redirect_uri is missing.');
-      ctx.assert(code, 400, 'code is missing.');
+      ctx.assert(code_id, 400, 'code is missing.');
 
-      const ac = await Code.findByPk(code, {
+      const code = await Code.findByPk(code_id, {
         where: { client_id: client.id }
       });
-      ctx.assert(ac, 401, 'code is invalid.');
+      ctx.assert(code, 401, 'code is invalid.');
 
-      const expiresAt = ac.createdAt.getTime() + (config.codeTTL * 1000);
+      const expiresAt = code.createdAt.getTime() + (config.codeTTL * 1000);
       ctx.assert(expiresAt > Date.now(), 401, 'code expired.');
 
-      const isChecked = checkURI(ac.redirect_uri, redirect_uri);
+      const isChecked = checkURI(code.redirect_uri, redirect_uri);
       ctx.assert(isChecked, 401, 'redirect_uri is invalid.');
-      user_id = ac.user_id;
+      // Create access token and refresh token
+      token = await Token.create({
+        user_id: code.user_id,
+        client_id: client.id,
+        ttl: config.accessTokenTTL,
+        refresh_token: generateId()
+      });
+      await code.destroy();
     } else if (grant_type === 'refresh_token') {
       const { refresh_token } = ctx.request.body;
       ctx.assert(refresh_token, 400, 'refresh_token is missing.');
 
-      const tk = await Token.findOne({
+      token = await Token.findOne({
         where: {
           refresh_token,
           client_id: client.id
         }
       });
-      ctx.assert(tk, 401, 'refresh_token is invalid.');
+      ctx.assert(token, 401, 'refresh_token is invalid.');
 
-      const expiresAt = tk.createdAt.getTime() + (config.refreshTokenTTL * 1000);
+      const expiresAt = token.createdAt.getTime() + (config.refreshTokenTTL * 1000);
       ctx.assert(expiresAt > Date.now(), 401, 'refresh_token expired.');
-      user_id = tk.user_id;
-      // Delete the previous token
-      await tk.destroy();
+      // Reuse refresh token
+      await token.update({
+        id: generateId(),
+        createdAt: new Date()
+      });
     } else {
       ctx.throw(501, 'unsupported grant type');
     }
-    const token = await Token.create({
-      user_id,
-      client_id: client.id,
-      ttl: config.accessTokenTTL,
-      refresh_token: generateId()
-    });
-
     ctx.set('Cache-Control', 'no-store');
     ctx.set('Pragma', 'no-cache');
     ctx.body = {
