@@ -1,6 +1,6 @@
 {
   "name": "auth-center",
-  "version": "1.13.1",
+  "version": "1.13.2",
   "description": "auth center with TOTP",
   "main": "app/index.js",
   "bin": {
@@ -65,7 +65,7 @@
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.17.2",
-    "eslint-plugin-node": "^9.0.1",
+    "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
     "jquery": "^3.4.1",
@@ -93,11 +93,11 @@
     "lodash.merge": "^4.6.0",
     "lodash.template": "^4.4.0",
     "nanoid": "^2.0.3",
-    "nodemailer": "^6.1.1",
+    "nodemailer": "^6.2.1",
     "notp": "^2.0.3",
     "qr-image": "^3.1.0",
     "randomcolor": "^0.5.4",
     "thirty-two": "^1.0.2",
-    "validator": "^10.11.0"
+    "validator": "^11.0.0"
   }
 }
