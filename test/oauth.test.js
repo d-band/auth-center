@@ -8,7 +8,7 @@ import Config from '../src/config';
 
 chai.use(chaiHttp);
 
-describe('auth-center', function () {
+describe('auth-center oauth', function () {
   this.timeout(0);
 
   const totp_key = generateId();
@@ -115,7 +115,7 @@ describe('auth-center', function () {
       })
       .end(function (err, res) {
         expect(err).to.be.null;
-        expect(res).to.have.status(501);
+        expect(res).to.have.status(400);
         expect(res.text).to.match(/unsupported grant type/);
         done();
       });
@@ -152,7 +152,7 @@ describe('auth-center', function () {
       })
       .end(function (err, res) {
         expect(err).to.be.null;
-        expect(res).to.have.status(401);
+        expect(res).to.have.status(400);
         expect(res.text).to.match(/refresh_token is invalid/);
         done();
       });
@@ -171,8 +171,8 @@ describe('auth-center', function () {
       })
       .end(function (err, res) {
         expect(err).to.be.null;
-        expect(res).to.have.status(401);
-        expect(res.text).to.match(/refresh_token expired/);
+        expect(res).to.have.status(400);
+        expect(res.text).to.match(/refresh_token has expired/);
         done();
       });
   });

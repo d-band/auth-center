@@ -1,7 +1,5 @@
 'use strict';
 
-import { buildURI } from '../util';
-
 export default function (app) {
   app.use(async function errorHandler (ctx, next) {
     try {
@@ -11,16 +9,10 @@ export default function (app) {
       console.error(err.stack || err);
 
       const status = err.status || 500;
-      const message = err.status ? err.message : 'Internal server error';
+      const code = err.code || 'server_error';
+      const message = err.status ? err.message : 'Server error';
 
       ctx.app.emit('error', err, ctx);
-
-      if (err.returnTo) {
-        ctx.redirect(buildURI(err.returnTo, {
-          error: message
-        }));
-        return;
-      }
 
       ctx.status = status;
       switch (ctx.accepts('html', 'text', 'json')) {
@@ -38,7 +30,8 @@ export default function (app) {
         default:
           ctx.type = 'application/json';
           ctx.body = {
-            error: message
+            error: code,
+            error_description: message
           };
       }
     }

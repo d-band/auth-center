@@ -101,7 +101,7 @@ describe('auth-center', function () {
 
     async function init () {
       const {
-        sync, User, Client, EmailCode
+        sync, User, Client, EmailCode, Role
       } = authServer.orm.database();
       await sync({
         force: true
@@ -136,6 +136,11 @@ describe('auth-center', function () {
         id: 'expired_code',
         user_id: 10001,
         createdAt: new Date(Date.now() - 3600 * 12000)
+      });
+      await Role.create({
+        user_id: 10002,
+        client_id: '12345678',
+        role: 'master'
       });
     }
 
@@ -745,6 +750,37 @@ describe('auth-center', function () {
       });
   });
 
+  it('should error: response_type is missing', function (done) {
+    request
+      .get(R.authorize)
+      .query({
+        client_id: '12345678'
+      })
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(400);
+        expect(res.redirects).to.have.lengthOf(1);
+        expect(res.redirects[0]).to.match(/error=invalid_request/);
+        done();
+      });
+  });
+
+  it('should error: response_type unsupported', function (done) {
+    request
+      .get(R.authorize)
+      .query({
+        response_type: 'unsupported',
+        client_id: '12345678'
+      })
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(400);
+        expect(res.redirects).to.have.lengthOf(1);
+        expect(res.redirects[0]).to.match(/error=unsupported_response_type/);
+        done();
+      });
+  });
+
   it('should authorize => client', function (done) {
     request
       .get(R.authorize)
@@ -1240,6 +1276,15 @@ describe('auth-center', function () {
           expect(res.text).to.match(/successfully/);
           done();
         });
+    });
+  });
+
+  it('should home page app list', function (done) {
+    request.get(R.home).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.text).to.match(/test_client/);
+      done();
     });
   });
 

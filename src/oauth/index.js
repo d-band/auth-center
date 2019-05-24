@@ -1,29 +1,36 @@
 'use strict';
 
 import { checkURI, buildURI, generateId } from '../util';
+import { TokenErrors, CodeErrors, assert } from './errors';
 
 export default function (config) {
   async function authorize (ctx) {
     const { Client, Code } = ctx.orm();
 
     const user = ctx.session.user;
-    const { client_id, redirect_uri, state } = ctx.query;
-
-    ctx.assert(client_id, 400, 'client_id is missing.');
+    const { client_id, response_type, redirect_uri, state } = ctx.query;
+    assert(ctx, client_id, CodeErrors.unrecognized_client_id('client_id is missing'));
 
     const client = await Client.findByPk(client_id);
+    assert(ctx, client, CodeErrors.unrecognized_client_id('client not found'));
 
-    ctx.assert(client, 401, 'client_id is invalid.');
-
-    let uri = client.redirect_uri;
     if (redirect_uri) {
       const isChecked = checkURI(client.redirect_uri, redirect_uri);
-      ctx.assert(isChecked, 401, 'redirect_uri is invalid.', {
-        returnTo: client.redirect_uri
-      });
-      uri = redirect_uri;
+      assert(ctx, isChecked, CodeErrors.invalid_redirect_uri('redirect_uri is invalid'));
     }
-
+    const uri = redirect_uri || client.redirect_uri;
+    if (!response_type) {
+      return ctx.redirect(buildURI(uri, {
+        state,
+        error: 'invalid_request'
+      }));
+    }
+    if (response_type !== 'code') {
+      return ctx.redirect(buildURI(uri, {
+        state,
+        error: 'unsupported_response_type'
+      }));
+    }
     const code = await Code.create({
       user_id: user.id,
       client_id: client.id,
@@ -39,32 +46,32 @@ export default function (config) {
     const { Client, Token, Code } = ctx.orm();
 
     const isForm = ctx.request.is('application/x-www-form-urlencoded');
-    ctx.assert(isForm, 403, 'Content must be application/x-www-form-urlencoded');
+    assert(ctx, isForm, TokenErrors.invalid_request('content-type is invalid'));
 
     const { grant_type, client_id, client_secret, state } = ctx.request.body;
-    ctx.assert(client_id, 400, 'client_id is missing.');
-    ctx.assert(client_secret, 400, 'client_secret is missing.');
+    assert(ctx, client_id, TokenErrors.invalid_request('client_id is missing'));
+    assert(ctx, client_secret, TokenErrors.invalid_request('client_secret is missing'));
 
     const client = await Client.findByPk(client_id);
-    ctx.assert(client, 401, 'client_id is invalid.');
-    ctx.assert(client.secret === client_secret, 401, 'client_secret is invalid.');
+    assert(ctx, client, TokenErrors.invalid_client('client_id is invalid'));
+    assert(ctx, client.secret === client_secret, TokenErrors.invalid_client('client_secret is invalid'));
 
     let token;
     if (grant_type === 'authorization_code') {
       const { code: code_id, redirect_uri } = ctx.request.body;
-      ctx.assert(redirect_uri, 400, 'redirect_uri is missing.');
-      ctx.assert(code_id, 400, 'code is missing.');
+      assert(ctx, redirect_uri, TokenErrors.invalid_request('redirect_uri is missing'));
+      assert(ctx, code_id, TokenErrors.invalid_request('code is missing'));
 
       const code = await Code.findByPk(code_id, {
         where: { client_id: client.id }
       });
-      ctx.assert(code, 401, 'code is invalid.');
+      assert(ctx, code, TokenErrors.invalid_grant('code is invalid'));
 
       const expiresAt = code.createdAt.getTime() + (config.codeTTL * 1000);
-      ctx.assert(expiresAt > Date.now(), 401, 'code expired.');
+      assert(ctx, expiresAt > Date.now(), TokenErrors.invalid_grant('code has expired'));
 
       const isChecked = checkURI(code.redirect_uri, redirect_uri);
-      ctx.assert(isChecked, 401, 'redirect_uri is invalid.');
+      assert(ctx, isChecked, TokenErrors.invalid_grant('redirect_uri is invalid'));
       // Create access token and refresh token
       token = await Token.create({
         user_id: code.user_id,
@@ -75,7 +82,7 @@ export default function (config) {
       await code.destroy();
     } else if (grant_type === 'refresh_token') {
       const { refresh_token } = ctx.request.body;
-      ctx.assert(refresh_token, 400, 'refresh_token is missing.');
+      assert(ctx, refresh_token, TokenErrors.invalid_request('refresh_token is missing'));
 
       token = await Token.findOne({
         where: {
@@ -83,17 +90,17 @@ export default function (config) {
           client_id: client.id
         }
       });
-      ctx.assert(token, 401, 'refresh_token is invalid.');
+      assert(ctx, token, TokenErrors.invalid_grant('refresh_token is invalid'));
 
       const expiresAt = token.createdAt.getTime() + (config.refreshTokenTTL * 1000);
-      ctx.assert(expiresAt > Date.now(), 401, 'refresh_token expired.');
+      assert(ctx, expiresAt > Date.now(), TokenErrors.invalid_grant('refresh_token has expired'));
       // Reuse refresh token
       await token.update({
         id: generateId(),
         createdAt: new Date()
       });
     } else {
-      ctx.throw(501, 'unsupported grant type');
+      assert(ctx, false, TokenErrors.unsupported_grant_type('unsupported grant type'));
     }
     ctx.set('Cache-Control', 'no-store');
     ctx.set('Pragma', 'no-cache');
@@ -116,15 +123,13 @@ export default function (config) {
     } else {
       tokenId = matches[1];
     }
-
-    ctx.assert(tokenId, 400, 'access_token is missing.');
+    assert(ctx, tokenId, TokenErrors.invalid_token('access_token is missing'));
 
     const token = await Token.findByPk(tokenId);
-
-    ctx.assert(token, 401, 'access_token is invalid.');
+    assert(ctx, token, TokenErrors.invalid_token('access_token is invalid'));
 
     const expiresAt = token.createdAt.getTime() + (token.ttl * 1000);
-    ctx.assert(expiresAt > Date.now(), 401, 'access_token expired.');
+    assert(ctx, expiresAt > Date.now(), TokenErrors.invalid_token('access_token has expired'));
 
     ctx._userId = token.user_id;
     await next();
