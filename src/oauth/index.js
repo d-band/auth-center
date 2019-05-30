@@ -1,6 +1,6 @@
 'use strict';
 
-import { checkURI, buildURI, generateId } from '../util';
+import { checkURI, buildURI } from '../util';
 import { TokenErrors, CodeErrors, assert } from './errors';
 
 export default function (config) {
@@ -56,7 +56,10 @@ export default function (config) {
     assert(ctx, client, TokenErrors.invalid_client('client_id is invalid'));
     assert(ctx, client.secret === client_secret, TokenErrors.invalid_client('client_secret is invalid'));
 
-    let token;
+    const obj = {
+      client_id: client.id,
+      ttl: config.accessTokenTTL
+    };
     if (grant_type === 'authorization_code') {
       const { code: code_id, redirect_uri } = ctx.request.body;
       assert(ctx, redirect_uri, TokenErrors.invalid_request('redirect_uri is missing'));
@@ -72,19 +75,13 @@ export default function (config) {
 
       const isChecked = checkURI(code.redirect_uri, redirect_uri);
       assert(ctx, isChecked, TokenErrors.invalid_grant('redirect_uri is invalid'));
-      // Create access token and refresh token
-      token = await Token.create({
-        user_id: code.user_id,
-        client_id: client.id,
-        ttl: config.accessTokenTTL,
-        refresh_token: generateId()
-      });
+      obj.user_id = code.user_id;
       await code.destroy();
     } else if (grant_type === 'refresh_token') {
       const { refresh_token } = ctx.request.body;
       assert(ctx, refresh_token, TokenErrors.invalid_request('refresh_token is missing'));
 
-      token = await Token.findOne({
+      const token = await Token.findOne({
         where: {
           refresh_token,
           client_id: client.id
@@ -95,20 +92,20 @@ export default function (config) {
       const expiresAt = token.createdAt.getTime() + (config.refreshTokenTTL * 1000);
       assert(ctx, expiresAt > Date.now(), TokenErrors.invalid_grant('refresh_token has expired'));
       // Reuse refresh token
-      await token.update({
-        id: generateId(),
-        createdAt: new Date()
-      });
+      obj.user_id = token.user_id;
+      obj.refresh_token = refresh_token;
+      await token.destroy();
     } else {
       assert(ctx, false, TokenErrors.unsupported_grant_type('unsupported grant type'));
     }
+    const result = await Token.create(obj);
     ctx.set('Cache-Control', 'no-store');
     ctx.set('Pragma', 'no-cache');
     ctx.body = {
-      access_token: token.id,
-      refresh_token: token.refresh_token,
+      access_token: result.id,
+      refresh_token: result.refresh_token,
       token_type: 'bearer',
-      expires_in: token.ttl,
+      expires_in: result.ttl,
       state: state
     };
   }

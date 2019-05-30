@@ -25,6 +25,7 @@ export default function (sequelize, DataTypes) {
     },
     refresh_token: {
       type: DataTypes.STRING(40),
+      defaultValue: generateId,
       unique: true,
       allowNull: false,
       comment: 'Refresh Token'
