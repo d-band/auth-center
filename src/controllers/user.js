@@ -88,6 +88,7 @@ export async function session (ctx) {
   const returnTo = ctx.session.returnTo;
 
   ctx.session.returnTo = null;
+  delete user.totp_key;
   ctx.session.user = user;
   await ctx.log(user.id, 'LOGIN');
   ctx.redirect(returnTo || ctx._routes.home);
@@ -114,7 +115,10 @@ export async function passwordReset (ctx) {
     return;
   }
 
-  const user = await User.findByEmail(email);
+  const user = await User.findOne({
+    attributes: ['id', 'email'],
+    where: { email, enable: 1 }
+  });
   if (!user) {
     ctx.flash('error', 'User not found');
     ctx.redirect(ctx._routes.password_reset);
@@ -232,7 +236,10 @@ export async function sendToken (ctx) {
   const now = Date.now();
   ctx.assert(!lastTime || (now - lastTime) > min, 400, 'Try again in a minute');
 
-  const user = await User.findByEmail(email);
+  const user = await User.findOne({
+    attributes: ['totp_key'],
+    where: { email, enable: 1 }
+  });
   ctx.assert(user, 400, 'User not found');
 
   await ctx.sendMail(email, 'send_token', {

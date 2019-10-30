@@ -287,7 +287,10 @@ export async function addRole (ctx) {
     return;
   }
 
-  const user = await User.findByEmail(email);
+  const user = await User.findOne({
+    attributes: ['id'],
+    where: { email, enable: 1 }
+  });
   if (!user) {
     ctx.flash('error', 'User is not existed');
     ctx.redirect(ctx._routes.admin.roles);

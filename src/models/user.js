@@ -44,7 +44,9 @@ export default function (sequelize, DataTypes) {
   });
 
   User.auth = async function (email, password) {
-    const user = await this.findByEmail(email);
+    const user = await this.findOne({
+      where: { email, enable: 1 }
+    });
     if (!user) return null;
     if (user.pass_hash !== encrypt(password, user.pass_salt)) {
       return null;
@@ -53,13 +55,6 @@ export default function (sequelize, DataTypes) {
     user.pass_hash = null;
     user.pass_salt = null;
     return user;
-  };
-
-  User.findByEmail = function (email) {
-    const enable = 1;
-    return this.findOne({
-      where: { email, enable }
-    });
   };
 
   User.add = function ({ id, password, email, totp_key, is_admin }, options) {
