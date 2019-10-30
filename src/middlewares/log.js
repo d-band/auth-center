@@ -1,9 +1,10 @@
 'use strict';
 
 const ACTIONS = {
-  'LOGIN': 1,
-  'CHANGE_PWD': 2
+  LOGIN: 1,
+  CHANGE_PWD: 2
 };
+
 export default function (app) {
   app.use(async function logFn (ctx, next) {
     ctx.log = async (user_id, action) => {

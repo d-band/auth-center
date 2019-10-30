@@ -42,7 +42,7 @@ export async function userList (ctx) {
   const offset = (page - 1) * limit;
   const where = { enable: 1 };
   if (query) {
-    where['email'] = { $like: `%${query}%` };
+    where.email = { $like: `%${query}%` };
   }
   const users = await User.findAndCountAll({
     where,
@@ -72,7 +72,7 @@ export async function clientList (ctx) {
   const offset = (page - 1) * limit;
   const where = {};
   if (query) {
-    where['name'] = { $like: `%${query}%` };
+    where.name = { $like: `%${query}%` };
   }
   const clients = await Client.findAndCountAll({
     where,
@@ -221,7 +221,7 @@ export async function roleList (ctx) {
         email: { $like: `%${query}%` }
       }
     });
-    where['user_id'] = {
+    where.user_id = {
       $in: temp.map(v => v.id)
     };
   }
