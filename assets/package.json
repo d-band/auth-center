@@ -1,8 +1,0 @@
-{
-  "files": [
-    "./main.less",
-    "./admin.less",
-    "./admin.js",
-    "./login.js"
-  ]
-}

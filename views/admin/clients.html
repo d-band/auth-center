@@ -11,23 +11,22 @@
 </div>
 {% endif %}
 {% if messages.error %}
-<div class="alert alert-danger">
+<div class="alert alert-warning">
   <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
   {{messages.error}}
 </div>
 {% endif %}
-<div class="clearfix">
-  <form action="?" class="form-inline pull-left" method="GET">
-    <div class="form-group">
-      <input type="text" name="q" value="{{query}}" class="form-control input-sm" style="width: 200px;" placeholder="Name">
-    </div>
-    <button type="submit" class="btn btn-primary btn-sm">Search</button>
-  </form>
-  <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#clientModal">
+<div class="clearfix mb-3">
+  <button type="button" class="btn btn-success float-right" data-toggle="modal" data-target="#clientModal">
     Add Client
   </button>
+  <form action="?" class="form-inline" method="GET">
+    <div class="form-group mr-sm-2">
+      <input type="text" name="q" value="{{query}}" class="form-control" style="width: 200px;" placeholder="Name">
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
 </div>
-<hr>
 <table class="table">
   <thead>
     <tr>
@@ -57,7 +56,7 @@
           <form action="{{_routes.admin.generate_secret}}" method="post">
             <input type="hidden" name="_csrf" value="{{_csrf}}">
             <input type="hidden" name="id" value="{{d.id}}">
-            <button class="btn btn-primary btn-xs" type="submit">Generate</button>
+            <button class="btn btn-primary btn-sm" type="submit">Generate</button>
           </form>
         </td>
       </tr>
@@ -72,8 +71,10 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Add New Client</h4>
+        <h5 class="modal-title" id="myModalLabel">Add New Client</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <form action="{{_routes.admin.add_client}}" method="post">
         <input type="hidden" name="_csrf" value="{{_csrf}}">

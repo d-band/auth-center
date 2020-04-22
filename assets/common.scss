@@ -1,0 +1,16 @@
+@import "~bootstrap/scss/bootstrap";
+@import "variables";
+
+html {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #fff;
+}
+
+.btn-default {
+  @include button-variant(#f4f5f8, #e2e5ec);
+}

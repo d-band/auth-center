@@ -11,20 +11,19 @@
 </div>
 {% endif %}
 {% if messages.error %}
-<div class="alert alert-danger">
+<div class="alert alert-warning">
   <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
   {{messages.error}}
 </div>
 {% endif %}
-<div class="clearfix">
-  <form action="?" class="form-inline pull-left" method="GET">
-    <div class="form-group">
-      <input type="text" name="q" value="{{query}}" class="form-control input-sm" style="width: 200px;" placeholder="Email">
+<div class="clearfix mb-3">
+  <form action="?" class="form-inline" method="GET">
+    <div class="form-group mr-sm-2">
+      <input type="text" name="q" value="{{query}}" class="form-control" style="width: 200px;" placeholder="Email">
     </div>
-    <button type="submit" class="btn btn-primary btn-sm">Search</button>
+    <button type="submit" class="btn btn-primary">Search</button>
   </form>
 </div>
-<hr>
 <table class="table">
   <thead>
     <tr>
@@ -47,7 +46,7 @@
         {% if d.totp_key %}
           <span class="text-success">Existed</span>
         {% else %}
-          <span class="text-danger">Null</span>
+          <span class="text-danger">None</span>
         {% endif %}
         </td>
         <td>
@@ -57,7 +56,7 @@
           <form action="{{_routes.admin.send_totp}}" method="post">
             <input type="hidden" name="_csrf" value="{{_csrf}}">
             <input type="hidden" name="id" value="{{d.id}}">
-            <button class="btn btn-primary btn-xs" type="submit">Send TOTP</button>
+            <button class="btn btn-primary btn-sm" type="submit">Send TOTP</button>
           </form>
         </td>
       </tr>

@@ -9,11 +9,11 @@ class Select {
     this.bindEvent();
   }
   bindEvent() {
-    this.$elem.on('mousedown', '.item', this.select.bind(this));
+    this.$elem.on('mousedown', '.dropdown-item', this.select.bind(this));
     this.$input.on('focus', e => {
       this.filter(e.target.value);
     }).on('blur', e => {
-      this.$elem.removeClass('open');
+      this.$list.removeClass('show');
     }).keyup((e) => {
       const code = e.keyCode || e.which;
       if (code === 38) {
@@ -35,7 +35,7 @@ class Select {
         return false;
       }
       if (code === 13) {
-        $('.active .item', this.$elem).trigger('mousedown');
+        $('.dropdown-item.active', this.$elem).trigger('mousedown');
         return false;
       }
 
@@ -54,19 +54,19 @@ class Select {
     this.selected = true;
     const text = $(e.target).text();
     this.$input.val(text);
-    this.$elem.removeClass('open');
+    this.$list.removeClass('show');
   }
   filter(text) {
     const {data} = this.options;
     if (typeof data === 'function') {
       data(text, list => {
-        this.$elem.addClass('open');
+        this.$list.addClass('show');
         this.render(list, text);
       });
     } else {
       if (data && data.length) {
         const list = data.filter(d => d.indexOf(text) >= 0);
-        this.$elem.addClass('open');
+        this.$list.addClass('show');
         this.render(list, text);
       }
     }
@@ -77,11 +77,11 @@ class Select {
       index = index > -1 ? index : 0;
       const html = list.map((d, i) => {
         const c = i === index ? 'active' : '';
-        return `<li class="${c}"><a class="item">${d}</a></li>`;
+        return `<a class="dropdown-item ${c}" href="#">${d}</a>`;
       }).join('\n');
       this.$list.html(html);
     } else {
-      this.$list.html('<li><a style="color:#999;">No Data</a></li>');
+      this.$list.html('<a class="dropdown-item disabled" href="#">No Data</a>');
     }
   }
 }

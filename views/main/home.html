@@ -1,0 +1,21 @@
+{% extends './layout.html' %}
+
+{% block title %}
+<title>{{__("Home")}}</title>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  {% for c in clients -%}
+  <div class="col-md-3">
+    <a href="{{c.redirect_uri}}" class="app-item">
+      <div class="app-icon" style="background: {{colors[loop.index0]}}">{{c.name|first}}</div>
+      <div class="app-info">
+        <div class="text-truncate name">{{c.name}}</div>
+        <div class="text-truncate name-cn">{{c.name_cn}}</div>
+      </div>
+    </a>
+  </div>
+  {%- endfor %}
+</div>
+{% endblock %}

@@ -15,16 +15,23 @@ export default function (app, options = {}) {
     });
   });
   app.use(async function mailHandler (ctx, next) {
-    ctx.sendMail = (to, tplName, context, attachments = null) => {
-      const tpl = templates[tplName];
-      return transport.sendMail({
+    ctx.sendMail = (to, key, data, files) => new Promise((resolve, reject) => {
+      const tpl = templates[key];
+      transport.sendMail({
         from: options.from,
         to: to,
-        attachments: attachments,
-        subject: tpl.title(context),
-        html: tpl.render(context)
+        attachments: files,
+        subject: tpl.title(data),
+        html: tpl.render(data)
+      }, (err) => {
+        if (err) {
+          console.error(err);
+          reject(new Error('Send failed'));
+        } else {
+          resolve();
+        }
       });
-    };
+    });
 
     await next();
   });

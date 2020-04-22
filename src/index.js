@@ -8,7 +8,7 @@ import logger from 'koa-logger';
 import serve from 'koa-static';
 import orm from 'koa-orm';
 
-import I18n from './i18n';
+import i18n from './i18n';
 import config from './config';
 import routes from './routes';
 import error from './middlewares/error';
@@ -50,24 +50,13 @@ export default function (options) {
   app.use(session(cfg.session, app));
 
   /** I18n **/
-  const i18n = new I18n(cfg.messages);
-
-  app.use(async function injectI18n (ctx, next) {
-    if (ctx.query.locale) {
-      ctx.session.locale = ctx.query.locale;
-    }
-    i18n.setLocale(ctx.session.locale);
-    await next();
-  });
+  app.use(i18n(config.messages));
 
   /** View & i18n **/
   app.use(view(cfg.viewPath, {
     noCache: cfg.debug,
     globals: {
-      pagination,
-      __: function (key) {
-        return i18n.message(key);
-      }
+      pagination
     }
   }));
 

@@ -3,29 +3,27 @@
 import { existsSync } from 'fs';
 import { join } from 'path';
 
-export default class I18n {
-  constructor (messages) {
-    this._path = join(__dirname, '../i18n');
-    this._userMessages = messages || {};
-    this.setLocale('en');
-  }
-
-  setLocale (locale) {
-    if (!locale || this._locale === locale) return;
-
-    const temp = this._userMessages[locale] || this._userMessages['*'] || {};
-    const file = join(this._path, locale + '.json');
-
-    if (existsSync(file)) {
-      this._locale = locale;
-      this._messages = Object.assign(require(file), temp);
-    } else {
-      this._locale = 'en';
-      this._messages = Object.assign({}, temp);
+export default function i18n (messages) {
+  const dir = join(__dirname, '../i18n');
+  const _userMessages = messages || {};
+  const _messages = {};
+  return (ctx, next) => {
+    if (ctx.query.locale) {
+      ctx.session.locale = ctx.query.locale;
     }
-  }
-
-  message (key) {
-    return this._messages[key] || key;
-  }
+    ctx.state.__ = (key) => {
+      const lang = ctx.session.locale || 'en';
+      if (!_messages[lang]) {
+        const temp = _userMessages[lang] || _userMessages['*'] || {};
+        const file = join(dir, `${lang}.json`);
+        if (existsSync(file)) {
+          _messages[lang] = Object.assign(require(file), temp);
+        } else {
+          _messages[lang] = Object.assign({}, temp);
+        }
+      }
+      return _messages[lang][key] || key;
+    };
+    return next();
+  };
 }

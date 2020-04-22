@@ -13,10 +13,10 @@ export default function (sequelize, DataTypes) {
       allowNull: false,
       comment: 'Request IP'
     },
-    user_id: {
-      type: DataTypes.BIGINT.UNSIGNED,
+    user: {
+      type: DataTypes.STRING(100),
       allowNull: false,
-      comment: 'User Id'
+      comment: 'User login account'
     },
     action: {
       type: DataTypes.INTEGER,

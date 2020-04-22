@@ -10,7 +10,7 @@ export default function (app) {
 
       const status = err.status || 500;
       const code = err.code || 'server_error';
-      const message = err.status ? err.message : 'Server error';
+      const message = ctx.state.__(err.message || 'Server error');
 
       ctx.app.emit('error', err, ctx);
 
@@ -29,10 +29,7 @@ export default function (app) {
           break;
         default:
           ctx.type = 'application/json';
-          ctx.body = {
-            error: code,
-            error_description: message
-          };
+          ctx.body = { code, message };
       }
     }
   });

@@ -1,0 +1,42 @@
+{% extends './layout.html' %}
+
+{% block title %}
+<title>{{__("Retrieve your password")}}</title>
+{% endblock %}
+
+{% block content %}
+<form action="{{_routes.password_change}}" method="GET">
+  <div class="auth-form-header">
+    <h1>{{__("Retrieve your password")}}</h1>
+  </div>
+  <div class="auth-form-body">
+    <div class="form-group text-muted">
+      {{__("Enter the account you want to retrieve the password")}}
+    </div>
+    <div class="form-group">
+      <input class="form-control" type="text" name="email" id="J_email" placeholder="{{__('Enter your email address')}}">
+    </div>
+    <div class="form-group">
+      <div class="input-group">
+        <input class="form-control" type="text" name="token" autocomplete="off" placeholder="{{__('Captcha')}}">
+        <span class="input-group-append">
+          <button class="btn btn-default send-btn" type="button" id="J_reset">{{__("Send")}}</button>
+        </span>
+      </div>
+    </div>
+    <div class="form-group">
+      <button class="btn btn-primary btn-block">{{__("Next")}}</button>
+    </div>
+    {% if messages.error %}
+    <div class="alert alert-warning" id="J_tips">{{__(messages.error)}}</div>
+    {% elseif messages.success %}
+    <div class="alert alert-success" id="J_tips">{{__(messages.success)}}</div>
+    {% else %}
+    <div class="alert" style="display: none;" id="J_tips"></div>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}
+{% block foot %}
+<script src="{{staticRoot}}/reset.js"></script>
+{% endblock %}

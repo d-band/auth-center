@@ -1,23 +1,8 @@
-import '!file-loader?name=[name].[ext]!./logo.png';
-
 $(function() {
-  const $terms = $('#terms');
-  if ($terms.length) {
-    const handleTerms = () => {
-      if ($terms.prop('checked')) {
-        $('#J_submit').attr('disabled', false);
-      } else {
-        $('#J_submit').attr('disabled', true);
-      }
-    };
-    $terms.on('change', handleTerms);
-    handleTerms();
-  }
-
-  $('#J_send').on('click', e => {
+  $('#J_reset').on('click', e => {
     const elem = $(e.currentTarget);
     elem.attr('disabled', true);
-    $.post('/login_token', {
+    $.post('/resetpwd_token', {
       email: $('#J_email').val()
     }, null, 'json').done(() => {
       const text = elem.text();

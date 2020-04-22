@@ -18,17 +18,19 @@ export default function routes (app, config) {
 
   const router = new Router();
   router.get(R.home, user.checkLogin, user.home);
+  router.get(R.security, user.checkLogin, user.security);
+  router.post(R.security_change, user.checkLogin, user.securityChange);
   // Login & Logout
   router.get(R.login, user.login);
   router.get(R.logout, user.logout);
-  router.post(R.send_token, user.sendToken);
+  router.post(R.login_token, user.checkToken('LOGIN_TOKEN'), user.loginToken);
   router.post(R.session, user.session);
   // Reset password
   router.get(R.password_reset, user.passwordResetPage);
-  router.post(R.password_reset, user.passwordReset);
+  router.post(R.resetpwd_token, user.checkToken('RESETPWD_TOKEN'), user.resetpwdToken);
   // Change password
-  router.get(R.password_change, user.passwordChangePage);
-  router.post(R.password_change, user.passwordChange);
+  router.get(R.password_change, user.checkResetToken, user.passwordChangePage);
+  router.post(R.password_change, user.checkResetToken, user.passwordChange);
   // Admin
   router.get(R.admin.users, admin.checkLogin, admin.userList);
   router.post(R.admin.search_user, admin.checkLogin, admin.searchUser);

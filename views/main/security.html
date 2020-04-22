@@ -1,0 +1,35 @@
+{% extends './layout.html' %}
+
+{% block title %}
+<title>{{__("Security")}}</title>
+{% endblock %}
+
+{% block content %}
+<div class="mt-5 row justify-content-center">
+  <div class="col-md-5">
+    <form action="{{_routes.security_change}}" method="POST" class="card">
+      <input type="hidden" name="_csrf" value="{{_csrf}}">
+      <h5 class="card-header text-center">
+        {{__("Change Password")}}
+      </h5>
+      <div class="card-body">
+        <div class="form-group">
+          <input class="form-control" type="password" name="oldpwd" placeholder="{{__("Current password")}}">
+        </div>
+        <div class="form-group">
+          <input class="form-control" type="password" name="newpwd" placeholder="{{__("New password")}}">
+        </div>
+        <div class="form-group">
+          <input class="form-control" type="password" name="renewpwd" placeholder="{{__("Confirm password")}}">
+        </div>
+        <div class="form-group">
+          <button class="btn btn-primary btn-block">{{__("Submit")}}</button>
+        </div>
+        {% if messages.error %}
+        <div class="alert alert-warning">{{__(messages.error)}}</div>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

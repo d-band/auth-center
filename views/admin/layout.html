@@ -8,50 +8,53 @@
     {% if logo %}
     <link rel="shortcut icon" type="image/x-icon" href="{{logo}}">
     {% endif %}
+    <link rel="stylesheet" href="{{staticRoot}}/common.css">
     <link rel="stylesheet" href="{{staticRoot}}/admin.css">
     {% block head %}{% endblock %}
   </head>
   <body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <i class="glyphicon glyphicon-th-list"></i>
-          </button>
-          <a class="navbar-brand" href="/admin">
-            <img src="{{logo}}" alt="AuthCenter">
-            <span>AuthCenter</span>
-          </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li>
-              <a href="javascript:;" class="user-link" data-toggle="dropdown">
-                <span class="ml10">{{user.email}}</span>
-              </a>
-              <ul class="dropdown-menu">
-                <li><a href="{{_routes.logout}}">Logout</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div>
+    <nav class="navbar navbar-expand navbar-dark fixed-top bg-primary flex-md-nowrap py-0">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0 d-flex align-items-center" href="/">
+        <img src="{{logo}}" alt="AuthCenter">
+        <h6 class="my-0 ml-2">AuthCenter</h6>
+      </a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item dropdown">
+            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">{{user.email}}</button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{{_routes.security}}">{{__("Security")}}</a>
+              <a class="dropdown-item" href="{{_routes.logout}}">{{__("Logout")}}</a>
+            </div>
+          </li>
+        </ul>
       </div>
     </nav>
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li class="{{navUsers}}"><a href="{{_routes.admin.users}}">Users</a></li>
-            <li class="{{navClients}}"><a href="{{_routes.admin.clients}}">Clients</a></li>
-            <li class="{{navRoles}}"><a href="{{_routes.admin.roles}}">Roles</a></li>
-          </ul>
-        </div>
-        <div id="J_main" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <nav class="col-lg-2 col-md-3 d-none d-md-block sidebar">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item ">
+                <a class="nav-link {{navUsers}}" href="{{_routes.admin.users}}">Users</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{navClients}}" href="{{_routes.admin.clients}}">Clients</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {{navRoles}}" href="{{_routes.admin.roles}}">Roles</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+          <div class="pt-3 pb-2 mb-3">
           {% block content %}{% endblock %}
-        </div>
+          </div>
+        </main>
       </div>
     </div>
-    <script src="{{staticRoot}}/admin.js"></script>
+    <script src="{{staticRoot}}/common.js"></script>
     {% block foot %}{% endblock %}
   </body>
 </html>

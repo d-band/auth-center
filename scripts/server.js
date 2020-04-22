@@ -5,7 +5,7 @@ import Server from '../src';
 const staticPath = 'http://localhost:7777';
 const server = Server({
   debug: true,
-  isTOTP: true,
+  // isTOTP: false,
   staticPath,
   logo: `${staticPath}/logo.png`,
   favicon: `${staticPath}/logo.png`,
@@ -34,7 +34,7 @@ if (!module.parent) {
   // init
   async function init() {
     const {
-      sync, User, Client, DicRole
+      sync, User, Client, DicRole, Role
     } = server.orm.database();
     await sync({
       force: true
@@ -56,12 +56,14 @@ if (!module.parent) {
     await Client.create({
       id: '740a1d6d-9df8-4552-a97a-5704681b8039',
       name: 'local',
+      name_cn: '本地系统',
       secret: '12345678',
       redirect_uri: 'http://localhost:8080'
     });
     await Client.create({
       id: 'bd0e56c1-8f02-49f3-b502-129da70b6f09',
       name: 'test',
+      name_cn: '测试系统',
       secret: '12345678',
       redirect_uri: 'http://localhost:9090'
     });
@@ -72,6 +74,21 @@ if (!module.parent) {
     await DicRole.create({
       name: 'document',
       description: 'Document department'
+    });
+    await Role.create({
+      user_id: 10001,
+      client_id: '740a1d6d-9df8-4552-a97a-5704681b8039',
+      role: 'user'
+    });
+    await Role.create({
+      user_id: 10001,
+      client_id: 'bd0e56c1-8f02-49f3-b502-129da70b6f09',
+      role: 'document'
+    });
+    await Role.create({
+      user_id: 10002,
+      client_id: '740a1d6d-9df8-4552-a97a-5704681b8039',
+      role: 'user'
     });
   }
 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no">
+    <meta name="description" content="Auth Center"/>
+    {% block title %}{% endblock %}
+    {% if favicon %}
+    <link rel="shortcut icon" type="image/x-icon" href="{{favicon}}">
+    {% endif %}
+    <link rel="stylesheet" href="{{staticRoot}}/common.css">
+    <link rel="stylesheet" href="{{staticRoot}}/auth.css">
+  </head>
+  <body>
+    <div class="header-logo">
+      {% if logo %}
+      <img height="48" src="{{logo}}">
+      {% endif %}
+    </div>
+    <div class="auth-form">
+      {% block content %}{% endblock %}
+    </div>
+    <div class="lang">
+      <a href="?locale=zh-CN">中文</a>
+      <span>&bull;</span>
+      <a href="?locale=en">English</a>
+    </div>
+    <script src="{{staticRoot}}/common.js"></script>
+    {% block foot %}{% endblock %}
+  </body>
+</html>

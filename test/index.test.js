@@ -3,9 +3,8 @@
 import { join } from 'path';
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
-import { totp } from 'notp';
 import AuthServer from '../src';
-import { generateId } from '../src/util';
+import { generateId, totp } from '../src/util';
 import Config from '../src/config';
 
 function decode (input) {
@@ -37,34 +36,12 @@ describe('auth-center', function () {
   const R = Config().routes;
 
   let request;
-  let emailCode;
-  let totpCode;
+  let numberCode;
   let isSendFail = false;
 
   before(function (done) {
     const authServer = AuthServer({
-      orm: {
-        define: {
-          createdAt: 'created_date',
-          updatedAt: 'updated_date',
-          getterMethods: {
-            createdAt: function () {
-              return this.created_date;
-            },
-            updatedAt: function () {
-              return this.updated_date;
-            }
-          },
-          setterMethods: {
-            createdAt: function (date) {
-              this.created_date = date;
-            },
-            updatedAt: function (date) {
-              this.updated_date = date;
-            }
-          }
-        }
-      },
+      orm: {},
       mail: {
         from: 'admin@example.com',
         name: 'minimal',
@@ -77,13 +54,9 @@ describe('auth-center', function () {
           });
           input.on('end', function () {
             const data = decode(Buffer.concat(chunks).toString());
-            const m1 = data.match(/code=(.*)"/);
-            if (m1 && m1.length > 1) {
-              emailCode = m1[1];
-            }
-            const m2 = data.match(/([\d]+) is your dynamic token/);
+            const m2 = data.match(/([\d]+) is your/);
             if (m2 && m2.length > 1) {
-              totpCode = m2[1];
+              numberCode = m2[1];
             }
             if (isSendFail) {
               callback(new Error('send error'));
@@ -101,7 +74,7 @@ describe('auth-center', function () {
 
     async function init () {
       const {
-        sync, User, Client, EmailCode, Role
+        sync, User, Client, Recovery, Role
       } = authServer.orm.database();
       await sync({
         force: true
@@ -132,10 +105,10 @@ describe('auth-center', function () {
         secret: '12345678',
         redirect_uri: 'http://localhost:3000/auth/callback'
       });
-      await EmailCode.create({
-        id: 'expired_code',
+      await Recovery.create({
+        token: 'expired_code',
         user_id: 10001,
-        createdAt: new Date(Date.now() - 3600 * 12000)
+        createdAt: new Date(Date.now() - 360 * 1000)
       });
       await Role.create({
         user_id: 10002,
@@ -380,7 +353,7 @@ describe('auth-center', function () {
             _csrf: csrf,
             email: 'test@example.com',
             password: 'test',
-            token: totp.gen(totp_key)
+            token: totp.generate(totp_key)
           })
           .end(function (err, res) {
             expect(err).to.be.null;
@@ -404,7 +377,7 @@ describe('auth-center', function () {
             _csrf: csrf,
             email: 'test@example.com',
             password: 'test',
-            token: totp.gen(totp_key),
+            token: totp.generate(totp_key),
             terms: 1
           })
           .end(function (err, res) {
@@ -432,7 +405,7 @@ describe('auth-center', function () {
       expect(err).to.be.null;
       expect(res.text).to.match(/password/);
       const _csrf = getCSRF(res);
-      request.post(R.send_token).send({
+      request.post(R.login_token).send({
         _csrf,
         email: 'test@example.com'
       }).end(function (err, res) {
@@ -443,7 +416,7 @@ describe('auth-center', function () {
           _csrf,
           email: 'test@example.com',
           password: 'test',
-          token: totpCode,
+          token: numberCode,
           terms: 1
         }).end(function (err, res) {
           expect(err).to.be.null;
@@ -471,21 +444,21 @@ describe('auth-center', function () {
         expect(res.text).to.match(/email/);
         const csrf = getCSRF(res);
         request
-          .post(R.password_reset)
+          .post(R.resetpwd_token)
           .send({
             _csrf: csrf,
             email: 'test'
           })
           .end(function (err, res) {
             expect(err).to.be.null;
-            expect(res).to.have.status(200);
-            expect(res.text).to.match(/Email is empty or invalid type/);
+            expect(res).to.have.status(400);
+            expect(res.text).to.match(/Email is invalid/);
             done();
           });
       });
   });
 
-  it('should password reset user not found', function (done) {
+  it('should password reset no user will ignore', function (done) {
     request
       .get(R.password_reset)
       .end(function (err, res) {
@@ -493,15 +466,16 @@ describe('auth-center', function () {
         expect(res.text).to.match(/email/);
         const csrf = getCSRF(res);
         request
-          .post(R.password_reset)
+          .post(R.resetpwd_token)
           .send({
             _csrf: csrf,
             email: 'test2@example.com'
           })
+          .set('accept', 'json')
           .end(function (err, res) {
             expect(err).to.be.null;
             expect(res).to.have.status(200);
-            expect(res.text).to.match(/User not found/);
+            expect(res.body.code).to.be.equal(0);
             done();
           });
       });
@@ -509,22 +483,23 @@ describe('auth-center', function () {
 
   it('should password reset: send email fail', function (done) {
     isSendFail = true;
-    request
+    const request2 = chai.request.agent('http://localhost:3000');
+    request2
       .get(R.password_reset)
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/email/);
         const csrf = getCSRF(res);
-        request
-          .post(R.password_reset)
+        request2
+          .post(R.resetpwd_token)
           .send({
             _csrf: csrf,
             email: 'test@example.com'
           })
           .end(function (err, res) {
             expect(err).to.be.null;
-            expect(res).to.have.status(200);
-            expect(res.text).to.match(/Send email failed/);
+            expect(res).to.have.status(500);
+            expect(res.text).to.match(/Send failed/);
             isSendFail = false;
             done();
           });
@@ -532,14 +507,15 @@ describe('auth-center', function () {
   });
 
   it('should password reset', function (done) {
-    request
+    const request2 = chai.request.agent('http://localhost:3000');
+    request2
       .get(R.password_reset)
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res.text).to.match(/email/);
         const csrf = getCSRF(res);
-        request
-          .post(R.password_reset)
+        request2
+          .post(R.resetpwd_token)
           .send({
             _csrf: csrf,
             email: 'test@example.com'
@@ -547,76 +523,98 @@ describe('auth-center', function () {
           .end(function (err, res) {
             expect(err).to.be.null;
             expect(res).to.have.status(200);
-            expect(res.text).to.match(/Check your email for a link to reset your password/);
+            expect(res.body.code).to.be.equal(0);
             done();
           });
       });
   });
 
-  it('should password change page: code required', function (done) {
+  it('should password change page: email required', function (done) {
     request
       .get(R.password_change)
       .end(function (err, res) {
         expect(err).to.be.null;
-        expect(res.text).to.match(/Code is required/);
+        expect(res.text).to.match(/Email is required/);
         done();
       });
   });
 
-  it('should password change page: code invalid', function (done) {
+  it('should password change page: captcha required', function (done) {
     request
       .get(R.password_change)
       .query({
-        code: 'wrong'
+        email: 'test@example.com'
       })
       .end(function (err, res) {
         expect(err).to.be.null;
-        expect(res.text).to.match(/Code is invalid/);
+        expect(res.text).to.match(/Captcha is required/);
         done();
       });
   });
 
-  it('should password change page: code expired', function (done) {
+  it('should password change page: email invalid', function (done) {
     request
       .get(R.password_change)
       .query({
-        code: 'expired_code'
+        email: 'wrong@example.com',
+        token: 'wrong'
       })
       .end(function (err, res) {
         expect(err).to.be.null;
-        expect(res.text).to.match(/Code is expired/);
+        expect(res.text).to.match(/Email is invalid/);
         done();
       });
   });
 
-  it('should password change: code required', function (done) {
+  it('should password change page: captcha invalid 1', function (done) {
     request
       .get(R.password_change)
       .query({
-        code: emailCode
+        email: 'test@example.com',
+        token: 'wrong'
       })
       .end(function (err, res) {
         expect(err).to.be.null;
-        expect(res.text).to.match(/password2/);
-        const csrf = getCSRF(res);
-        request
-          .post(R.password_change)
-          .send({
-            _csrf: csrf
-          })
-          .end(function (err, res) {
-            expect(err).to.be.null;
-            expect(res.text).to.match(/Code is required/);
-            done();
-          });
+        expect(res.text).to.match(/Captcha is invalid/);
+        done();
       });
   });
 
-  it('should password change: code invalid', function (done) {
+  it('should password change page: captcha invalid 2', function (done) {
     request
       .get(R.password_change)
       .query({
-        code: emailCode
+        email: 'test@example.com',
+        token: 'expired_code'
+      })
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res.text).to.match(/Captcha is invalid/);
+        done();
+      });
+  });
+
+  it('should password change page', function (done) {
+    request
+      .get(R.password_change)
+      .query({
+        email: 'test@example.com',
+        token: numberCode
+      })
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.text).to.match(/Change password/);
+        done();
+      });
+  });
+
+  it('should password change: Password is required', function (done) {
+    request
+      .get(R.password_change)
+      .query({
+        email: 'test@example.com',
+        token: numberCode
       })
       .end(function (err, res) {
         expect(err).to.be.null;
@@ -626,21 +624,23 @@ describe('auth-center', function () {
           .post(R.password_change)
           .send({
             _csrf: csrf,
-            codeId: 'wrong'
+            email: 'test@example.com',
+            token: numberCode
           })
           .end(function (err, res) {
             expect(err).to.be.null;
-            expect(res.text).to.match(/Code is invalid/);
+            expect(res.text).to.match(/Password is required/);
             done();
           });
       });
   });
 
-  it('should password change: code expired', function (done) {
+  it('should password change: Passwords do not match', function (done) {
     request
       .get(R.password_change)
       .query({
-        code: emailCode
+        email: 'test@example.com',
+        token: numberCode
       })
       .end(function (err, res) {
         expect(err).to.be.null;
@@ -650,21 +650,25 @@ describe('auth-center', function () {
           .post(R.password_change)
           .send({
             _csrf: csrf,
-            codeId: 'expired_code'
+            email: 'test@example.com',
+            token: numberCode,
+            password: 'nomatch1',
+            password2: 'nomatch2'
           })
           .end(function (err, res) {
             expect(err).to.be.null;
-            expect(res.text).to.match(/Code is expired/);
+            expect(res.text).to.match(/Passwords do not match/);
             done();
           });
       });
   });
 
-  it('should password change: password invalid', function (done) {
+  it('should password change: Password length atleast 8', function (done) {
     request
       .get(R.password_change)
       .query({
-        code: emailCode
+        email: 'test@example.com',
+        token: numberCode
       })
       .end(function (err, res) {
         expect(err).to.be.null;
@@ -672,16 +676,16 @@ describe('auth-center', function () {
         const csrf = getCSRF(res);
         request
           .post(R.password_change)
-          .set('Referer', '/password_change?code=' + emailCode)
           .send({
             _csrf: csrf,
-            codeId: emailCode,
-            password: '123',
-            password2: '123'
+            email: 'test@example.com',
+            token: numberCode,
+            password: 'short',
+            password2: 'short'
           })
           .end(function (err, res) {
             expect(err).to.be.null;
-            expect(res.text).to.match(/Password is invalid/);
+            expect(res.text).to.match(/Password length atleast 8/);
             done();
           });
       });
@@ -691,7 +695,8 @@ describe('auth-center', function () {
     request
       .get(R.password_change)
       .query({
-        code: emailCode
+        email: 'test@example.com',
+        token: numberCode
       })
       .end(function (err, res) {
         expect(err).to.be.null;
@@ -701,7 +706,8 @@ describe('auth-center', function () {
           .post(R.password_change)
           .send({
             _csrf: csrf,
-            codeId: emailCode,
+            email: 'test@example.com',
+            token: numberCode,
             password: 'testnewpwd',
             password2: 'testnewpwd'
           })
@@ -710,9 +716,37 @@ describe('auth-center', function () {
             expect(res).to.have.status(200);
             expect(res.text).to.match(/email/);
             expect(res.text).to.match(/password/);
-            expect(res.text).to.match(/Password have changed/);
+            expect(res.text).to.match(/Password have been changed/);
             done();
           });
+      });
+  });
+
+  it('should password change page: Captcha is invalid 3', function (done) {
+    request
+      .get(R.password_change)
+      .query({
+        email: 'test@example.com',
+        token: 'expired_code'
+      })
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res.text).to.match(/Captcha is invalid/);
+        done();
+      });
+  });
+
+  it('should password change page: Try again in a minute', function (done) {
+    request
+      .get(R.password_change)
+      .query({
+        email: 'test@example.com',
+        token: 'expired_code'
+      })
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res.text).to.match(/Try again in a minute/);
+        done();
       });
   });
 
@@ -827,6 +861,159 @@ describe('auth-center', function () {
     });
   });
 
+  it('should login => home', function (done) {
+    request.get(R.home).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res.text).to.match(/password/);
+      const csrf = getCSRF(res);
+      request
+        .post(R.session)
+        .send({
+          _csrf: csrf,
+          email: 'admin@example.com',
+          password: 'admin',
+          token: totp.generate(totp_key),
+          terms: 1
+        })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res).to.have.status(200);
+          expect(res.text).to.match(/admin@example\.com/);
+          expect(res.text).to.match(/href="\/admin"/);
+          done();
+        });
+    });
+  });
+
+  it('should show security page: Password is required', function (done) {
+    request.get(R.security).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.text).to.match(/Change Password/);
+      const csrf = getCSRF(res);
+      request
+        .post(R.security_change)
+        .send({
+          _csrf: csrf
+        })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.text).to.match(/Password is required/);
+          done();
+        });
+    });
+  });
+
+  it('should show security page: Old and new password can not be the same', function (done) {
+    request.get(R.security).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.text).to.match(/Change Password/);
+      const csrf = getCSRF(res);
+      request
+        .post(R.security_change)
+        .send({
+          _csrf: csrf,
+          oldpwd: 'admin',
+          newpwd: 'admin',
+          renewpwd: 'admin'
+        })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.text).to.match(/Old and new password can not be the same/);
+          done();
+        });
+    });
+  });
+
+  it('should show security page: Passwords do not match', function (done) {
+    request.get(R.security).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.text).to.match(/Change Password/);
+      const csrf = getCSRF(res);
+      request
+        .post(R.security_change)
+        .send({
+          _csrf: csrf,
+          oldpwd: 'admin',
+          newpwd: 'nomatch1',
+          renewpwd: 'nomatch2'
+        })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.text).to.match(/Passwords do not match/);
+          done();
+        });
+    });
+  });
+
+  it('should show security page: Password length atleast 8', function (done) {
+    request.get(R.security).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.text).to.match(/Change Password/);
+      const csrf = getCSRF(res);
+      request
+        .post(R.security_change)
+        .send({
+          _csrf: csrf,
+          oldpwd: 'admin',
+          newpwd: 'short',
+          renewpwd: 'short'
+        })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.text).to.match(/Password length atleast 8/);
+          done();
+        });
+    });
+  });
+
+  it('should show security page: Old password is invalid', function (done) {
+    request.get(R.security).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.text).to.match(/Change Password/);
+      const csrf = getCSRF(res);
+      request
+        .post(R.security_change)
+        .send({
+          _csrf: csrf,
+          oldpwd: 'wrong',
+          newpwd: 'newpassword',
+          renewpwd: 'newpassword'
+        })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.text).to.match(/Old password is invalid/);
+          done();
+        });
+    });
+  });
+
+  it('should show security page: done', function (done) {
+    request.get(R.security).end(function (err, res) {
+      expect(err).to.be.null;
+      expect(res).to.have.status(200);
+      expect(res.text).to.match(/Change Password/);
+      const csrf = getCSRF(res);
+      request
+        .post(R.security_change)
+        .send({
+          _csrf: csrf,
+          oldpwd: 'admin',
+          newpwd: 'newpassword',
+          renewpwd: 'newpassword'
+        })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.text).to.match(/Password have been changed/);
+          done();
+        });
+    });
+  });
+
   it('should login => users', function (done) {
     request.get(R.admin.users).end(function (err, res) {
       expect(err).to.be.null;
@@ -837,8 +1024,8 @@ describe('auth-center', function () {
         .send({
           _csrf: csrf,
           email: 'admin@example.com',
-          password: 'admin',
-          token: totp.gen(totp_key),
+          password: 'newpassword',
+          token: totp.generate(totp_key),
           terms: 1
         })
         .end(function (err, res) {

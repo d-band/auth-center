@@ -1,0 +1,79 @@
+body {
+  background: #f5f5f5;
+}
+
+/*
+ * Navbar
+ */
+
+.navbar-brand {
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+  font-size: 1rem;
+  img {
+    height: 2rem;
+  }
+}
+
+.auth-form {
+  width: 360px;
+  margin: 0 auto;
+}
+
+.auth-form-header {
+  margin-bottom: 15px;
+  color: #333;
+  text-align: center;
+
+  h1 {
+    font-size: 20px;
+    font-weight: 300;
+  }
+
+}
+
+.auth-form-body {
+  border-top: 1px solid #d8dee2;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.main {
+  .app-item {
+    display: block;
+    position: relative;
+    margin: 15px 0;
+    padding: 8px;
+    min-height: 64px;
+    border-radius: 4px;
+    text-decoration: none;
+
+    &:hover {
+      background-color: #fff;
+    }
+    .app-icon {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      line-height: 48px;
+      text-align: center;
+      color: #fff;
+      font-size: 28px;
+      text-transform: uppercase;
+    }
+    .app-info {
+      margin-left: 60px;
+      line-height: 24px;
+
+      .name {
+        color: #333;
+        font-size: 15px;
+        font-weight: 500;
+      }
+      .name-cn {
+        color: #888;
+      }
+    }
+  }
+}

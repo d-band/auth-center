@@ -1,0 +1,11 @@
+{
+  "files": [
+    "./auth.scss",
+    "./main.scss",
+    "./admin.scss",
+    "./common.js",
+    "./roles.js",
+    "./login.js",
+    "./reset.js"
+  ]
+}

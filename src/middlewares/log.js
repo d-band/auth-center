@@ -2,22 +2,36 @@
 
 const ACTIONS = {
   LOGIN: 1,
-  CHANGE_PWD: 2
+  CHANGE_PWD: 2,
+  LOGIN_TOKEN: 3,
+  RESETPWD_TOKEN: 4,
+  LOGIN_ERR: 5,
+  RESETPWD_ERR: 6
 };
 
 export default function (app) {
   app.use(async function logFn (ctx, next) {
-    ctx.log = async (user_id, action) => {
-      const { Log } = ctx.orm();
+    const { Log } = ctx.orm();
+    ctx.log = async (user, action) => {
       try {
         await Log.create({
-          user_id,
+          user,
           ip: ctx.ip,
           action: ACTIONS[action]
         });
       } catch (e) {
         console.error(e);
       }
+    };
+    ctx.logCount = async (user, action, seconds) => {
+      const date = new Date(Date.now() - 1000 * seconds);
+      return await Log.count({
+        where: {
+          user,
+          action: ACTIONS[action],
+          createdAt: { $gt: date }
+        }
+      });
     };
     await next();
   });

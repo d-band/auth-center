@@ -1,10 +1,13 @@
 'use strict';
 
 import crypto from 'crypto';
-import base32 from 'thirty-two';
+import { totp, authenticator } from 'otplib';
 import qr from 'qr-image';
-import nanoid from 'nanoid';
+import { nanoid, customAlphabet } from 'nanoid';
 import { parse, format } from 'url';
+
+totp.options = { window: 10 };
+export { totp };
 
 export function isURL (str) {
   return /^(https?:|)(\/\/)/i.test(str);
@@ -61,6 +64,10 @@ export function generateId () {
   return nanoid(40);
 }
 
+export function getCaptcha (len) {
+  return customAlphabet('1234567890', len)();
+}
+
 export function buildURI (uri, query) {
   const obj = parse(uri, true);
   Object.assign(obj.query, query);
@@ -69,7 +76,8 @@ export function buildURI (uri, query) {
 }
 
 export function encodeKey (key) {
-  return base32.encode(key).toString().replace(/=/g, '');
+  authenticator.options = { encoding: 'ascii' };
+  return authenticator.encode(key);
 }
 
 export function totpURI (user, key) {
