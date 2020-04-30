@@ -22,7 +22,7 @@ export function pagination (cur, total, link, half = 2) {
   if (total - cur <= half) {
     left = Math.max(1, total - half * 2);
   }
-  const temp = ['<ul class="pagination">'];
+  const temp = ['<ul class="pagination justify-content-center">'];
   if (cur > 1) {
     temp.push(`<li class="page-item"><a class="page-link" href="${link(cur - 1)}">&laquo;</a></li>`);
   }
