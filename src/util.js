@@ -24,14 +24,14 @@ export function pagination (cur, total, link, half = 2) {
   }
   const temp = ['<ul class="pagination">'];
   if (cur > 1) {
-    temp.push(`<li><a href="${link(cur - 1)}">&laquo;</a></li>`);
+    temp.push(`<li class="page-item"><a class="page-link" href="${link(cur - 1)}">&laquo;</a></li>`);
   }
 
   for (let i = left; i <= right; i++) {
-    temp.push(`<li class="${cur === i ? 'active' : ''}"><a href="${link(i)}">${i}</a></li>`);
+    temp.push(`<li class="page-item ${cur === i ? 'active' : ''}"><a class="page-link" href="${link(i)}">${i}</a></li>`);
   }
   if (cur !== total) {
-    temp.push(`<li><a href="${link(cur + 1)}">&raquo;</a></li>`);
+    temp.push(`<li class="page-item"><a class="page-link" href="${link(cur + 1)}">&raquo;</a></li>`);
   }
   temp.push('</ul>');
   return temp.join('');
