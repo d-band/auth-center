@@ -9,8 +9,8 @@ module.exports = {
     host: '127.0.0.1',
     port: 3306,
     pool: {
-      maxConnections: 5,
-      maxIdleTime: 3000
+      max: 5,
+      idle: 3000
     }
   },/*MySQL*/
   /*PostgreSQL*/orm: {
@@ -21,8 +21,8 @@ module.exports = {
     host: '127.0.0.1',
     port: 5432,
     pool: {
-      maxConnections: 5,
-      maxIdleTime: 3000
+      max: 5,
+      idle: 3000
     }
   },/*PostgreSQL*/
   /*MariaDB*/orm: {
@@ -33,8 +33,8 @@ module.exports = {
     host: '127.0.0.1',
     port: 3306,
     pool: {
-      maxConnections: 5,
-      maxIdleTime: 3000
+      max: 5,
+      idle: 3000
     }
   },/*MariaDB*/
   /*MSSQL*/orm: {
@@ -45,8 +45,8 @@ module.exports = {
     host: '127.0.0.1',
     port: 1433,
     pool: {
-      maxConnections: 5,
-      maxIdleTime: 3000
+      max: 5,
+      idle: 3000
     }
   },/*MSSQL*/
   /*Redis*/session: {
