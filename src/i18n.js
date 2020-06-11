@@ -11,19 +11,17 @@ export default function i18n (messages) {
     if (ctx.query.locale) {
       ctx.session.locale = ctx.query.locale;
     }
-    ctx.state.__ = (key) => {
-      const lang = ctx.session.locale || 'en';
-      if (!_messages[lang]) {
-        const temp = _userMessages[lang] || _userMessages['*'] || {};
-        const file = join(dir, `${lang}.json`);
-        if (existsSync(file)) {
-          _messages[lang] = Object.assign(require(file), temp);
-        } else {
-          _messages[lang] = Object.assign({}, temp);
-        }
+    const lang = ctx.session.locale || 'en';
+    if (!_messages[lang]) {
+      const temp = _userMessages[lang] || _userMessages['*'] || {};
+      const file = join(dir, `${lang}.json`);
+      if (existsSync(file)) {
+        _messages[lang] = Object.assign(require(file), temp);
+      } else {
+        _messages[lang] = Object.assign({}, temp);
       }
-      return _messages[lang][key] || key;
-    };
+    }
+    ctx.state.__ = (key) => (_messages[lang][key] || key);
     return next();
   };
 }
