@@ -1,4 +1,5 @@
 import '!file-loader?name=[name].[ext]!./logo.png';
+import QRCode from 'qrcode';
 
 $(function() {
   const $terms = $('#terms');
@@ -46,5 +47,93 @@ $(function() {
         .html(err.responseJSON.message)
         .show();
     });
+  });
+  const domain = window.location.protocol + '//' + window.location.host;
+  const scan = {
+    el: $('#J_scan_login'),
+    canvas: document.getElementById('qrcode'),
+    setupTimer(time) {
+      const exp = time + (120 * 1000);
+      this.cancelTimer();
+      this.timer = setInterval(() => {
+        if (exp < Date.now()) {
+          this.cancelTimer();
+          this.showError('QRCode Expired');
+          return;
+        }
+        this.fetch();
+      }, 2000);
+    },
+    cancelTimer() {
+      if (this.timer) {
+        clearInterval(this.timer);
+      }
+    },
+    showError(msg) {
+      $('.J_error_msg').text(msg);
+      $('.qrcode-error').show();
+    },
+    fetch(renew) {
+      $.post(this.action, { renew }).done((data) => {
+        if (data.status === 1) {
+          const url = `${this.url}?c=${data.code.id}`;
+          QRCode.toCanvas(this.canvas, url, {
+            width: 300,
+            margin: 2
+          }, (err) => {
+            if (err) return this.showError('QRCode Error');
+          });
+          this.setupTimer(data.code.time);
+        }
+        if (data.status === 3) {
+          this.showError('Login Timeout');
+        }
+        if (data.status === 0) {
+          this.cancelTimer();
+          window.location.reload();
+        }
+      }).fail(() => {
+        this.showError('QRCode Error');
+      });
+    },
+    init() {
+      this.action = this.el.data('action');
+      this.url = domain + this.el.data('url');
+      $('.qrcode-error').hide();
+      this.fetch(1);
+    },
+    show() {
+      this.init();
+      this.el.show();
+    },
+    hide() {
+      this.cancelTimer();
+      this.el.hide();
+    }
+  };
+  const account = {
+    el: $('#J_account_login'),
+    show() {
+      this.el.show();
+    },
+    hide() {
+      this.el.hide();
+    }
+  };
+  $('.J_refresh').on('click', () => {
+    scan.init();
+  });
+  $('.J_login_nav').on('click', (e) => {
+    const elem = $(e.currentTarget);
+    $('.J_login_nav.active').removeClass('active');
+    elem.addClass('active');
+    const target = elem.data('target');
+    if (target === 'account') {
+      scan.hide();
+      account.show();
+    } else {
+      account.hide();
+      scan.show();
+    }
   });
 });

@@ -1,37 +1,52 @@
+body {
+  background-color: #f9f9f9;
+}
 .header-logo {
   padding: 40px 0 20px;
   text-align: center;
+}
+.header-title {
+  font-size: 20px;
+  font-weight: 300;
+  text-align: center;
+  color: #333;
+  margin-bottom: 1rem;
 }
 
 .auth-form {
   width: 360px;
   margin: 0 auto;
-}
-
-.auth-form-header {
-  margin-bottom: 15px;
-  color: #333;
-  text-align: center;
-
-  h1 {
-    font-size: 20px;
-    font-weight: 300;
-  }
-
-}
-
-.auth-form-body {
-  border-top: 1px solid #d8dee2;
-  padding: 20px;
-
   .send-btn {
     min-width: 100px;
+  }
+  .qrcode-img {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    .qrcode-error {
+      background: hsla(0, 0%, 100%, .95);
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 9999;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      p {
+        margin-top: 90px;
+      }
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .auth-form {
+    width: 100%;
   }
 }
 
 .bottom-link {
   text-align: center;
-  margin-bottom: 35px;
 }
 
 .lang {
@@ -43,5 +58,11 @@
   span {
     margin: 0 8px;
     color: #888;
+  }
+}
+
+@media (max-height: 610px) {
+  .lang {
+    position: relative;
   }
 }

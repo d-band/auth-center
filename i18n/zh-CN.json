@@ -37,5 +37,8 @@
   "Try again in a minute": "一分钟后重试",
   "Email is invalid": "邮箱格式不正确",
   "Captcha is invalid": "验证码错误",
-  "The token has been sent.": "动态口令已发送"
+  "The token has been sent.": "动态口令已发送",
+  "Refresh QRCode": "刷新二维码",
+  "Account Login": "账号登录",
+  "Scan Login": "扫码登录"
 }

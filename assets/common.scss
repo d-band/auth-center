@@ -14,3 +14,23 @@ body {
 .btn-default {
   @include button-variant(#f4f5f8, #e2e5ec);
 }
+
+.navbar-tabs .nav-item .nav-link {
+  position: relative;
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  &.active {
+    color: $dark;
+  }
+  &.active:before {
+    display: block;
+    content: '';
+    width: 100%;
+    height: 3px;
+    position: absolute;
+    left: 0;
+    bottom: -0.5rem;
+    background-color: $primary;
+  }
+}

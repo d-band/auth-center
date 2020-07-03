@@ -2,7 +2,7 @@ $(function() {
   $('#J_reset').on('click', e => {
     const elem = $(e.currentTarget);
     elem.attr('disabled', true);
-    $.post('/resetpwd_token', {
+    $.post(elem.data('url'), {
       email: $('#J_email').val()
     }, null, 'json').done(() => {
       const text = elem.text();

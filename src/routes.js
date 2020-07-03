@@ -5,6 +5,7 @@ import CSRF from 'koa-csrf';
 import OAuth from './oauth';
 import * as user from './controllers/user';
 import * as admin from './controllers/admin';
+import * as scan from './controllers/scan';
 
 export default function routes (app, config) {
   const R = config.routes;
@@ -15,6 +16,7 @@ export default function routes (app, config) {
   // OAuth
   authRouter.get(R.authorize, user.checkLogin, oauth.authorize);
   authRouter.post(R.access_token, oauth.accessToken);
+  authRouter.post(R.scan_login, oauth.authenticate, scan.login);
 
   const router = new Router();
   router.get(R.home, user.checkLogin, user.home);
@@ -25,6 +27,8 @@ export default function routes (app, config) {
   router.get(R.logout, user.logout);
   router.post(R.login_token, user.checkToken('LOGIN_TOKEN'), user.loginToken);
   router.post(R.session, user.session);
+  // Scan Login
+  router.post(R.qrcode, scan.qrcode);
   // Reset password
   router.get(R.password_reset, user.passwordResetPage);
   router.post(R.resetpwd_token, user.checkToken('RESETPWD_TOKEN'), user.resetpwdToken);

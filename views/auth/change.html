@@ -5,14 +5,12 @@
 {% endblock %}
 
 {% block content %}
-<form action="{{_routes.password_change}}" method="POST">
-  <input type="hidden" name="_csrf" value="{{_csrf}}">
-  <input type="hidden" name="email" value="{{email}}">
-  <input type="hidden" name="token" value="{{token}}">
-  <div class="auth-form-header">
-    <h1>{{__(title)}}</h1>
-  </div>
-  <div class="auth-form-body">
+<h1 class="header-title">{{__(title)}}</h1>
+<div class="bg-white rounded mb-3 p-3">
+  <form action="{{_routes.password_change}}" method="POST">
+    <input type="hidden" name="_csrf" value="{{_csrf}}">
+    <input type="hidden" name="email" value="{{email}}">
+    <input type="hidden" name="token" value="{{token}}">
     <div class="form-group">
       <input class="form-control" type="password" name="password" placeholder="{{__("New password")}}">
     </div>
@@ -25,6 +23,6 @@
     {% if messages.error %}
     <div class="alert alert-warning">{{__(messages.error)}}</div>
     {% endif %}
-  </div>
-</form>
+  </form>
+</div>
 {% endblock %}

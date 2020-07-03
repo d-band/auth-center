@@ -5,6 +5,8 @@ import chaiHttp from 'chai-http';
 import AuthServer from '../src';
 import { generateId } from '../src/util';
 import Config from '../src/config';
+import { getCSRF } from './utils';
+import { totp } from 'otplib';
 
 chai.use(chaiHttp);
 
@@ -15,6 +17,8 @@ describe('auth-center oauth', function () {
   const R = Config().routes;
 
   let request;
+  let code;
+  let access_token;
 
   const client_id = '12345678';
   const client_secret = 'abcdefg';
@@ -22,6 +26,7 @@ describe('auth-center oauth', function () {
 
   before(function (done) {
     const server = AuthServer({
+      isTOTP: true,
       orm: {
         define: {
           createdAt: 'created_date',
@@ -195,6 +200,126 @@ describe('auth-center oauth', function () {
         expect(res.body).to.have.property('refresh_token', refresh_token);
         expect(res.body).to.have.property('expires_in');
         expect(res.body).to.have.property('token_type', 'bearer');
+        access_token = res.body.access_token;
+        done();
+      });
+  });
+
+  it('should get qrcode renew', function (done) {
+    request
+      .get(R.login)
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res.text).to.match(/password/);
+        const csrf = getCSRF(res);
+        request
+          .post(R.qrcode)
+          .type('form')
+          .set('Accept', 'application/json')
+          .send({
+            _csrf: csrf,
+            renew: 1
+          })
+          .end(function (err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.body).to.have.property('code');
+            expect(res.body).to.have.property('status', 1);
+            code = res.body.code.id;
+            done();
+          });
+      });
+  });
+
+  it('should get qrcode', function (done) {
+    request
+      .get(R.login)
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res.text).to.match(/password/);
+        const csrf = getCSRF(res);
+        request
+          .post(R.qrcode)
+          .type('form')
+          .set('Accept', 'application/json')
+          .send({
+            _csrf: csrf
+          })
+          .end(function (err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.body).to.have.property('status', 2);
+            done();
+          });
+      });
+  });
+
+  it('should scan login error', function (done) {
+    request
+      .post(R.scan_login)
+      .type('form')
+      .set('Accept', 'application/json')
+      .set('Authorization', `bearer ${access_token}`)
+      .send({
+        code,
+        token: 'wrong'
+      })
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(400);
+        expect(res.body).to.have.property('message', 'TOTP code invalid');
+        done();
+      });
+  });
+
+  it('should scan login', function (done) {
+    request
+      .post(R.scan_login)
+      .type('form')
+      .set('Accept', 'application/json')
+      .set('Authorization', `bearer ${access_token}`)
+      .send({
+        code,
+        token: totp.generate(totp_key)
+      })
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.property('status', 0);
+        done();
+      });
+  });
+
+  it('should get qrcode status 0', function (done) {
+    request
+      .get(R.login)
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res.text).to.match(/password/);
+        const csrf = getCSRF(res);
+        request
+          .post(R.qrcode)
+          .type('form')
+          .set('Accept', 'application/json')
+          .send({
+            _csrf: csrf
+          })
+          .end(function (err, res) {
+            expect(err).to.be.null;
+            expect(res).to.have.status(200);
+            expect(res.body).to.have.property('status', 0);
+            done();
+          });
+      });
+  });
+
+  it('should qrcode login success', function (done) {
+    request
+      .get(R.login)
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.text).to.match(/test@example\.com/);
         done();
       });
   });

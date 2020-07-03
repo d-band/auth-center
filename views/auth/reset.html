@@ -5,11 +5,9 @@
 {% endblock %}
 
 {% block content %}
-<form action="{{_routes.password_change}}" method="GET">
-  <div class="auth-form-header">
-    <h1>{{__("Retrieve your password")}}</h1>
-  </div>
-  <div class="auth-form-body">
+<h1 class="header-title">{{__("Retrieve your password")}}</h1>
+<div class="bg-white rounded mb-3 p-3">
+  <form action="{{_routes.password_change}}" method="GET">
     <div class="form-group text-muted">
       {{__("Enter the account you want to retrieve the password")}}
     </div>
@@ -20,7 +18,7 @@
       <div class="input-group">
         <input class="form-control" type="text" name="token" autocomplete="off" placeholder="{{__('Captcha')}}">
         <span class="input-group-append">
-          <button class="btn btn-default send-btn" type="button" id="J_reset">{{__("Send")}}</button>
+          <button class="btn btn-default send-btn" type="button" id="J_reset" data-url="{{_routes.resetpwd_token}}">{{__("Send")}}</button>
         </span>
       </div>
     </div>
@@ -34,8 +32,8 @@
     {% else %}
     <div class="alert" style="display: none;" id="J_tips"></div>
     {% endif %}
-  </div>
-</form>
+  </form>
+</div>
 {% endblock %}
 {% block foot %}
 <script src="{{staticRoot}}/reset.js"></script>

@@ -5,12 +5,20 @@
 {% endblock %}
 
 {% block content %}
-<form action="{{_routes.session}}" method="POST">
-  <input type="hidden" name="_csrf" value="{{_csrf}}">
-  <div class="auth-form-header">
-    <h1>{{__('Sign in to system')}}</h1>
-  </div>
-  <div class="auth-form-body">
+<h1 class="header-title">{{__('Sign in to system')}}</h1>
+<div class="bg-white rounded mb-3">
+  <nav class="navbar border-bottom navbar-expand navbar-tabs justify-content-center">
+    <ul class="navbar-nav nav-justified flex-grow-1">
+      <li class="nav-item">
+        <a href="javascript:;" class="J_login_nav nav-link active" data-target="account">{{__('Account Login')}}</a>
+      </li>
+      <li class="nav-item">
+        <a href="javascript:;" class="J_login_nav nav-link" data-target="scan">{{__('Scan Login')}}</a>
+      </li>
+    </ul>
+  </nav>
+  <form id="J_account_login" class="p-3" action="{{_routes.session}}" method="POST">
+    <input type="hidden" name="_csrf" value="{{_csrf}}">
     <div class="form-group">
       <input class="form-control" type="text" name="email" id="J_email" placeholder="{{__('Email')}}">
     </div>
@@ -44,8 +52,17 @@
     {% else %}
     <div class="alert" style="display: none;" id="J_tips"></div>
     {% endif %}
+  </form>
+  <div id="J_scan_login" class="p-3" style="display: none;" data-action="{{_routes.qrcode}}" data-url="{{_routes.scan}}">
+    <div class="qrcode-img mx-auto">
+      <canvas id="qrcode"></canvas>
+      <div class="qrcode-error" style="display: none;">
+        <p class="J_error_msg"></p>
+        <button class="J_refresh btn btn-primary" type="button">{{__('Refresh QRCode')}}</button>
+      </div>
+    </div>
   </div>
-</form>
+</div>
 <div class="bottom-link">
   <a href="{{_routes.password_reset}}">{{__('Lost your password?')}}</a>
 </div>
