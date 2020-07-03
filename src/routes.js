@@ -29,6 +29,7 @@ export default function routes (app, config) {
   router.post(R.session, user.session);
   // Scan Login
   router.post(R.qrcode, scan.qrcode);
+  router.redirect(R.scan, R.login);
   // Reset password
   router.get(R.password_reset, user.passwordResetPage);
   router.post(R.resetpwd_token, user.checkToken('RESETPWD_TOKEN'), user.resetpwdToken);
