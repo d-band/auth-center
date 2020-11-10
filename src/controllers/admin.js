@@ -211,6 +211,7 @@ export async function roleList (ctx) {
   const { User, Role, Client, DicRole } = ctx.orm();
   const page = parseInt(ctx.query.p, 10) || 1;
   const query = ctx.query.q || '';
+  const client = ctx.query.client;
   const where = {};
   if (query) {
     const temp = await User.findAll({
@@ -224,6 +225,9 @@ export async function roleList (ctx) {
     where.user_id = {
       $in: temp.map(v => v.id)
     };
+  }
+  if (client) {
+    where.client_id = client;
   }
   const limit = 20;
   const offset = (page - 1) * limit;
@@ -255,6 +259,7 @@ export async function roleList (ctx) {
     dics,
     page,
     query,
+    client,
     roles,
     clients,
     userMap,
