@@ -1,6 +1,6 @@
 {
   "name": "auth-center",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "auth center with TOTP",
   "main": "app/index.js",
   "bin": {
@@ -67,7 +67,6 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.2",
     "jquery": "^3.5.1",
     "koa-passport": "^4.1.3",
     "mocha": "^8.2.1",
@@ -89,7 +88,7 @@
     "koa-bodyparser": "^4.3.0",
     "koa-csrf": "^3.0.8",
     "koa-logger": "^3.2.1",
-    "koa-orm": "^3.0.2",
+    "koa-orm": "^3.2.1",
     "koa-router": "^10.0.0",
     "koa-session": "^6.1.0",
     "koa-static": "^5.0.0",

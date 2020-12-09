@@ -11,7 +11,7 @@ const ACTIONS = {
 
 export default function (app) {
   app.use(async function logFn (ctx, next) {
-    const { Log } = ctx.orm();
+    const { Log, Op } = ctx.orm();
     ctx.log = async (user, action) => {
       try {
         await Log.create({
@@ -29,7 +29,7 @@ export default function (app) {
         where: {
           user,
           action: ACTIONS[action],
-          createdAt: { $gt: date }
+          createdAt: { [Op.gt]: date }
         }
       });
     };

@@ -5,7 +5,7 @@ import randomColor from 'randomcolor';
 import { totp, getCaptcha } from '../util';
 
 export async function home (ctx) {
-  const { Role, Client } = ctx.orm();
+  const { Role, Client, Op } = ctx.orm();
   const { user } = ctx.session;
   const roles = await Role.findAll({
     attributes: ['client_id'],
@@ -14,8 +14,8 @@ export async function home (ctx) {
   const clients = await Client.findAll({
     attributes: ['name', 'name_cn', 'redirect_uri'],
     where: {
-      id: { $in: roles.map(r => r.client_id) },
-      redirect_uri: { $ne: '' }
+      id: { [Op.in]: roles.map(r => r.client_id) },
+      redirect_uri: { [Op.ne]: '' }
     }
   });
   const colors = randomColor({

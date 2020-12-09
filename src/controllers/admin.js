@@ -18,14 +18,14 @@ export async function checkLogin (ctx, next) {
 }
 
 export async function searchUser (ctx) {
-  const { User } = ctx.orm();
+  const { User, Op } = ctx.orm();
   const q = ctx.request.body.q || '';
   const users = await User.findAll({
     attributes: ['email'],
     where: {
       enable: 1,
       email: {
-        $like: q + '%'
+        [Op.like]: q + '%'
       }
     },
     offset: 0,
@@ -35,14 +35,14 @@ export async function searchUser (ctx) {
 }
 
 export async function userList (ctx) {
-  const { User } = ctx.orm();
+  const { User, Op } = ctx.orm();
   const page = parseInt(ctx.query.p, 10) || 1;
   const query = ctx.query.q || '';
   const limit = 20;
   const offset = (page - 1) * limit;
   const where = { enable: 1 };
   if (query) {
-    where.email = { $like: `%${query}%` };
+    where.email = { [Op.like]: `%${query}%` };
   }
   const users = await User.findAndCountAll({
     where,
@@ -65,14 +65,14 @@ export async function userList (ctx) {
 }
 
 export async function clientList (ctx) {
-  const { Client } = ctx.orm();
+  const { Client, Op } = ctx.orm();
   const page = parseInt(ctx.query.p, 10) || 1;
   const query = ctx.query.q || '';
   const limit = 20;
   const offset = (page - 1) * limit;
   const where = {};
   if (query) {
-    where.name = { $like: `%${query}%` };
+    where.name = { [Op.like]: `%${query}%` };
   }
   const clients = await Client.findAndCountAll({
     where,
@@ -208,7 +208,7 @@ export async function generateSecret (ctx) {
 }
 
 export async function roleList (ctx) {
-  const { User, Role, Client, DicRole } = ctx.orm();
+  const { User, Role, Client, DicRole, Op } = ctx.orm();
   const page = parseInt(ctx.query.p, 10) || 1;
   const query = ctx.query.q || '';
   const client = ctx.query.client;
@@ -219,11 +219,11 @@ export async function roleList (ctx) {
       limit: 100,
       attributes: ['id'],
       where: {
-        email: { $like: `%${query}%` }
+        email: { [Op.like]: `%${query}%` }
       }
     });
     where.user_id = {
-      $in: temp.map(v => v.id)
+      [Op.in]: temp.map(v => v.id)
     };
   }
   if (client) {
@@ -241,7 +241,7 @@ export async function roleList (ctx) {
   const users = await User.findAll({
     attributes: ['id', 'email'],
     where: {
-      id: { $in: roles.rows.map(v => v.user_id) }
+      id: { [Op.in]: roles.rows.map(v => v.user_id) }
     }
   });
   const userMap = users.reduce((o, c) => {
